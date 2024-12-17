@@ -2,14 +2,14 @@
 resource "aws_vpc" "k8s_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name = "K8s-VPC"  # Capitalized to follow common naming conventions
+    Name = "K8s-VPC" # Capitalized to follow common naming conventions
   }
 }
 
 # 2: Create a Public Subnet in Availability Zone 1
 resource "aws_subnet" "public_subnet" {
-  vpc_id     = aws_vpc.k8s_vpc.id
-  cidr_block = "10.0.1.0/24"
+  vpc_id            = aws_vpc.k8s_vpc.id
+  cidr_block        = "10.0.1.0/24"
   availability_zone = var.availability_zones[0]
   # Consider adding tags for better organization (optional)
   tags = {
@@ -19,8 +19,8 @@ resource "aws_subnet" "public_subnet" {
 
 # 3: Create a Private Subnet in Availability Zone 2 (Different Zone)
 resource "aws_subnet" "private_subnet" {
-  vpc_id     = aws_vpc.k8s_vpc.id
-  cidr_block = "10.0.2.0/24"
+  vpc_id            = aws_vpc.k8s_vpc.id
+  cidr_block        = "10.0.2.0/24"
   availability_zone = var.availability_zones[0]
   # Consider adding tags for better organization (optional)
   tags = {
@@ -64,7 +64,7 @@ resource "aws_route_table" "public_rt" {
 
 # 6: Associate the Public Subnet with the Public Route Table
 resource "aws_route_table_association" "public_rt_association" {
-  subnet_id = aws_subnet.public_subnet.id
+  subnet_id      = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.public_rt.id
 }
 
@@ -99,7 +99,7 @@ resource "aws_route_table_association" "private_subnet_association" {
 
 # 7: Create a Security Group with Appropriate Rules
 resource "aws_security_group" "allow_tls" {
-  name        = "allow-tls"  # Hyphens for readability
+  name        = "allow-tls" # Hyphens for readability
   description = "Allow TLS inbound and all outbound traffic"
   vpc_id      = aws_vpc.k8s_vpc.id
 
@@ -119,17 +119,17 @@ resource "aws_security_group" "public_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
- ingress {
+  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # remplacer x.x.x.x par votre adresse public. c-a-d celle de votre box internet
   }
-  egress{ 
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]  # Autorise tout le trafic sortant
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] # Autorise tout le trafic sortant
   }
 }
 
@@ -139,24 +139,24 @@ resource "aws_security_group" "private_sg" {
   vpc_id      = aws_vpc.k8s_vpc.id
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
     security_groups = [aws_security_group.public_sg.id] # permet à la machine frontend d'acceder à celle du backend en SSH 
   }
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
+    from_port = 0
+    to_port   = 0
+    protocol  = -1
     # Autoriser tout le trafic provenant du même groupe de sécurité
-    cidr_blocks       = [aws_subnet.private_subnet.cidr_block]
+    cidr_blocks = [aws_subnet.private_subnet.cidr_block]
   }
 
-  egress{ 
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]  # Autorise tout le trafic sortant
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] # Autorise tout le trafic sortant
   }
 }
 
@@ -165,7 +165,7 @@ resource "aws_security_group" "private_sg" {
 
 # 10 Ajout d'une ip public
 resource "aws_eip" "ip_bastion" {
-  count = 1 
-  instance = "${aws_instance.bastion[count.index].id}"
+  count    = 1
+  instance = aws_instance.bastion[count.index].id
   vpc      = true
 }

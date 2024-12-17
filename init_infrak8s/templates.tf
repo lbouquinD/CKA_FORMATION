@@ -1,19 +1,19 @@
 resource "local_file" "hosts_ini" {
-  content  =  templatefile("inventory_k8s_template.tfpl", { masters = aws_instance.k8sMaster[*], workers = aws_instance.k8sWorker[*],bastion=aws_instance.bastion[0],ipbastion = aws_eip.ip_bastion[0]} )
-  filename = "${path.module}/host.ini"
+  content    = templatefile("inventory_k8s_template.tfpl", { masters = aws_instance.k8sMaster[*], workers = aws_instance.k8sWorker[*], bastion = aws_instance.bastion[0], ipbastion = aws_eip.ip_bastion[0] })
+  filename   = "${path.module}/host.ini"
   depends_on = [aws_instance.k8sMaster, aws_instance.k8sWorker]
 }
 
 resource "local_file" "ssh-config" {
-  content  =  templatefile("ssh_config_template.tfpl", { eip = aws_eip.ip_bastion[0].public_ip} )
-  filename = "/root/.ssh/config"
+  content    = templatefile("ssh_config_template.tfpl", { eip = aws_eip.ip_bastion[0].public_ip })
+  filename   = "/root/.ssh/config"
   depends_on = [aws_eip.ip_bastion]
 }
 
 
 resource "local_file" "hosts" {
-  content  =  templatefile("hosts_template.tfpl", { masters = aws_instance.k8sMaster[*], workers = aws_instance.k8sWorker[*]} )
-  filename = "${path.module}/hosts"
+  content    = templatefile("hosts_template.tfpl", { masters = aws_instance.k8sMaster[*], workers = aws_instance.k8sWorker[*] })
+  filename   = "${path.module}/hosts"
   depends_on = [aws_instance.k8sMaster, aws_instance.k8sWorker]
 }
 
@@ -36,24 +36,24 @@ resource "null_resource" "update_hosts" {
 resource "null_resource" "set_hosts" {
 
   connection {
-    type  = "ssh"
-    host  = aws_eip.ip_bastion[0].public_ip
-    user  = "ubuntu"
+    type        = "ssh"
+    host        = aws_eip.ip_bastion[0].public_ip
+    user        = "ubuntu"
     private_key = tls_private_key.bastion.private_key_pem
- }
- triggers = {
-    always_run = "${timestamp()}"
- }
- provisioner "file" {
-    source  = "hosts"  # local public key
-    destination  = "/tmp/hosts"  # will copy to remote VM as /tmp/test.pub
   }
- provisioner "remote-exec" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+  provisioner "file" {
+    source      = "hosts"      # local public key
+    destination = "/tmp/hosts" # will copy to remote VM as /tmp/test.pub
+  }
+  provisioner "remote-exec" {
     inline = [
-    "# Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles",
-    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
-    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
-    "sudo cat /tmp/hosts >> /etc/hosts ",
+      "# Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles",
+      "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
+      "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
+      "sudo cat /tmp/hosts >> /etc/hosts ",
     ]
   }
 }
