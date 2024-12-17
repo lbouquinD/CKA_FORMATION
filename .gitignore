@@ -1,0 +1,6 @@
+terraform.*
+.terraform/
+.terraform.lock.hcl
+remotekeypem
+init_infrak8s/host.ini
+init_infrak8s/hosts

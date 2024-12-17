@@ -1,0 +1,36 @@
+[all]
+# Boucle sur les maîtres
+%{ for master in masters ~}
+${ master.tags.Name }  ansible_host=${ master.private_ip } ip=${ master.private_ip }  etcd_member_name=${ master.tags.Name } ansible_user=ubuntu
+%{ endfor ~}
+# Boucle sur les workers
+%{ for worker in workers ~}
+${ worker.tags.Name }  ansible_host=${ worker.private_ip } ip=${ worker.private_ip } ansible_user=ubuntu
+%{ endfor ~}
+
+[bastion]
+${bastion.tags.Name} ansible_host=${bastion.private_ip} ip=${ipbastion.public_ip} ansible_ssh_private_key_file=/root/.ssh/id_rsa_k8s ansible_user=ubuntu
+
+[kube_control_plane]
+%{ for master in masters ~}
+${ master.tags.Name }
+%{ endfor ~}
+
+[etcd]
+%{ for master in masters ~}
+${ master.tags.Name }
+%{ endfor ~}
+
+[kube_node]
+%{ for worker in workers ~}
+${ worker.tags.Name }
+%{ endfor ~}
+
+
+[calico_rr]
+
+[k8s_cluster:children]
+kube_control_plane
+kube_node
+calico_rr
+
