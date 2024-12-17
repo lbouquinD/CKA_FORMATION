@@ -1,8 +1,9 @@
 # BEGIN TERRAFORM
 %{ for master in masters ~}
-${ master.tags.Name }  ${ master.private_ip }
+${ master.private_ip } ${ master.tags.Name }
 %{ endfor ~}
 %{ for worker in workers ~}
-${ worker.tags.Name } ${ worker.private_ip }
+${ worker.private_ip } ${ worker.tags.Name }
 %{ endfor ~}
 # END TERRAFORM
+# TEST

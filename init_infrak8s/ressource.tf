@@ -15,6 +15,7 @@ resource "aws_instance" "bastion" {
 echo "Copying the SSH Key to the server"
 echo -e "${tls_private_key.k8s.private_key_pem}" >> /home/ubuntu/.ssh/id_rsa_k8s.pem
 chmod 400 /home/ubuntu/.ssh/id_rsa_k8s.pem
+echo -e "${aws_key_pair.bastion.public_key}" >> /root/.ssh/authorized_keys
 EOF
   tags = {
     Name = "Bastion"
@@ -48,3 +49,6 @@ resource "aws_instance" "k8sWorker" {
     Name = "k8sworker${count.index}"
   }
 }
+
+
+

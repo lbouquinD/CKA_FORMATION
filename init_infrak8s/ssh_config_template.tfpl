@@ -3,6 +3,16 @@ Host 10.0.2.*
   IdentityFile ~/.ssh/id_rsa_k8s.pem
   PubkeyAcceptedKeyTypes=+ssh-rsa
   HostKeyAlgorithms=+ssh-rsa
+Host k8smaster*
+  ProxyCommand ssh -W %h:%p ${eip}
+  IdentityFile ~/.ssh/id_rsa_k8s.pem
+  PubkeyAcceptedKeyTypes=+ssh-rsa
+  HostKeyAlgorithms=+ssh-rsa
+Host k8sworker*
+  ProxyCommand ssh -W %h:%p ${eip}
+  IdentityFile ~/.ssh/id_rsa_k8s.pem
+  PubkeyAcceptedKeyTypes=+ssh-rsa
+  HostKeyAlgorithms=+ssh-rsa
 Host ${eip}
   Hostname ${eip}
   User ubuntu

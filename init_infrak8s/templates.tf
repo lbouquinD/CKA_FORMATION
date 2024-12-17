@@ -16,3 +16,44 @@ resource "local_file" "hosts" {
   filename = "${path.module}/hosts"
   depends_on = [aws_instance.k8sMaster, aws_instance.k8sWorker]
 }
+
+
+resource "null_resource" "update_hosts" {
+  depends_on = [local_file.hosts]
+  provisioner "local-exec" {
+    command = <<EOT
+    # Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles
+    sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises 
+    sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises 
+    cat ${path.module}/hosts >> /etc/hosts 
+    EOT
+  }
+
+}
+
+
+
+resource "null_resource" "set_hosts" {
+
+  connection {
+    type  = "ssh"
+    host  = aws_eip.ip_bastion[0].public_ip
+    user  = "ubuntu"
+    private_key = tls_private_key.bastion.private_key_pem
+ }
+ triggers = {
+    always_run = "${timestamp()}"
+ }
+ provisioner "file" {
+    source  = "hosts"  # local public key
+    destination  = "/tmp/hosts"  # will copy to remote VM as /tmp/test.pub
+  }
+ provisioner "remote-exec" {
+    inline = [
+    "# Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles",
+    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
+    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
+    "sudo cat /tmp/hosts >> /etc/hosts ",
+    ]
+  }
+}
