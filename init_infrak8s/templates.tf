@@ -5,7 +5,7 @@ resource "local_file" "hosts_ini" {
 }
 
 resource "local_file" "ssh-config" {
-  content  =  templatefile("ssh_config_template.tfpl", { eip = aws_eip.ip_bastion[0].public_ip} )
+  content  =  templatefile("ssh_config_template.tfpl", { bastionIP = aws_eip.ip_bastion[0]} )
   filename = "/root/.ssh/config"
   depends_on = [aws_eip.ip_bastion]
 }
