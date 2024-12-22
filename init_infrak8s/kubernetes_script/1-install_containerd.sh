@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 ###  Récupération du binaaire containerd 
 wget https://github.com/containerd/containerd/releases/download/v2.0.1/containerd-2.0.1-linux-amd64.tar.gz -O  containerd.tar.gz
