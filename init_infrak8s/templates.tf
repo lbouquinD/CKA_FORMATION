@@ -64,6 +64,9 @@ resource "null_resource" "set_hosts" {
 
 resource "null_resource" "connect_to_masters" {
   count = length(aws_instance.k8sMaster)
+  triggers = {
+    always_run = "${timestamp()}"
+  }
   depends_on = [null_resource.update_hosts,local_file.hosts]
   connection {
     type = "ssh"
