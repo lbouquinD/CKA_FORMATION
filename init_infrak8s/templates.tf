@@ -21,7 +21,7 @@ resource "local_file" "hosts" {
 resource "null_resource" "update_hosts" {
   triggers = {
     content_hash = filemd5("${path.module}/hosts")
-    if fileexists("${path.module}/hosts")
+      if fileexists("${path.module}/hosts")
   }
   depends_on = [local_file.hosts]
   provisioner "local-exec" {
