@@ -16,6 +16,7 @@ echo "Copying the SSH Key to the server"
 echo -e "${tls_private_key.k8s.private_key_pem}" >> /home/ubuntu/.ssh/id_rsa_k8s.pem
 chmod 400 /home/ubuntu/.ssh/id_rsa_k8s.pem
 echo -e "${aws_key_pair.bastion.public_key}" >> /root/.ssh/authorized_keys
+hostnamectl set-hostname Bastion${count.index}
 EOF
   tags = {
     Name = "Bastion"
@@ -31,6 +32,9 @@ resource "aws_instance" "k8sMaster" {
   depends_on             = [aws_key_pair.k8s]
   key_name               = "k8s"
   availability_zone      = var.availability_zones[0]
+  user_data              = <<EOF
+hostnamectl set-hostname k8smaster${count.index}
+EOF
   tags = {
     Name = "k8smaster${count.index}"
   }
@@ -45,6 +49,9 @@ resource "aws_instance" "k8sWorker" {
   depends_on             = [aws_key_pair.k8s]
   key_name               = "k8s"
   availability_zone      = var.availability_zones[0]
+  user_data              = <<EOF
+hostnamectl set-hostname k8sworker${count.index}
+EOF
   tags = {
     Name = "k8sworker${count.index}"
   }
