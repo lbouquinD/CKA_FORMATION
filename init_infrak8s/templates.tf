@@ -95,8 +95,8 @@ resource "null_resource" "init_masters" {
   
   provisioner "remote-exec" {
     inline = [
-    "chmod +x /tmp/set_host.sh", 
-    "chmod +x /home/ubuntu/kubernetes_script/*",
+    "sudo chmod +x /tmp/set_host.sh", 
+    "sudo chmod +x /home/ubuntu/kubernetes_script/*",
     "/tmp/set_host.sh",
     "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
@@ -136,8 +136,8 @@ resource "null_resource" "init_worker" {
   
   provisioner "remote-exec" {
     inline = [
-    "chmod +x /tmp/set_host.sh", 
-    "chmod +x /home/ubuntu/kubernetes_script/*",
+    "sudo chmod +x /tmp/set_host.sh", 
+    "sudo chmod +x /home/ubuntu/kubernetes_script/*",
     "/tmp/set_host.sh",
     "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
