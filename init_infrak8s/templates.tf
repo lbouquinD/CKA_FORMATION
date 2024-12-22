@@ -62,7 +62,7 @@ resource "null_resource" "set_hosts" {
 }
 
 
-resource "null_resource" "connect_to_masters" {
+resource "null_resource" "init_masters" {
   count = length(aws_instance.k8sMaster)
   triggers = {
     always_run = "${timestamp()}"
@@ -82,6 +82,11 @@ resource "null_resource" "connect_to_masters" {
     source  = "hosts"  # local public key
     destination  = "/tmp/hosts"  # will copy to remote VM as /tmp/test.pub
   }
+
+  provisioner "file" {
+    source = "kubernetes_script"
+    destination = "/home/ubuntu"
+  }
   
   provisioner "remote-exec" {
     inline = [
@@ -89,7 +94,43 @@ resource "null_resource" "connect_to_masters" {
     "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
     "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
     "sudo tee -a /etc/hosts < /tmp/hosts",
-    "sudo hostnamectl set-hostname k8sMaster${count.index}"
+    "sudo hostnamectl set-hostname k8sMaster${count.index}", 
+    ]
+  }
+}
+
+resource "null_resource" "init_worker" {
+  count = length(aws_instance.k8sworker)
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+  depends_on = [null_resource.update_hosts,local_file.hosts]
+  connection {
+    type = "ssh"
+    # Use the public_ip or private_ip attribute based on your network configuration
+    host = aws_instance.k8sworker[count.index].private_ip
+    user = "ubuntu"  # Replace with the actual username if different
+    bastion_host	= aws_eip.ip_bastion[0].public_ip
+    bastion_private_key = tls_private_key.bastion.private_key_pem
+    bastion_user = "ubuntu"
+    private_key = tls_private_key.k8s.private_key_pem
+  }
+  provisioner "file" {
+    source  = "hosts"  # local public key
+    destination  = "/tmp/hosts"  # will copy to remote VM as /tmp/test.pub
+  }
+  provisioner "file" {
+    source = "kubernetes_script"
+    destination = "/home/ubuntu"
+  }
+  
+  provisioner "remote-exec" {
+    inline = [
+    "# Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles",
+    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
+    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
+    "sudo tee -a /etc/hosts < /tmp/hosts",
+    "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
   }
 }
