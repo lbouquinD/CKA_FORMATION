@@ -168,4 +168,7 @@ resource "aws_eip" "ip_bastion" {
   count    = 1
   instance = aws_instance.bastion[count.index].id
   vpc      = true
+  tags = {
+    name = "bastion"
+  }
 }
