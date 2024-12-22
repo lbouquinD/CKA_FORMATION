@@ -100,7 +100,7 @@ resource "null_resource" "init_masters" {
 }
 
 resource "null_resource" "init_worker" {
-  count = length(aws_instance.k8sworker)
+  count = length(aws_instance.k8sWorker)
   triggers = {
     always_run = "${timestamp()}"
   }
@@ -108,7 +108,7 @@ resource "null_resource" "init_worker" {
   connection {
     type = "ssh"
     # Use the public_ip or private_ip attribute based on your network configuration
-    host = aws_instance.k8sworker[count.index].private_ip
+    host = aws_instance.k8sWorker[count.index].private_ip
     user = "ubuntu"  # Replace with the actual username if different
     bastion_host	= aws_eip.ip_bastion[0].public_ip
     bastion_private_key = tls_private_key.bastion.private_key_pem
