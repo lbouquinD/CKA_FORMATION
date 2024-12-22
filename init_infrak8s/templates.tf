@@ -70,6 +70,7 @@ resource "null_resource" "connect_to_masters" {
     # Use the public_ip or private_ip attribute based on your network configuration
     host = aws_instance.k8sMaster[count.index].private_ip
     user = "ubuntu"  # Replace with the actual username if different
+    proxy_command = "ssh -i /root/.ssh/id_rsa_bastion.pem ubuntu@${aws_eip.ip_bastion[0].public_ip} nc %h %p"
     private_key = tls_private_key.k8s.private_key_pem
   }
   provisioner "file" {
