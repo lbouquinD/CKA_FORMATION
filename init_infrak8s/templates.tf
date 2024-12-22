@@ -78,11 +78,16 @@ resource "null_resource" "init_masters" {
     bastion_user = "ubuntu"
     private_key = tls_private_key.k8s.private_key_pem
   }
+
   provisioner "file" {
-    source  = "hosts"  # local public key
-    destination  = "/tmp/hosts"  # will copy to remote VM as /tmp/test.pub
+    source  = "hosts" 
+    destination  = "/tmp/hosts"  
   }
 
+  provisioner "file" {
+    source  = "install_scripts/set_host.sh" 
+    destination  = "/tmp/set_host.sh"  
+  }
   provisioner "file" {
     source = "kubernetes_script"
     destination = "/home/ubuntu"
@@ -90,10 +95,7 @@ resource "null_resource" "init_masters" {
   
   provisioner "remote-exec" {
     inline = [
-    "# Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles",
-    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
-    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
-    "sudo tee -a /etc/hosts < /tmp/hosts",
+    "/tmp/set_host.sh",
     "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
   }
@@ -116,9 +118,15 @@ resource "null_resource" "init_worker" {
     private_key = tls_private_key.k8s.private_key_pem
   }
   provisioner "file" {
-    source  = "hosts"  # local public key
-    destination  = "/tmp/hosts"  # will copy to remote VM as /tmp/test.pub
+    source  = "hosts"  
+    destination  = "/tmp/hosts"  
   }
+
+  provisioner "file" {
+    source  = "install_scripts/set_host.sh"  
+    destination  = "/tmp/set_host.sh" 
+  }
+
   provisioner "file" {
     source = "kubernetes_script"
     destination = "/home/ubuntu"
@@ -126,10 +134,7 @@ resource "null_resource" "init_worker" {
   
   provisioner "remote-exec" {
     inline = [
-    "# Supprimer les balises # BEGIN TERRAFORM, # END TERRAFORM et tout ce qui est entre elles",
-    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/{//!d}' /etc/hosts #supression de ce qu'il y a entre ces balises ",
-    "sudo sed -i '/# BEGIN TERRAFORM/,/# END TERRAFORM/d'  /etc/hosts #supression des balises ",
-    "sudo tee -a /etc/hosts < /tmp/hosts",
+    "/tmp/set_host.sh",
     "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
   }
