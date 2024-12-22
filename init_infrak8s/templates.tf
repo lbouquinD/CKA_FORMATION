@@ -63,7 +63,7 @@ resource "null_resource" "set_hosts" {
 
 
 resource "null_resource" "connect_to_masters" {
-  count = aws_instance.k8sMaster.count
+  count = length(aws_instance.k8sMaster)
   depends_on = [null_resource.update_hosts,local_file.hosts]
   connection {
     type = "ssh"
