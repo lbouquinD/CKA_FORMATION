@@ -12,7 +12,7 @@ resource "local_file" "ssh-config" {
 
 
 resource "local_file" "hosts" {
-  content  =  templatefile("hosts_template.tfpl", { masters = aws_instance.k8sMaster[*], workers = aws_instance.k8sWorker[*]} )
+  content  =  templatefile("hosts_template.tfpl", { masters = aws_instance.k8sMaster[*], workers = aws_instance.k8sWorker[*], bastion = aws_instance.bastion[0]} )
   filename = "${path.module}/hosts"
   depends_on = [aws_instance.k8sMaster, aws_instance.k8sWorker]
 }

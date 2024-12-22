@@ -5,4 +5,5 @@ ${ master.private_ip } ${ master.tags.Name }
 %{ for worker in workers ~}
 ${ worker.private_ip } ${ worker.tags.Name }
 %{ endfor ~}
+${ bastion.private_ip} ${ bastion.tags.name }
 # END TERRAFORM
