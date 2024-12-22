@@ -13,7 +13,7 @@ Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise
   <img src="md-picture/create_provisioner.png"
      alt="create_provisionner"
      style="float: left; margin-right: 10px;" />
-     <img src="md-picture/create_provisioner2.png"
+     <img src="md-picture/create_provisionedetails.png"
      alt="create provisionner "
      style="float: left; margin-right: 10px;" />
 
@@ -23,7 +23,7 @@ Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise
 ---
 <li><h3> Instanciation de l'instance AWS  sur lequel va être provisionner l'ensembles des VM </h3></li>
 
-<img src="md-picture/create_aws_instance.png"
+<img src="md-picture/create_aws_instance2.png"
      alt="create provisionner "
      style="float: left; margin-right: 10px;" />
 
