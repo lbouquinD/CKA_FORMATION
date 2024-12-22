@@ -4,3 +4,4 @@ terraform.*
 remotekeypem
 init_infrak8s/host.ini
 init_infrak8s/hosts
+init_infrak8s/hosts

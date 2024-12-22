@@ -6,4 +6,3 @@ ${ master.private_ip } ${ master.tags.Name }
 ${ worker.private_ip } ${ worker.tags.Name }
 %{ endfor ~}
 # END TERRAFORM
-# TEST
