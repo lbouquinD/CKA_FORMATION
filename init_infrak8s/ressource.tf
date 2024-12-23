@@ -26,7 +26,7 @@ EOF
 resource "aws_instance" "k8sMaster" {
   count                  = 3
   ami                    = "ami-04dd23e62ed049936"
-  instance_type          = "t2.small"
+  instance_type          = "t2.medium"
   vpc_security_group_ids = [aws_security_group.private_sg.id]
   subnet_id              = aws_subnet.private_subnet.id
   depends_on             = [aws_key_pair.k8s]
@@ -43,7 +43,7 @@ EOF
 resource "aws_instance" "k8sWorker" {
   count                  = 3
   ami                    = "ami-04dd23e62ed049936"
-  instance_type          = "t2.small"
+  instance_type          = "t2.medium"
   vpc_security_group_ids = [aws_security_group.private_sg.id]
   subnet_id              = aws_subnet.private_subnet.id
   depends_on             = [aws_key_pair.k8s]

@@ -141,7 +141,7 @@ resource "null_resource" "init_worker" {
     "sudo chmod +x /home/ubuntu/kubernetes_script/*",
     "sudo /home/ubuuntu/kubernetes_script/all.sh",
     "/tmp/set_host.sh",
-    "sudo hostnamectl set-hostname k8sMaster${count.index}", 
+    "sudo hostnamectl set-hostname k8sWorker${count.index}", 
     ]
   }
 }
