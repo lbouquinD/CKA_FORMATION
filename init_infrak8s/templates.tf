@@ -97,6 +97,7 @@ resource "null_resource" "init_masters" {
     inline = [
     "sudo chmod +x /tmp/set_host.sh", 
     "sudo chmod +x /home/ubuntu/kubernetes_script/*",
+    "sudo /home/ubuuntu/kubernetes_script/all.sh",
     "/tmp/set_host.sh",
     "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
@@ -138,6 +139,7 @@ resource "null_resource" "init_worker" {
     inline = [
     "sudo chmod +x /tmp/set_host.sh", 
     "sudo chmod +x /home/ubuntu/kubernetes_script/*",
+    "sudo /home/ubuuntu/kubernetes_script/all.sh",
     "/tmp/set_host.sh",
     "sudo hostnamectl set-hostname k8sMaster${count.index}", 
     ]
