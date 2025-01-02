@@ -11,11 +11,11 @@ while true; do
   case $choix in
     1)
       echo "Vous avez choisi l'option on_premise."
-      $terraform_dir = "on_prem_aws"
+      $terraform_dir="on_prem_aws"
       break ;;
     2)
       echo "Vous avez choisi la version eks."
-      $terraform_dir = "eks"
+      $terraform_dir="eks"
       break ;;
     *)
       echo "Choix invalide. Veuillez entrer 1 ou 2."
