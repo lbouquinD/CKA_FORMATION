@@ -1,7 +1,8 @@
 # CKA_FORMATION
  
 Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise" sous aws  à l'aide de cloud guru
-
+  <img src="md-picture/CKA_ARCHI.png"
+     alt="create_provisionner" /></img>
 
 
 <ol>
