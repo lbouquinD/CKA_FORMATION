@@ -7,7 +7,7 @@ Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise
 
 <ol>
   <li><h3>Création de la Vm de provisionnement:  </h3></li>
-  Se rendre dans les playground de cloud guru et  créer une VM. avec les caractéristiques suivantes: </br>
+  Se rendre dans les playground de cloud guru et créer une VM. avec les caractéristiques suivantes: </br>
     Taille Small </br>
     Distribution:  Ubuntu </br>
     Tag:  le nom de la Vm souhaité </br>
@@ -18,7 +18,8 @@ Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise
 </br>
 
   <li><h3> Récupération des sources </h3> </li>
-    Se connecter sur la VM  précédemment créé et suivez les instructions.  Cette Vm a une période de validité de 2  semaines. A chaque fois que vous la démarrer  la période est  reconduite de 2 semaines.Recupérer les sources comme suit: 
+    Se connecter sur la VM  précédemment créée et suivez les instructions.  Cette Vm a une période de validité de 2 semaines. A chaque fois que vous la démarrée la période est reconduite de 2 semaines. </br>
+    Récupérer les sources comme suit: 
     <pre> 
      wget wget https://github.com/lbouquinD/CKA_FORMATION/archive/refs/tags/0.0.1.tar.gz 
      tar -xvf 0.0.1.tar.gz  
