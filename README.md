@@ -34,7 +34,7 @@ L'environnement est  disponible pendant 4h renouvelable une fois
 
 
   <li><h3> Installation de l'environnement </h3></li>
-  Lancer les scripts  ./1-installPackages.sh  et  ./2-initK8sCluster.sh
+  Lancer les scripts  ./1-installPackages.sh  et  ./2-initK8sCluster.sh sur <b><i>ma_vm</i></b></br>
   lors de l'execution du  2 ème script il vous sera demander  les clé aws de l'étape précédente  </br> Laisser les champs  suivant a None. La configuration se fait par terraform
 </br>Default region name 
 </br>Default output format </br>
