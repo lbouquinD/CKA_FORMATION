@@ -1,5 +1,5 @@
 # CKA_FORMATION
- 
+
 Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise" sous aws  à l'aide de cloud guru
   <img src="md-picture/CKA_ARCHI.png"
      alt="create_provisionner" /></img>
@@ -52,8 +52,6 @@ L'environnement est  disponible pendant 4h renouvelable une fois
   Laisser les champs  suivants à None. La configuration se fait par terraform
 </br>Default region name 
 </br>Default output format </br>
-<span style="color:red">| :boom: DANGER Ne pas lancer a la fois eks et  on_premise. Ceci aura pour effet de détruire votre environnement temporraire aws ( trop de Vms créées |</br></span>
-
-
+<b></b>$\color{red}{\textsf{ 💥 Ne pas lancer à la fois eks et on premise. Ceci aura pour effet de détruire votre environnement temporraire aws: trop de Vms créées  }}$</b>
 </ol>
 
