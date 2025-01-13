@@ -25,7 +25,6 @@ install -m 755 runc.amd64 /usr/local/sbin/runc
 
 
 ##  Install  CNI plugins 
-wget https://github.com/containernetworking/plugins/releases/download/v1.6.1/cni-plugins-linux-amd64-v1.6.1.tgz -O cni-plugins-linux-amd64-v1.6.1.tgz
-
+wget https://github.com/containernetworking/plugins/releases/download/v1.6.2/cni-plugins-linux-amd64-v1.6.2.tgz -O cni-plugins-linux-amd64-v1.6.2.tgz
 mkdir -p /opt/cni/bin
-tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.6.1.tgz
+tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.6.2.tgz
