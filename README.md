@@ -46,7 +46,7 @@ L'environnement est  disponible pendant 4h renouvelable une fois
   <li><h3> Installation de l'environnement </h3></li>
   Lancer les scripts  <pre>./1-installPackages.sh #  installation des dépendances ( awscli et  terraform ) </pre>  et  <pre>./2-initK8sCluster.sh # Installatiion des VMs/du cluster </pre> sur <b><i>ma_vm</i></b></br>
   Lors de l'execution du  2 ème script il vous sera demandé les clés AWS de l'étape précédente  </br>
-  1. Choisissez entre les oiptions  proposées:  <br>
+  1. Choisissez entre les options  proposées:  <br>
   <pre>       1. Option on_premise:  installe uniquement les VMs sur aws et  configure le tunel ssh pour accéder au différentes VMs  </pre>
   <pre>       2. Verion EKS:  Installe directement un cluster kubernetes sur aws </pre>
   Laisser les champs  suivants à None. La configuration se fait par terraform
