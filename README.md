@@ -19,6 +19,7 @@ Ce projet a pour objectif  d'installer un cluster kubernetes en mode "On premise
 
   <li><h3> Récupération des sources </h3> </li>
     Se connecter sur la VM  précédemment créé et suivez les instructions.  Cette Vm a une période de validité de 2  semaines. A chaque fois que vous la démarrer  la période est  reconduite de 2 semaines. Cloner  ce repository  git 
+    <pre> wget </pre>
 </br>
 <li><h3> Instanciation de l'instance AWS  sur lequel va être provisionner l'ensembles des VM </h3></li>
 
@@ -35,9 +36,14 @@ L'environnement est  disponible pendant 4h renouvelable une fois
 
   <li><h3> Installation de l'environnement </h3></li>
   Lancer les scripts  ./1-installPackages.sh  et  ./2-initK8sCluster.sh sur <b><i>ma_vm</i></b></br>
-  lors de l'execution du  2 ème script il vous sera demander  les clé aws de l'étape précédente  </br> Laisser les champs  suivant a None. La configuration se fait par terraform
+  Lors de l'execution du  2 ème script il vous sera demandé les clés AWS de l'étape précédente  </br>
+  1. Choisissez entre les oiptions  proposées:  <br>
+  <pre>       1. Option on_premise:  installe uniquement les VMs sur aws et  configure le tunel ssh pour accéder au différentes VMs  </pre>
+  <pre>       2. Verion EKS:  Installe directement un cluster kubernetes sur aws </pre>
+  Laisser les champs  suivants à None. La configuration se fait par terraform
 </br>Default region name 
 </br>Default output format </br>
+ 
 
 
 </ol>
