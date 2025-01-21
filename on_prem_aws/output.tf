@@ -24,3 +24,11 @@ output "bastion" {
     public_ip  = aws_eip.ip_bastion[0].public_ip
   }
 }
+
+
+
+
+output "connexion" {
+	description =  "Connexion sur les VMs"
+	value = "ssh ubuntu@<vm> #  VM  < k8smaster0,k8sworker0,bastion ... " 
+}
