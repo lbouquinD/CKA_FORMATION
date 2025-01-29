@@ -16,13 +16,31 @@ function get_JSON_Pods() {
     fi 
   echo "{}"
   return  0 
-
 }
 
-
-
-
 jsonPod=$(get_JSON_Pods ex1pod default)
+#Verification du  nom du pod
+namePod=$(echo "$jsonPod" | jq -r  '.metadata.name' 2>/dev/null)
+
+if [[ -z "$namePod" ]]; then
+  echo -e  "Erreur: Impossible d'extraire le nom du pod"
+elif [[ "$namePod" == "ex1pod" ]]; then
+  echo -e  "Le pod est bien nommé 'ex1pod'. ${GREEN} OK ${ENDCOLOR}"
+else
+  echo "Le pod n'est pas nommé 'ex1pod'.${RED}  KO ${ENDCOLOR}"
+fi
+
+
+# Vérification  namespace 
+namespace=$(echo "$jsonPod" | jq -r  '.metadata.namespace' 2>/dev/null)
+
+if [[ -z "$namespace" ]]; then
+  echo -e  "Erreur: Impossible d'extraire le namespace"
+elif [[ "$namespace" == "default" ]]; then
+  echo -e  "Namespace  ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e  "Namespace ${RED}  KO ${ENDCOLOR} "
+fi
 
 
 
@@ -49,27 +67,4 @@ if [[ "$containerImage" == "nginx:1.27.3" ]]; then
   echo -e "Image  du conteneur: ${GREEN} OK ${ENDCOLOR}"
 else
   echo -e "Image du conteneur:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  nom de  l'image  trouvé:  $containerImage"
-fi
-
-#Verification du  nom du pod
-namePod=$(echo "$jsonPod" | jq -r  '.metadata.name' 2>/dev/null)
-
-if [[ -z "$namePod" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le nom du pod"
-elif [[ "$namePod" == "ex1pod" ]]; then
-  echo -e  "Le pod est bien nommé 'ex1pod'. ${GREEN} OK ${ENDCOLOR}"
-else
-  echo "Le pod n'est pas nommé 'ex1pod'.${RED}  KO ${ENDCOLOR}"
-fi
-
-
-# Vérification  namespace 
-namespace=$(echo "$jsonPod" | jq -r  '.metadata.namespace' 2>/dev/null)
-
-if [[ -z "$namespace" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le namespace"
-elif [[ "$namespace" == "default" ]]; then
-  echo -e  "Namespace  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e  "Namespace ${RED}  KO ${ENDCOLOR} "
 fi
