@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: formation-ckad-sleep-daemonset
+spec:
+  selector:
+    matchLabels:
+      app: formation-ckad-sleep
+  template:
+    metadata:
+      labels:
+        app: formation-ckad-sleep
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: ["sleep", "10000"]

@@ -1,0 +1,15 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: formation-ckad-cronjob
+spec:
+  schedule: "*/2 * * * *"  # Exécution toutes les 2 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: formation-ckad-job
+            image: busybox
+            command: ["sh", "-c", "date; echo 'Arrêt prévu dans 5 secondes'; sleep 5"]
+          restartPolicy: Never

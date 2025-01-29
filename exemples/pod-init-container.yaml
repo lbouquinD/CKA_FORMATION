@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: formation-ckad-pod-with-init-container
+spec:
+  initContainers:
+  - name: init
+    image: ubuntu:latest
+    command: ["sh", "-c", "echo 'Bonjour depuis l init container'; sleep 10"]
+  containers:
+  - name: busybox
+    image: busybox
+    command:  ["sh", "-c", "echo 'Bonjour je suis le conteneur principal'; sleep 100000"]

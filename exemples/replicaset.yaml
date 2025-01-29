@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: formation-ckad-replicaset
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: formation-ckad-replicaset
+  template:
+    metadata:
+      labels:
+        app: formation-ckad-replicaset
+    spec:
+      containers:
+      - name: busybox
+        image: kubectl get po 
+        command: ["sleep", "10000"]
+
+
