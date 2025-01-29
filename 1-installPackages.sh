@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 apt-get update 
-apt-get install unzip 
+apt-get install -y  unzip  jq
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
 unzip -o /tmp/awscliv2.zip -d /tmp 
 sudo /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update 
