@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: ex1pod
-  namespace: default
-spec:
-  containers:
-  - name: premier-upod
-    image: nginx

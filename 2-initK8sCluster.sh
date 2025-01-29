@@ -31,3 +31,5 @@ terraform  -chdir=$terraform_dir apply -auto-approve
 if [[ "$terraform_dir" == "eks" ]]; then
    aws eks --region $(terraform -chdir=$terraform_dir output -raw region) update-kubeconfig     --name $(terraform  -chdir=$terraform_dir output -raw cluster_name) 
 fi
+
+# aws eks --region us-west-2  update-kubeconfig     --name cka_formation_k8s

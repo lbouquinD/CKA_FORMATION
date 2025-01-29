@@ -35,6 +35,12 @@ Créer un pod avec les spécifications suivantes:
 - Commande  de l'init  conteneur: **["sleep","10"]**
 - Nampespace:  **default** 
 
+ <li><h3> ex4 </h3></li>
+Executer le fichier ex4.sh puis efectuer les opérations  suivantes
+
+- Mettre les logs du pod "**pod1**" dans le fichier /tmp/logPod1
+- Mettre le nombre de conteneur  dans le fichier /tmp/nbConteneurPod1
+- Supprimer le pod "**pod1**" 
 </ol>
 
 
