@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  name: ex1job
+spec:
+  template:
+    metadata:
+      creationTimestamp: null
+    spec:
+      containers:
+      - image: busybox
+        name: premier-job
+        command: ["/bin/sh","-c","echo bonjour depuis mon premier job;  sleep 10"] 
+        resources: {}
+      restartPolicy: Never
+status: {}
