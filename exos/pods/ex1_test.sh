@@ -27,7 +27,7 @@ if [[ -z "$namePod" ]]; then
 elif [[ "$namePod" == "ex1pod" ]]; then
   echo -e  "Le pod est bien nommé 'ex1pod'. ${GREEN} OK ${ENDCOLOR}"
 else
-  echo "Le pod n'est pas nommé 'ex1pod'.${RED}  KO ${ENDCOLOR}"
+  echo  -e "Le pod n'est pas nommé 'ex1pod'.${RED}  KO ${ENDCOLOR}"
 fi
 
 

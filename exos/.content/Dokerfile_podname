@@ -1,0 +1,5 @@
+FROM busybox
+
+ENV POD_NAME="inconnu"
+
+CMD ["/bin/sh", "-c", "echo je suis $POD_NAME; while true; do sleep 3600; done"]

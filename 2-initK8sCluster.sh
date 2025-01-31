@@ -16,6 +16,7 @@ while true; do
     2)
       echo "Vous avez choisi la version eks."
       terraform_dir="eks"
+      rm $terraform_dir/terraform.tfstate
       break ;;
     *)
       echo "Choix invalide. Veuillez entrer 1 ou 2."
