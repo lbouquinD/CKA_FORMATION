@@ -19,9 +19,9 @@ spec:
             - name: NOM_POD
               valueFrom:
                 fieldRef:
-                fieldPath: metadata.name
+                    fieldPath: metadata.name
             -  name: NOM_APP
-               value: application-a 
+               value: application-b
 
 ---
 apiVersion: apps/v1
