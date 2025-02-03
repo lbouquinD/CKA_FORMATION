@@ -21,7 +21,7 @@ spec:
                 fieldRef:
                     fieldPath: metadata.name
             -  name: NOM_APP
-               value: application-b
+               value: application-a
 
 ---
 apiVersion: apps/v1
@@ -38,11 +38,10 @@ spec:
       labels:
         app: application-b
     spec:
-      spec:
       containers:
       - name: conteneur1
         image: laurentsogeti/pod_showname_formation_ckad:0.0.3
-      env:
+        env:
             - name: NOM_POD
               valueFrom:
                 fieldRef:
