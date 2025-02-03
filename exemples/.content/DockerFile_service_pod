@@ -1,15 +1,10 @@
-#laurentsogeti/pod_showname_formation_ckad
-FROM ubuntu:22.04
-
-# Installer les outils réseau
-RUN apt-get update && apt-get install -y netcat host
+FROM nginx:latest
 
 # Copier le script run.sh dans le conteneur
-COPY run_service.sh /usr/local/bin/
-RUN  chmod +x /usr/local/bin/run_service.sh
+COPY run.sh /usr/local/bin/
 
-# Exposer le port si nécessaire (ajuster si besoin)
-EXPOSE 8080
+# Exposer le port 80 (port par défaut de Nginx)
+EXPOSE 80
 
 # Commandes à exécuter au démarrage du conteneur
-CMD ["/usr/local/bin/run_service.sh"]
+CMD ["/usr/local/bin/run.sh"]

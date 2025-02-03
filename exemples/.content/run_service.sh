@@ -10,15 +10,17 @@ if [ -z "$NOM_APP" ] ; then
   exit 1
 fi
 
+# Créer le fichier index.html initial
+echo "<html><body><h1>Informations du conteneur</h1><p>Nom de l'application : $NOM_APP</p><p>Nom du pod : $NOM_POD</p><p>Date : $(date)</p></body></html>" > /usr/share/nginx/html/index.html
 
+# Démarrer Nginx en arrière-plan
+nginx -g 'daemon off;' &
 
-# Boucle infinie pour que le script continue à s'exécuter
+# Boucle infinie pour mettre à jour le fichier index.html
 while true; do
-  # Afficher les informations
-  echo "Nom de l'application : $NOM_APP"
-  echo "Nom du pod : $NOM_POD"
-  date
+  # Mettre à jour la date dans le fichier index.html
+  sed -i "s/<p>Date : .*/<p>Date : $(date)/g" /usr/share/nginx/html/index.html
 
-  # Attendre une minute avant la prochaine itération
-  sleep 60
+  # Attendre une minute avant la prochaine mise à jour
+  sleep 10
 done
