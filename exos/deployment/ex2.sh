@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+kubectl delete deployment dep4  --force --grace-period=0 2>/dev/null 
 yaml=$(cat << EOF
 apiVersion: apps/v1
 kind: Deployment
@@ -101,7 +103,7 @@ EOF
 kubectl apply -f - << EOF
 $yaml
 EOF
-
+kubectl get rs -l app=dep4 -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' > /tmp/ex2Deployrsinit
 kubectl set image deployment/dep4 conteneur1=nginx:1.14.1
 kubectl set image deployment/dep4 conteneur1=nginx:1.14.2
 

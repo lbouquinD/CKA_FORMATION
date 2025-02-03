@@ -21,29 +21,14 @@ Créer un CronJob avec les spécifications suivantes :
 - Nom du conteneur: **task-exec**
 - Image du conteneur: **alpine**
 - command: **["/bin/sh" ,"-c" ,"echo \"Tâche exécutée à $(date)\""]**
+- restartPolicy: **OnFailure**
 - Namespace: **default**
 
  <li><h3> ex3 </h3></li>
-Créer un pod avec les spécifications suivantes: 
+Lancer le script ex3.sh et créer le job test à partir du cronjob ex3cron 
 
-- Nom du pod:  **podinitcontainer**
-- nombre de Conteneur:  **1**
-- nombre initConteneur: **1**
-- Nom du conteneur1: **conteneur1**
-- image du conteneur1:  **nginx:1.27.3**
-- Nom init Conteneur1: **initconteneur**
-- Image init Conteneur1: **busybox**
-- Commande  de l'init  conteneur: **["sleep","10"]**
-- Nampespace:  **default** 
 
- <li><h3> ex4 </h3></li>
-Executer le fichier ex4.sh puis efectuer les opérations  suivantes
-
-- Mettre les logs du pod "**pod1**" dans le fichier /tmp/logPod1
-- Mettre le nombre de conteneur  dans le fichier /tmp/nbConteneurPod1
-- Supprimer le pod "**pod1**" 
-</ol>
-
+ 
 
 
 

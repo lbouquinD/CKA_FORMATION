@@ -51,6 +51,15 @@ else
   echo -e "Le deploiment dep4  doit revenir sur la version 1: ${RED}KO${ENDCOLOR}"
 fi
 
+#verif dep4 updated
+verifReplicaset=$(kubectl get  deployment   dep4 -o jsonpath='{.status.conditions[?(@.reason=="ReplicaSetUpdated")].message}')
+rsinit=$(cat /tmp/ex2Deployrsinit)
+rollout=$(echo  "$verifReplicaset" |grep -c  $rsinit)
+if [[ "$rollout" == "1" ]];  then 
+  echo -e "Le déploiement a été réinitialisé depuis un rollout ${GREEN} OK ${ENDCOLOR}"
+else 
+  echo -e "Le déploiement a été réinitialisé depuis un rollout ${RED} KO ${ENDCOLOR}"
+fi
 
 
 

@@ -19,21 +19,21 @@ else
 fi
 
 command=$(kubectl get cronjob mon-cronjob -o jsonpath='{.spec.jobTemplate.spec.template.spec.containers[?(@.name=="task-exec")].command}' 2>/dev/null)
-
-
+command_without_quote=$(echo "$command" | sed 's/"//g' | sed 's/[$]//g' |sed 's/\\//g')
 #  Verif commandc
-if [[ "$command" == "[\"/bin/sh\",\"-c\",\"echo \\\"Tâche exécutée à \$(date)\\\"\"]" ]]; then 
+if [[ "$command_without_quote" == "[/bin/sh,-c,echo Tâche exécutée à (date)]" ]]; then 
   echo -e "Création cronjob mon-cronjob command: ${GREEN}OK${ENDCOLOR}"
 else
-  echo -e "CCréation cronjob mon-cronjob command: ${RED}KO${ENDCOLOR}"
+  echo -e "Création cronjob mon-cronjob command: ${RED}KO${ENDCOLOR}  "
+  echo -e "\t Commande lancée: $command  -> $command_without_quote "
 fi
 
 # verif restart  policy 
 
-restartPolicy=$(kubectl get job ex1job -o jsonpath='{.spec.template.spec.restartPolicy}')
-if [[ "$restartPolicy" == "Never" ]]; then 
+restartPolicy=$(kubectl get cronjob mon-cronjob -o jsonpath='{.spec.jobTemplate.spec.template.spec.restartPolicy}')
+if [[ "$restartPolicy" == "OnFailure" ]]; then 
     echo  -e "Création  Job 1  restartPolicy ${GREEN} OK ${ENDCOLOR}"
 else 
-    echo  -e "Création  Job 1  restartPolicy ${GREEN} KO ${ENDCOLOR}"
+    echo  -e "Création  Job 1  restartPolicy ${RED} KO ${ENDCOLOR}"
     echo  -e " Politique de redémarrage trouvé: $restartpolicy" 
 fi
