@@ -23,7 +23,9 @@ nginx -g 'daemon off;' &
 while true; do
   # Mettre à jour la date dans le fichier index.html
   sed -i "s/<p>Date : .*/<p>Date : $(date)/g" /usr/share/nginx/html/index.html
-  
+  echo "Nom de l'application : $NOM_APP"
+  echo "Nom du pod : $NOM_POD"
+  date
   # Attendre une minute avant la prochaine mise à jour
   sleep 10
 done
