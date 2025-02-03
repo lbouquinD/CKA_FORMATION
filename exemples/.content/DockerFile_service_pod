@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 # Installer les outils réseau
-RUN apt-get update && apt-get install -y netcat ping host
+RUN apt-get update && apt-get install -y netcat host
 
 # Copier le script run.sh dans le conteneur
 COPY run_service.sh /usr/local/bin/
