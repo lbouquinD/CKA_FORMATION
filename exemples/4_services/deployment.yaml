@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: formation-ckad-les-services
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: monapplication
+  template:
+    metadata:
+      labels:
+        app: monapplication
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: ["sleep", "10000"]
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: formation-ckad-les-services
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: monapplication
+  template:
+    metadata:
+      labels:
+        app: monapplication
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: ["sleep", "10000"]
