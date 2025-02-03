@@ -10,9 +10,5 @@ RUN  chmod +x /usr/local/bin/run_service.sh
 # Exposer le port si nécessaire (ajuster si besoin)
 EXPOSE 8080
 
-# Définir les variables d'environnement par défaut (si nécessaire)
-ENV NOM_APP="mon_application"
-ENV NOM_POD="default_pod"
-
 # Commandes à exécuter au démarrage du conteneur
 CMD ["/usr/local/bin/run_service.sh"]
