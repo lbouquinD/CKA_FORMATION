@@ -1,14 +1,24 @@
-FROM ubuntu:22.04
+#!/bin/bash
 
-# Installer les outils réseau
-RUN apt-get update && apt-get install -y netcat ping host
+# Vérifier si les variables d'environnement sont définies
+if  [ -z "$NOM_POD" ]; then
+  echo "La variable d'environnement   NOM_POD n'est pas définit."
+  exit 1
+fi
+if [ -z "$NOM_APP" ] ; then
+  echo "La variable d'environnement NOM_APP  n'est pas définit."
+  exit 1
+fi
 
-# Copier le script run.sh dans le conteneur
-COPY run_service.sh /usr/local/bin/
-RUN  chmod +x /usr/local/bin/run_service.sh
 
-# Exposer le port si nécessaire (ajuster si besoin)
-EXPOSE 8080
 
-# Commandes à exécuter au démarrage du conteneur
-CMD ["/usr/local/bin/run_service.sh"]
+# Boucle infinie pour que le script continue à s'exécuter
+while true; do
+  # Afficher les informations
+  echo "Nom de l'application : $NOM_APP"
+  echo "Nom du pod : $NOM_POD"
+  date
+
+  # Attendre une minute avant la prochaine itération
+  sleep 60
+done
