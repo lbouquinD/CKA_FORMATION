@@ -6,16 +6,22 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: monapplication
+      app: application-a
   template:
     metadata:
       labels:
-        app: monapplication
+        app: application-a
     spec:
       containers:
-      - name: busybox
-        image: busybox
-        command: ["sleep", "10000"]
+      - name: conteneur1
+        image: laurentsogeti/pod_showname_formation_ckad:0.0.3
+        env:
+            - name: NOM_POD
+              valueFrom:
+                fieldRef:
+                fieldPath: metadata.name
+            -  name: NOM_APP
+               value: application-a 
 
 ---
 apiVersion: apps/v1
@@ -26,13 +32,13 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: monapplication
+      app: application-b
   template:
     metadata:
       labels:
-        app: monapplication
+        app: application-b
     spec:
+      spec:
       containers:
-      - name: busybox
-        image: busybox
-        command: ["sleep", "10000"]
+      - name: conteneur1
+        image: laurentsogeti/pod_showname_formation_ckad:0.0.3
