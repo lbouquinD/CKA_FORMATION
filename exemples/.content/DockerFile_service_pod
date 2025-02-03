@@ -1,3 +1,4 @@
+#laurentsogeti/pod_showname_formation_ckad
 FROM ubuntu:22.04
 
 # Installer les outils réseau
