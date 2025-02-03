@@ -4,7 +4,8 @@ FROM ubuntu:22.04
 RUN apt-get update && apt-get install -y netcat ping host
 
 # Copier le script run.sh dans le conteneur
-COPY run.sh /usr/local/bin/
+COPY run_service.sh /usr/local/bin/
+RUN  chmod +x /usr/local/bin/run_service.sh
 
 # Exposer le port si nécessaire (ajuster si besoin)
 EXPOSE 8080
@@ -14,4 +15,4 @@ ENV NOM_APP="mon_application"
 ENV NOM_POD="default_pod"
 
 # Commandes à exécuter au démarrage du conteneur
-CMD ["/usr/local/bin/run.sh"]
+CMD ["/usr/local/bin/run_service.sh"]
