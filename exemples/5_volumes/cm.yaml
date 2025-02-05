@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ma-config
+data:
+  pod_name: "Mon nom de pods personalisé"
+  nom_application: " applicationA"
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Mon application</title>
+    </head>
+    <body>
+      <h1>Bienvenue sur mon application !</h1>
+      <p>Ceci est un exemple de page HTML.</p>
+    </body>
+    </html>
