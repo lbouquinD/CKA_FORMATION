@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mon-premier-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard-rwo 
+
+
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mon-application
+spec:
+  replicas: 3 
+  selector:
+    matchLabels:
+      app: mon-application
+  template:
+    metadata:
+      labels:
+        app: mon-application
+    spec:
+      containers:
+      - name: mon-conteneur
+        image: nginx 
+        volumeMounts:
+        - name: volume-donnees
+          mountPath: /data 
+      volumes:
+      - name: volume-donnees
+        persistentVolumeClaim:
+          claimName: mon-premier-pvc 
