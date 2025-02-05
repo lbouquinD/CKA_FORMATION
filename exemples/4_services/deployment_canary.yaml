@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: formation-ckad-canary-bg-app-a
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: application-canary-bg-a
+      version: "v1"
+  template:
+    metadata:
+      labels:
+        app: application-canary-bg-a
+        version: "v1"
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_service:0.0.2
+        env:
+            - name: NOM_POD
+              valueFrom:
+                fieldRef:
+                    fieldPath: metadata.name
+            -  name: NOM_APP
+               value: application-canary-bg-a-v1
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: formation-ckad-canary-bg-app-abis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: application-canary-bg-a
+      version: "v2"
+  template:
+    metadata:
+      labels:
+        app: application-canary-bg-a
+        version: "v2"
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_service:0.0.3
+        env:
+            - name: NOM_POD
+              valueFrom:
+                fieldRef:
+                    fieldPath: metadata.name
+            -  name: NOM_APP
+               value: application-canary-bg-a-v2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: formation-ckad-canary-bg-app-a
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    version: "v1" #  puis V2 
+  sessionAffinity: None  
+  type: LoadBalancer
