@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: conteneur1
-        image: laurentsogeti/ckad_formation_service:0.0.1
+        image: laurentsogeti/ckad_formation_service:0.0.2
         env:
             - name: NOM_POD
               valueFrom:
@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: conteneur1
-        image: laurentsogeti/ckad_formation_service:0.0.1
+        image: laurentsogeti/ckad_formation_service:0.0.2
         env:
             - name: NOM_POD
               valueFrom:

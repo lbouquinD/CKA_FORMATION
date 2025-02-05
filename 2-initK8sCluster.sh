@@ -5,7 +5,7 @@ while true; do
   echo "Choisissez une option :"
   echo "1. Option on_premise"
   echo "2. Version eks"
-
+  echo "3. Vertion GKE"
   read choix
 
   case $choix in
@@ -16,15 +16,23 @@ while true; do
     2)
       echo "Vous avez choisi la version eks."
       terraform_dir="eks"
+      aws configure
       rm $terraform_dir/terraform.tfstate
       break ;;
+    3)
+     gcloud config configurations activate  default
+     yes | gcloud config configurations delete formation-ckad 2>/dev/null 
+     gcloud config configurations create formation-ckad
+     gcloud init
+     gcloud auth application-default login
+     exit 0
+     ;; 
     *)
       echo "Choix invalide. Veuillez entrer 1 ou 2."
       ;;
   esac
 done
 
-aws configure
 terraform  -chdir=$terraform_dir init  
 terraform  -chdir=$terraform_dir apply -auto-approve
 
