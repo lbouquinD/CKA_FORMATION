@@ -16,3 +16,45 @@ data:
       <p>Ceci est un exemple de page HTML.</p>
     </body>
     </html>
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mon-application-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mon-application
+  template:
+    metadata:
+      labels:
+        app: mon-application
+    spec:
+      containers:
+      - name: mon-conteneur
+        image: nginx
+        ports:
+        - containerPort: 80
+        env: # Utilisation des variables d'environnement de la ConfigMap
+        - name: NOM_POD
+          valueFrom:
+            configMapKeyRef:
+              name: ma-config
+              key: pod_name
+        - name: NOM_APP
+          valueFrom:
+            configMapKeyRef:
+              name: ma-config
+              key: nom_application
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/nginx/html # Chemin où Nginx sert les fichiers HTML
+      volumes:
+      - name: config-volume
+        configMap:
+          name:  ma-config
+          items:
+          - key: index.html
+            path: index.html
