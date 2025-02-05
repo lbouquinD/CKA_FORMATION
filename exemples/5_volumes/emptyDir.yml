@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-ecriture-fichiers
+spec:
+  containers:
+  - name: conteneur-1
+    image: busybox
+    command: ["/bin/sh", "-c", "while true; do echo 'Contenu du fichier 1 - $(date)' >> /data/fichier1.txt; sleep 1; done"]
+    volumeMounts:
+    - name: volume-partage
+      mountPath: /data
+  - name: conteneur-2
+    image: busybox
+    command: ["/bin/sh", "-c", "while true; do echo 'Contenu du fichier 2 - $(date)' >> /data/fichier2.txt; sleep 2; done"]
+    volumeMounts:
+    - name: volume-partage
+      mountPath: /data
+  volumes:
+  - name: volume-partage
+    emptyDir: {}
