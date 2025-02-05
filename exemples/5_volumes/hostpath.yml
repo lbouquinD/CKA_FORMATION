@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-hostpath
+spec:
+  containers:
+  - name: conteneur-application
+    image: busybox
+    command: ["/bin/sh", "-c","sleep 1000"]
+    volumeMounts:
+    - name: volume-logs
+      mountPath: /var/log/mon-application
+  volumes:
+  - name: volume-logs
+    hostPath:
+      path: /var/log/mon-application
+      type: DirectoryOrCreate # Crée le répertoire s'il n'existe pas
