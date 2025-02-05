@@ -5,7 +5,7 @@ while true; do
   echo "Choisissez une option :"
   echo "1. Option on_premise"
   echo "2. Version eks"
-  echo "3. Vertion GKE"
+  echo "3. Version GKE"
   read choix
 
   case $choix in
