@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bar-ns
+  labels:
+    labels-namespace: bar-ns
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: foo-ns
+  labels:
+    labels-namespace: foo-ns
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: toto-ns
+  labels:
+    labels-namespace: toto-ns
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bar
+  labels:
+    app: bar
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: bar
+  template:
+    metadata:
+      labels:
+        app: bar
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_networkpolicies:0.0.1
+        ports:
+        - containerPort: 80
