@@ -18,8 +18,6 @@ if [ -z "$APPDESTPORT" ] ; then
    APPDESTPORT=80
 fi
 
-
-#!/bin/sh
 while true; do
   echo -e "[ $(date) ] Je suis l'app $NOMAPP : tentative de connexion sur $NOMAPPDEST.$NAMESPACEDEST.svc.cluster.local:$APPDESTPORT"
   
