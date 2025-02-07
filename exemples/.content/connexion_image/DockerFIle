@@ -1,12 +1,19 @@
-# Utiliser une image de base légère, comme Alpine
-FROM alpine:latest
+# Utiliser l'image officielle Nginx comme base
+FROM nginx:1.27.3
 
-# Installer curl pour effectuer les requêtes
-RUN apk add --no-cache curl
+# Installer curl
+RUN apt-get update  -y  
+RUN  apt-get  install -y curl
+
+# Copier le fichier index.html dans le dossier de Nginx
+COPY index.html /usr/share/nginx/html/index.html
 
 # Copier le script entrypoint dans l'image
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Exposer le port par défaut de Nginx
+EXPOSE 80
 
 # Spécifier le point d'entrée de l'image
 ENTRYPOINT ["/entrypoint.sh"]

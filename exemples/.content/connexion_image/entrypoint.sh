@@ -18,6 +18,15 @@ if [ -z "$APPDESTPORT" ] ; then
    APPDESTPORT=80
 fi
 
+
+# Définir le port d'écoute par défaut si non défini
+LISTENPORT=${LISTENPORT:-80}
+# Modifier le fichier de configuration de Nginx pour écouter sur le port spécifié
+echo -e "[ $(date) ] Démarrage de Nginx sur le port $LISTENPORT"
+sed -i "s/listen       80;/listen       $LISTENPORT;/g" /etc/nginx/conf.d/default.conf
+
+# Démarrer Nginx en arrière-plan
+nginx -g 'daemon off;' &
 while true; do
   echo -e "[ $(date) ] Je suis l'app $NOMAPP : tentative de connexion sur $NOMAPPDEST.$NAMESPACEDEST.svc.cluster.local:$APPDESTPORT"
   
