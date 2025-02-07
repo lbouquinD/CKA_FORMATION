@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if  [ -z "$NOMAPP" ]; then
-  echo -e "\033[31m La variable d'environnement   URL n'est pas défini.\033[0m"
+  echo -e "\033[31m La variable d'environnement   NOMAPP n'est pas défini.\033[0m"
   exit 1
 fi
 if  [ -z "$URL" ]; then
