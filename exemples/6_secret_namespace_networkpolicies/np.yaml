@@ -20,16 +20,16 @@ metadata:
   name: toto-ns
   labels:
     labels-namespace: toto-ns
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bar
+  namespace:  bar-ns
   labels:
     app: bar
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: bar
@@ -43,3 +43,170 @@ spec:
         image: laurentsogeti/ckad_formation_networkpolicies:0.0.1
         ports:
         - containerPort: 80
+        env: 
+          - name: URL 
+            value: toto.toto-ns.svc.cluster.local
+          - name:  NOMAPP
+            value: bar
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: bar
+  name: bar
+  namespace: bar-ns
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: bar
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unautrebar
+  namespace:  bar-ns
+  labels:
+    app: bar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bar
+  template:
+    metadata:
+      labels:
+        app: bar
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_networkpolicies:0.0.1
+        ports:
+        - containerPort: 80
+        env: 
+          - name: URL 
+            value: toto.toto-ns.svc.cluster.local
+          - name:  NOMAPP
+            value: unautrebar
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unautrebar42
+  namespace:  bar-ns
+  labels:
+    app: test42
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test42
+  template:
+    metadata:
+      labels:
+        app: test42
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_networkpolicies:0.0.1
+        ports:
+        - containerPort: 80
+        env: 
+          - name: URL 
+            value: toto.toto-ns.svc.cluster.local
+          - name:  NOMAPP
+            value: unautrebar
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toto
+  namespace:  toto-ns
+  labels:
+    app: toto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: toto
+  template:
+    metadata:
+      labels:
+        app: toto
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_networkpolicies:0.0.1
+        ports:
+        - containerPort: 80
+        env: 
+          - name: URL 
+            value: foo.foo-ns.svc.cluster.local
+          - name:  NOMAPP
+            value: toto
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: toto
+  name: toto
+  namespace: toto-ns
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: toto
+
+--- 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foo
+  namespace:  foo-ns
+  labels:
+    app: foo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foo
+  template:
+    metadata:
+      labels:
+        app: foo
+    spec:
+      containers:
+      - name: conteneur1
+        image: laurentsogeti/ckad_formation_networkpolicies:0.0.1
+        ports:
+        - containerPort: 80
+        env: 
+          - name: URL 
+            value: foo.foo-ns.svc.cluster.local
+          - name:  NOMAPP
+            value: foo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: foo
+  name: foo
+  namespace: foo-ns
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: foo
+---
