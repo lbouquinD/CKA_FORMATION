@@ -4,11 +4,6 @@ FROM alpine:latest
 # Installer curl pour effectuer les requêtes
 RUN apk add --no-cache curl
 
-# Définir des variables d'environnement pour personnaliser les noms
-env NOMAPP="mon_app"
-env NOMAPPDEST="app_destination"
-env NAMASPACEDEST="espace_destination"
-
 # Copier le script entrypoint dans l'image
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
