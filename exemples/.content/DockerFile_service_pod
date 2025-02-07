@@ -8,3 +8,4 @@ EXPOSE 80
 
 # Commandes à exécuter au démarrage du conteneur
 CMD ["/usr/local/bin/run_service.sh"]
+
