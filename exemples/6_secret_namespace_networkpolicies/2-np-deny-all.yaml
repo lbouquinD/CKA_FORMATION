@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-toto-all-egress
+  namespace: toto-ns
+spec:
+  podSelector: {} # Cible tous les pods de foo-ns
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-foo-all-egress
+  namespace: foo-ns
+spec:
+  podSelector: {} # Cible tous les pods de foo-ns
+  policyTypes:
+  - Egress
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-bar-all-egress
+  namespace: bar-ns
+spec:
+  podSelector: {} # Cible tous les pods de foo-ns
+  policyTypes:
+  - Ingress
+  - Egress
