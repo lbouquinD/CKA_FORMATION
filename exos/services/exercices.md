@@ -21,7 +21,7 @@ Executer le fichier ex2.sh puis effectuer les operations suivantes:
 Créer les 2 services suivants: 
 
 - nom: **exosvc21**
-- type: **nodePort**
+- type: **Nodeport**
 - port d'écoute: **80**
 - Port du conteneur: **8124** 
 - NodePort: **31258** 

@@ -5,36 +5,18 @@ GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
 
-test_po=$(kubectl get  po test  -o jsonpath='{.metadata.name}' 2>/dev/null)
 
-if [[ "$test_po" == "test" ]]; then 
-    echo  -e "Création pod avec le nom test  ${GREEN} OK ${ENDCOLOR}"
+test_service1=$(kubectl get svc exosvc21  -o jsonpath='{.metadata.name}' 2>/dev/null)
+if [[ "$test_service1" == "exosvc21" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
+  echo -e "Service exosvc21  existe: ${GREEN}OK${ENDCOLOR}"
 else
-    echo -e "Création pod avec le nom test ${RED} KO ${ENDCOLOR}"
-    echo -e "\t ${RED} Le pod n'existe pas ${ENDCOLOR}"
-fi
-
-# verif dep2 
-container1_image=$(kubectl get po test -o jsonpath='{.spec.containers[?(@.name=="test")].image}' 2>/dev/null)
-if [[ "$container1_image" == "nginx:1.27.3" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Image du pod test: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Image du pod test: ${RED}KO ${ENDCOLOR}"
-  echo -e "\t ${RED} L'image est  incorrect:  image du pods test actuel: $container1_image ${ENDCOLOR}"
+  echo -e "Service existe exosvc21: ${RED}KO ${ENDCOLOR}"
+  echo -e "\t ${RED} Le service exosvc21  n'existe pas ${ENDCOLOR}"
 fi
 
 
-test_service=$(kubectl get svc test-svc-ex1  -o jsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$test_service" == "test-svc-ex1" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Service test-svc-ex1  existe: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Service existe test-svc-ex1: ${RED}KO ${ENDCOLOR}"
-  echo -e "\t ${RED} Le service test-svc-ex1  n'existe pas ${ENDCOLOR}"
-fi
-
-
-portsvc=$(kubectl get svc test-svc-ex1  -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
-targetportsvc=$(kubectl get svc test-svc-ex1  -o jsonpath='{.spec.ports[0].targetPort}' 2>/dev/null)
+portsvc=$(kubectl get svc exosvc21  -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
+targetportsvc=$(kubectl get svc exosvc21 -o jsonpath='{.spec.ports[0].targetPort}' 2>/dev/null)
 
 if [[ "$portsvc" == "80" ]]; then 
   echo  -e "Port du  service ${GREEN} OK ${ENDCOLOR}"
@@ -42,17 +24,78 @@ else
   echo -e "Port du service ${RED} KO ${ENDCOLOR}" 
   echo  -e "\t Port trouvé: $portsvc" 
 fi  
-if [[ "$targetportsvc" == "80" ]]; then 
+if [[ "$targetportsvc" == "8124" ]]; then 
   echo  -e "targetPort du  service ${GREEN} OK ${ENDCOLOR}"
 else
   echo -e "targetPort du service ${RED} KO ${ENDCOLOR}" 
   echo  -e "\t Port trouvé: $targetportsvc" 
 fi  
 
-typeservice=$(kubectl get svc test-svc-ex1  -o jsonpath='{.spec.type}' 2>/dev/null)
-if [[ "$typeservice" == "ClusterIP" ]]; then 
-  echo  -e "Type de service ClusterIP  ${GREEN} OK ${ENDCOLOR}"
+portnodePort=$(kubectl get svc exosvc21  -o jsonpath='{.spec.ports[0].nodePort}' 2>/dev/null)
+if [[ "$portnodePort" == "31258" ]]; then 
+  echo  -e "NodePort du  service exosvc21  ${GREEN} OK ${ENDCOLOR}"
 else
-  echo -e "Type de service ClusterIP ${RED} KO ${ENDCOLOR}" 
+  echo -e "NodePort du service exosvc21 ${RED} KO ${ENDCOLOR}" 
+  echo  -e "\t NodePort trouvé: $portnodePort" 
+fi  
+
+typeservice=$(kubectl get svc exosvc21  -o jsonpath='{.spec.type}' 2>/dev/null)
+if [[ "$typeservice" == "NodePort" ]]; then 
+  echo  -e "Type de service NodePort  pour exosvc21  ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e "Type de service NodePort pour exosvc21 ${RED} KO ${ENDCOLOR}" 
   echo  -e "\t Port trouvé: $typeservice" 
+fi  
+
+selectService=$(kubectl get svc exosvc21  -o jsonpath='{.spec.selector.toto}' 2>/dev/null)
+if [[ "$selectService" == "dep-ex-service-2" ]]; then 
+  echo  -e "Le service Expose le bon deploiement ( exosvc21)  ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e "Le service Expose le bon deploiement ( exosvc21) ${RED} KO ${ENDCOLOR}" 
+fi  
+
+
+
+
+
+########## service2 #########
+test_service1=$(kubectl get svc exosvc22  -o jsonpath='{.metadata.name}' 2>/dev/null)
+if [[ "$test_service1" == "exosvc22" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
+  echo -e "Service exosvc22  existe: ${GREEN}OK${ENDCOLOR}"
+else
+  echo -e "Service existe exosvc22: ${RED}KO ${ENDCOLOR}"
+  echo -e "\t ${RED} Le service exosvc22  n'existe pas ${ENDCOLOR}"
+fi
+
+
+portsvc=$(kubectl get svc exosvc22  -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
+targetportsvc=$(kubectl get svc exosvc22 -o jsonpath='{.spec.ports[0].targetPort}' 2>/dev/null)
+
+if [[ "$portsvc" == "80" ]]; then 
+  echo  -e "Port du  service ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e "Port du service ${RED} KO ${ENDCOLOR}" 
+  echo  -e "\t Port trouvé: $portsvc" 
+fi  
+if [[ "$targetportsvc" == "9090" ]]; then 
+  echo  -e "targetPort du  service ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e "targetPort du service ${RED} KO ${ENDCOLOR}" 
+  echo  -e "\t Port trouvé: $targetportsvc" 
+fi  
+
+
+typeservice=$(kubectl get svc exosvc22  -o jsonpath='{.spec.type}' 2>/dev/null)
+if [[ "$typeservice" == "LoadBalancer" ]]; then 
+  echo  -e "Type de service LoadBalancer  pour exosvc22  ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e "Type de service LoadBalancer pour exosvc22 ${RED} KO ${ENDCOLOR}" 
+  echo  -e "\t Port trouvé: $typeservice" 
+fi  
+
+selectService=$(kubectl get svc exosvc22  -o jsonpath='{.spec.selector.truc}' 2>/dev/null)
+if [[ "$selectService" == "dep-ex-service-3" ]]; then 
+  echo  -e "Le service Expose le bon deploiement ( exosvc22)  ${GREEN} OK ${ENDCOLOR}"
+else
+  echo -e "Le service Expose le bon deploiement ( exosvc22) ${RED} KO ${ENDCOLOR}" 
 fi  
