@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Infos Pod et URL</title>
+</head>
+<body>
+  <h1>Informations du Pod</h1>
+  <p><b>Nom du Pod:</b> <span id="pod-name"></span></p>
+  <p><b>Path URL:</b> <span id="url-path"></span></p>
+  <p><b>URL Appelante:</b> <span id="referrer-url"></span></p>
+
+  <script>
+    // Nom du pod
+    const podName = process.env.POD_NAME || "Non défini";
+    document.getElementById("pod-name").textContent = podName;
+
+    // Path URL
+    const urlPath = window.location.pathname;
+    document.getElementById("url-path").textContent = urlPath;
+
+    // URL appelante (Referer)
+    const referrerUrl = document.referrer || "Non défini";
+    document.getElementById("referrer-url").textContent = referrerUrl;
+  </script>
+</body>
+</html>
