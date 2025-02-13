@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Infos Pod et URL</title>
 </head>
 <body>
@@ -12,21 +10,17 @@
   <p><b>URL Appelante:</b> <span id="referrer-url"></span></p>
 
   <script>
+    // Nom du pod
+    const podName = process.env.POD_NAME || "Non défini";
+    document.getElementById("pod-name").textContent = podName;
+
     // Path URL
-    document.getElementById("url-path").textContent = window.location.pathname;
+    const urlPath = window.location.pathname;
+    document.getElementById("url-path").textContent = urlPath;
 
     // URL appelante (Referer)
-    document.getElementById("referrer-url").textContent = document.referrer || "Non défini";
-
-    // Récupérer le nom du Pod depuis une variable d'environnement simulée (via un endpoint)
-    fetch("/env.json")
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("pod-name").textContent = data.POD_NAME || "Non défini";
-      })
-      .catch(() => {
-        document.getElementById("pod-name").textContent = "Non défini";
-      });
+    const referrerUrl = document.referrer || "Non défini";
+    document.getElementById("referrer-url").textContent = referrerUrl;
   </script>
 </body>
 </html>
