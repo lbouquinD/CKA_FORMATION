@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: my-container
-        image: laurentsogeti/ckad_formation_ingress:0.0.1
+        image: laurentsogeti/ckad_formation_ingress:0.0.2
         env:
         - name: POD_NAME
           valueFrom:
@@ -54,17 +54,14 @@ kind: Ingress
 metadata:
   name: alpha-app-ingress
   namespace: team-alpha
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   rules:
   - host: toto.fr
     http:
       paths:
-      - path: /something(/|$)(.*)  # CORRECT: Regex path
-        pathType: ImplementationSpecific  # Required for regex
+      - path: /something
+        pathType: Prefix
         backend:
           service:
             name: alpha-app
