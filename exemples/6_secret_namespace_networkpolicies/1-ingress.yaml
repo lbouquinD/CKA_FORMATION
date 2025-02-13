@@ -12,7 +12,7 @@ metadata:
   name: alpha-app
   namespace: team-alpha
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: alpha-app
@@ -55,17 +55,18 @@ metadata:
   name: alpha-app-ingress
   namespace: team-alpha
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
-  ingressClassName: monpremieringressclass
+  ingressClassName: nginx
   rules:
   - host: toto.fr
     http:
       paths:
-      - path: /app-team(/|$)(.*)
+      - path: /something(/|$)(.*)  # CORRECT: Regex path
+        pathType: ImplementationSpecific  # Required for regex
         backend:
           service:
             name: alpha-app
-            port: 
+            port:
               number: 80
-        pathType: Prefix

@@ -3,7 +3,7 @@ controller:
   name: controller
 
   ## The kind of the Ingress Controller installation - deployment or daemonset.
-  kind: daemonset
+  kind: deployment
 
   ## The selectorLabels used to override the default values.
   selectorLabels: {}
@@ -356,7 +356,7 @@ controller:
     ## The Ingress Controller only processes resources that belong to its class - i.e. have the "ingressClassName" field resource equal to the class.
 
     ## The Ingress Controller processes all the resources that do not have the "ingressClassName" field for all versions of kubernetes.
-    name: monpremieringressclass 
+    name: nginx 
 
     ## Creates a new IngressClass object with the name "controller.ingressClass.name". To use an existing IngressClass with the same name, set this value to false. If you use helm upgrade, do not change the values from the previous release as helm will delete IngressClass objects managed by helm. If you are upgrading from a release earlier than 3.3.0, do not set the value to false.
     create: true
@@ -430,7 +430,7 @@ controller:
     create: true
 
     ## The type of service to create for the Ingress Controller.
-    type: NodePort
+    type: LoadBalancer
 
     ## The externalTrafficPolicy of the service. The value Local preserves the client source IP.
     externalTrafficPolicy: Local
@@ -473,7 +473,7 @@ controller:
       port: 80
 
       ## The custom NodePort for the HTTP port. Requires controller.service.type set to NodePort or LoadBalancer.
-      nodePort: 31258
+      # nodePort: 31258
 
       ## The HTTP port on the POD where the Ingress Controller service is running.
       targetPort: 80
@@ -486,7 +486,7 @@ controller:
       port: 443
 
       ## The custom NodePort for the HTTPS port. Requires controller.service.type set to NodePort or LoadBalancer.
-      nodePort: 31259
+      # nodePort: 31259
 
       ## The HTTPS port on the POD where the Ingress Controller service is running.
       targetPort: 443
