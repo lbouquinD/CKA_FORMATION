@@ -1,0 +1,35 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: fruits.example.com #  prends le nom pluriel et  le noml du groupe
+spec:
+  group: example.com  # Le groupe auquel appartient la ressource. 
+  versions:
+  - name: v1 #  La version de l'objet. Important pour l'utilisation
+    served: true #  Utilisable via kube-api  
+    storage: true #  doit être stocker dans l'etcd. Doit être persistant
+    schema:  # Définit le schéma de la ressource. 
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              typeFruit: # le premier champs. Une liste de type de fruit autorisé
+                type: string 
+                enum:
+                - agrume
+                - pepin
+                - noyau
+                - coque
+                - exotique
+              nameFruit: #  Le deuxième champ  le nom du fruit
+                type: string
+                description: Nom du fruit
+  scope: Namespaced #  c'est au nivau du namespace et nom niveau  cluster
+  names:
+    plural: fruits # kubectl get fruits pour lister tout les objet fruuits dans un namespace
+    singular: fruit #  kubectl get fruit mopremierfruit 
+    kind: Fruit #  Le king qu'on retrouve partout pour la  definition déclarative
+    shortNames:
+    - ft #  kubectl get ft
