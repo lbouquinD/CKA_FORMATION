@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: laurentsogeti/ckad_formation_sondes:0.0.1
+    ports:
+    - containerPort: 3000
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 3000
+      failureThreshold: 2
+      periodSeconds: 10
+      initialDelaySeconds: 5
+    readinessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/ready
+      failureThreshold: 3
+      periodSeconds: 3
+      initialDelaySeconds: 5
+    startupProbe:
+      httpGet:
+        path: /readyz
+        port: 3000
+      failureThreshold: 10
+      periodSeconds: 10
+      initialDelaySeconds: 5
