@@ -1,0 +1,12 @@
+{
+  "name": "mon-app-node",
+  "version": "1.0.0",
+  "description": "Application Node.js pour afficher les infos du pod",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1" 
+  }
+}

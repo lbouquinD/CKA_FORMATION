@@ -1,9 +1,12 @@
-FROM nginx:1.27.4
+FROM node:16-alpine
 
-# Copie du fichier index.html
-COPY index.html /usr/share/nginx/html/
+WORKDIR /app
 
-# Copie du fichier de configuration nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY package*.json ./
+RUN npm install
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY . .
+
+EXPOSE 80
+
+CMD ["node", "index.js"]

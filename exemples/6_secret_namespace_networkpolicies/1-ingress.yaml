@@ -1,16 +1,22 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: team-alpha
+  name: test-ingress
   labels:
-    labels-namespace: team-alpha
-
+    labels-namespace: test-ingress
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-beta
+  labels:
+    labels-namespace: team-beta
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alpha-app
-  namespace: team-alpha
+  namespace: test-ingress
 spec:
   replicas: 1
   selector:
@@ -23,7 +29,8 @@ spec:
     spec:
       containers:
       - name: my-container
-        image: laurentsogeti/ckad_formation_ingress:0.0.2
+        image: laurentsogeti/ckad_formation_ingress:0.0.5
+        imagePullPolicy: Always
         env:
         - name: POD_NAME
           valueFrom:
@@ -31,12 +38,40 @@ spec:
               fieldPath: metadata.name
 
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beta-app
+  namespace: team-beta
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beta-app
+  template:
+    metadata:
+      labels:
+        app: beta-app
+    spec:
+      containers:
+      - name: my-container
+        image: laurentsogeti/ckad_formation_ingress:0.0.5
+        imagePullPolicy: Always
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+
+
+
+---
 apiVersion: v1
 kind: Service
 metadata:
   creationTimestamp: null
   name: alpha-app
-  namespace: team-alpha
+  namespace: test-ingress
 spec:
   ports:
   - port: 80
@@ -49,11 +84,42 @@ status:
   loadBalancer: {}
 
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  name: beta-app
+  namespace: team-beta
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: beta-app
+  type: ClusterIP
+status:
+  loadBalancer: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: team-beta-ext
+  namespace: test-ingress
+spec:
+  type: ExternalName
+  externalName: beta-app.team-beta.svc.cluster.local
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: alpha-app-ingress
-  namespace: team-alpha
+  namespace: test-ingress
 spec:
   ingressClassName: nginx
   rules:
@@ -65,5 +131,12 @@ spec:
         backend:
           service:
             name: alpha-app
+            port:
+              number: 80
+      - path: /team-beta
+        pathType: Prefix
+        backend:
+          service:
+            name: team-beta-ext
             port:
               number: 80
