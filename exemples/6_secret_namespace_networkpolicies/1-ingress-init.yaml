@@ -5,13 +5,6 @@ metadata:
   labels:
     labels-namespace: test-ingress
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: team-beta
-  labels:
-    labels-namespace: team-beta
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,7 +35,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: beta-app
-  namespace: team-beta
+  namespace: test-ingress
 spec:
   replicas: 1
   selector:
@@ -89,7 +82,7 @@ kind: Service
 metadata:
   creationTimestamp: null
   name: beta-app
-  namespace: team-beta
+  namespace: test-ingress
 spec:
   ports:
   - port: 80
@@ -100,43 +93,3 @@ spec:
   type: ClusterIP
 status:
   loadBalancer: {}
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: team-beta-ext
-  namespace: test-ingress
-spec:
-  type: ExternalName
-  externalName: beta-app.team-beta.svc.cluster.local
-  ports:
-  - port: 80
-    targetPort: 80
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: alpha-app-ingress
-  namespace: test-ingress
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: toto.fr
-    http:
-      paths:
-      - path: /something
-        pathType: Prefix
-        backend:
-          service:
-            name: alpha-app
-            port:
-              number: 80
-      - path: /team-beta
-        pathType: Prefix
-        backend:
-          service:
-            name: team-beta-ext
-            port:
-              number: 80

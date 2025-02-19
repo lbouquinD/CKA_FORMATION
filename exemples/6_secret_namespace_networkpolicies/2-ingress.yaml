@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alpha-app-ingress
+  namespace: test-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: toto.fr
+    http:
+      paths:
+      - path: /something
+        pathType: Prefix
+        backend:
+          service:
+            name: alpha-app
+            port:
+              number: 80
+      - path: /team-beta
+        pathType: Exact
+        backend:
+          service:
+            name: beta-app
+            port:
+              number: 80
