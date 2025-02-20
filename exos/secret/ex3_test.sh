@@ -15,7 +15,7 @@ fi
 
 
 base64cle=$(cat /tmp/ex3secret/private.key |base64)
-base64crt=$(cat /tmp/ex3secret/private.key |base64)
+base64crt=$(cat /tmp/ex3secret/public.crt |base64)
 
 tlskey=$(kubectl get secret  -o yaml monpremiersecrettls -o jsonpath='{.data.tls\.key}')
 tlscrt=$(kubectl get secret  -o yaml monpremiersecrettls -o jsonpath='{.data.tls\.crt}')
@@ -25,4 +25,3 @@ if [[ "$base64cle" == "$tlskey"  && "$base64crt" ==  "$tlscrt" ]]; then
 else
   echo -e "\t La cle ou/et le certificat sont incorrect  ${RED}KO${ENDCOLOR}" 
 fi
-
