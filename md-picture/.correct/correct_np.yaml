@@ -50,7 +50,7 @@ spec:
     matchLabels: 
       test: nginx-dev-label
   policyTypes:
-  - Ingress
+  - Egress
   egress:
   - to:
     - podSelector:
@@ -59,6 +59,13 @@ spec:
       namespaceSelector: 
         matchLabels: 
           lelabel: monitoring-label 
+  - to:
+    ports:
+      - protocol: TCP
+        port: 53
+      - protocol: UDP
+        port: 53
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -89,3 +96,11 @@ spec:
       namespaceSelector: 
         matchLabels: 
           environment: dev  
+  -  from: 
+      - podSelector:
+          matchLabels:
+            allow-monitoring: "true"
+      - namespaceSelector: 
+          matchLabels: 
+            allow-monitoring: "true"
+
