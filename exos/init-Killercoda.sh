@@ -1,8 +1,5 @@
 #!/bin/bash 
 
-
-apt-get  update -y 
-apt-get  install -y  jq
 # Dossier de départ (peut être modifié)
 dossier_depart="."
 
