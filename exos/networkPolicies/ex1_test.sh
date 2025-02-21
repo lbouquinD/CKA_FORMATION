@@ -66,6 +66,25 @@ kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: allow-monitoring
+  labels:
+    allowmonitoring: autorise  
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod
+  namespace: allow-monitoring
+  labels:
+    allowmonitoring: autorise  
+spec:
+  containers:
+  - name: test-container
+    image: nginx
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: test
 ---
 
@@ -75,7 +94,7 @@ metadata:
   name: test-pod
   namespace: test
   labels:
-    app: test
+    allowmonitoring: autorise  
 spec:
   containers:
   - name: test-container
@@ -160,6 +179,7 @@ kubectl wait --for=condition=Ready pod/test-pod -n test --timeout=60s
 kubectl wait --for=condition=Ready pod/test-pod-monitoring -n monitoring --timeout=60s
 kubectl wait --for=condition=Ready pod/test-pod-prod -n prod --timeout=60s
 kubectl wait --for=condition=Ready pod/test-pod-dev -n dev --timeout=60s
+kubectl wait --for=condition=Ready pod/test-pod -n allow-monitoring --timeout=60s
 
 echo  -e "${BLUE} [Test des services] \n ${ENDCOLOR}"
 if [[ $(check_endpoint_subset "nginx-service" "prod") -eq 0 ]]; then
@@ -175,13 +195,13 @@ echo  -e "${GREEN} OK ${ENDCOLOR}\n"
 # Tests
 
 # 1. blockall (prod) : Aucun trafic entrant/sortant
-# echo  -e "${BLUE} [TEST  BlockAll  prod]\n ${ENDCOLOR}"
-# test_connectivity prod test-pod-prod dev nginx-service failure
-# test_connectivity prod test-pod-prod monitoring nginx-service failure
-# test_connectivity prod test-pod-prod prod google failure
-# test_connectivity test test-pod prod nginx-service failure
-# test_connectivity monitoring test-pod-monitoring prod nginx-service failure
-# test_connectivity dev test-pod-dev dev google  success
+echo  -e "${BLUE}\n [TEST  BlockAll  prod]\n ${ENDCOLOR}"
+test_connectivity prod test-pod-prod dev nginx-service failure
+test_connectivity prod test-pod-prod monitoring nginx-service failure
+test_connectivity prod test-pod-prod prod google failure
+test_connectivity test test-pod prod nginx-service failure
+test_connectivity monitoring test-pod-monitoring prod nginx-service failure
+test_connectivity dev test-pod-dev dev google  success
 
 # 2. allow-mon-app (dev) : Trafic entrant vers nginx-dev
 echo  -e "${BLUE}\n [TEST  allow-mon-app  prod]\n${ENDCOLOR}"
@@ -191,8 +211,13 @@ test_connectivity test test-pod dev test-svc-dev failure
 
 
 # # 3. allow-monitoring (dev) : Communication depuis dev vers monitoring
-# test_connectivity dev test-pod-dev monitoring test-pod-monitoring success
-# test_connectivity monitoring test-pod-monitoring monitoring test-pod-monitoring success # Test depuis monitoring vers monitoring (devrait aussi marcher)
+echo  -e "${BLUE}\n [TEST  allow-monitoring]\n${ENDCOLOR}"
+test_connectivity dev deployments/nginx-dev monitoring nginx-service success
+test_connectivity allow-monitoring test-pod monitoring nginx-service success 
+test_connectivity test test-pod monitoring nginx-service failure
+
+
+
 
 # # Nettoyage (facultatif)
 # # kubectl delete pod test-pod-dev -n dev

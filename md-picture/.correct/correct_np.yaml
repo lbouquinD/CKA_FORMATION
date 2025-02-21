@@ -99,8 +99,9 @@ spec:
   -  from: 
       - podSelector:
           matchLabels:
-            allow-monitoring: "true"
-      - namespaceSelector: 
+            allowmonitoring: autorise
+        namespaceSelector: 
           matchLabels: 
-            allow-monitoring: "true"
+            allowmonitoring: autorise
+
 
