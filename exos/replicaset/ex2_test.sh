@@ -1,45 +1,21 @@
-#!/bin/bash  
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-function get_JSON_Replicaset() {
-    name=$1
-    namespace=$2
-    result=$(kubectl get  rs $name -n  $namespace -o  json  2> /dev/null)
-    error=$? 
-    if [ $error -eq 0 ]; then
-	echo  $result
-	return 0 
-    fi 
-  echo "{}"
-  return  0 
-}
-
-jsonRs=$(get_JSON_Replicaset testresplicatset default)
-
-
-if [ -e "/tmp/ex2NbReplicaset" ]; then
-   logUser=$(cat /tmp/ex2NbReplicaset | tr -d '\n' | sed 's/ //g')
-   if [ "$logUser" = "3" ]; then
-    echo -e "Nombre de replicaset ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "Test nombre de replicaset  ${RED} KO ${ENDCOLOR}"
-    echo -e "\t Le contenu de /tmp/ex2NbReplicaset est incorrect $logUser"
-  fi
-else
-  echo -e "Test nombre de replicaset  ${RED} KO ${ENDCOLOR}"
-  echo -e "\t ${RED}Le fichier /tmp/ex2NbReplicaset n'existe pas. ${ENDCOLOR}"
-fi
-
-# Vérification du  nombre de replicas  requis
-replicas_count=$(echo "$jsonRs" | jq '.spec.replicas')
-if [[ $replicas_count -eq 5 ]]; then
-  echo -e "Nombre de replicas: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nombre de replicas ${RED} KO ${ENDCOLOR}"
-fi
-
-
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggIAoKUkVEPSJcZVszMW0iCkdSRUVOPSJcZVszMm0iCkVORENPTE9SPSJcZVsw
+bSIKCgpmdW5jdGlvbiBnZXRfSlNPTl9SZXBsaWNhc2V0KCkgewogICAgbmFtZT0kMQogICAgbmFt
+ZXNwYWNlPSQyCiAgICByZXN1bHQ9JChrdWJlY3RsIGdldCAgcnMgJG5hbWUgLW4gICRuYW1lc3Bh
+Y2UgLW8gIGpzb24gIDI+IC9kZXYvbnVsbCkKICAgIGVycm9yPSQ/IAogICAgaWYgWyAkZXJyb3Ig
+LWVxIDAgXTsgdGhlbgoJZWNobyAgJHJlc3VsdAoJcmV0dXJuIDAgCiAgICBmaSAKICBlY2hvICJ7
+fSIKICByZXR1cm4gIDAgCn0KCmpzb25Scz0kKGdldF9KU09OX1JlcGxpY2FzZXQgdGVzdHJlc3Bs
+aWNhdHNldCBkZWZhdWx0KQoKCmlmIFsgLWUgIi90bXAvZXgyTmJSZXBsaWNhc2V0IiBdOyB0aGVu
+CiAgIGxvZ1VzZXI9JChjYXQgL3RtcC9leDJOYlJlcGxpY2FzZXQgfCB0ciAtZCAnXG4nIHwgc2Vk
+ICdzLyAvL2cnKQogICBpZiBbICIkbG9nVXNlciIgPSAiMyIgXTsgdGhlbgogICAgZWNobyAtZSAi
+Tm9tYnJlIGRlIHJlcGxpY2FzZXQgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCiAgZWxzZQogICAg
+ZWNobyAtZSAiVGVzdCBub21icmUgZGUgcmVwbGljYXNldCAgJHtSRUR9IEtPICR7RU5EQ09MT1J9
+IgogICAgZWNobyAtZSAiXHQgTGUgY29udGVudSBkZSAvdG1wL2V4Mk5iUmVwbGljYXNldCBlc3Qg
+aW5jb3JyZWN0ICRsb2dVc2VyIgogIGZpCmVsc2UKICBlY2hvIC1lICJUZXN0IG5vbWJyZSBkZSBy
+ZXBsaWNhc2V0ICAke1JFRH0gS08gJHtFTkRDT0xPUn0iCiAgZWNobyAtZSAiXHQgJHtSRUR9TGUg
+ZmljaGllciAvdG1wL2V4Mk5iUmVwbGljYXNldCBuJ2V4aXN0ZSBwYXMuICR7RU5EQ09MT1J9Igpm
+aQoKIyBWw6lyaWZpY2F0aW9uIGR1ICBub21icmUgZGUgcmVwbGljYXMgIHJlcXVpcwpyZXBsaWNh
+c19jb3VudD0kKGVjaG8gIiRqc29uUnMiIHwganEgJy5zcGVjLnJlcGxpY2FzJykKaWYgW1sgJHJl
+cGxpY2FzX2NvdW50IC1lcSA1IF1dOyB0aGVuCiAgZWNobyAtZSAiTm9tYnJlIGRlIHJlcGxpY2Fz
+OiAke0dSRUVOfSBPSyAke0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIk5vbWJyZSBkZSByZXBs
+aWNhcyAke1JFRH0gS08gJHtFTkRDT0xPUn0iCmZpCgoK' | base64 -d)

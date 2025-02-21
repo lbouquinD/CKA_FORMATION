@@ -1,110 +1,36 @@
-#!/bin/bash
-
-
-kubectl delete deployment dep4  --force --grace-period=0 2>/dev/null 
-yaml=$(cat << EOF
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dep1
-  labels:
-    app: nginx
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: conteneur1
-        image: nginx:42.14.2
-        ports:
-        - containerPort: 80
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dep2
-  labels:
-    app: dep2
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: dep2
-  template:
-    metadata:
-      labels:
-        app: dep2
-    spec:
-      containers:
-      - name: conteneur1
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dep3
-  labels:
-    app: dep3
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: dep3
-  template:
-    metadata:
-      labels:
-        app: dep3
-    spec:
-      containers:
-      - name: conteneur1
-        image: laurentsogeti/pod_showname_formation_ckad:0.0.2
-        ports:
-        - containerPort: 80
-        env:
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dep4
-  labels:
-    app: dep4
-spec:
-  revisionHistoryLimit: 100
-  replicas: 3
-  selector:
-    matchLabels:
-      app: dep4
-  template:
-    metadata:
-      labels:
-        app: dep4
-    spec:
-      containers:
-      - name: conteneur1
-        image: nginx:1.14.3
-        ports:
-        - containerPort: 80
-EOF
-)
-
-# Apply the YAML using kubectl with --record
-kubectl apply -f - << EOF
-$yaml
-EOF
-kubectl get rs -l app=dep4 -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' > /tmp/ex2Deployrsinit
-kubectl set image deployment/dep4 conteneur1=nginx:1.14.1
-kubectl set image deployment/dep4 conteneur1=nginx:1.14.2
-
-
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgprdWJlY3RsIGRlbGV0ZSBkZXBsb3ltZW50IGRlcDQgIC0tZm9yY2UgLS1n
+cmFjZS1wZXJpb2Q9MCAyPi9kZXYvbnVsbCAKeWFtbD0kKGNhdCA8PCBFT0YKYXBpVmVyc2lvbjog
+YXBwcy92MQpraW5kOiBEZXBsb3ltZW50Cm1ldGFkYXRhOgogIG5hbWU6IGRlcDEKICBsYWJlbHM6
+CiAgICBhcHA6IG5naW54CnNwZWM6CiAgcmVwbGljYXM6IDMKICBzZWxlY3RvcjoKICAgIG1hdGNo
+TGFiZWxzOgogICAgICBhcHA6IG5naW54CiAgdGVtcGxhdGU6CiAgICBtZXRhZGF0YToKICAgICAg
+bGFiZWxzOgogICAgICAgIGFwcDogbmdpbngKICAgIHNwZWM6CiAgICAgIGNvbnRhaW5lcnM6CiAg
+ICAgIC0gbmFtZTogY29udGVuZXVyMQogICAgICAgIGltYWdlOiBuZ2lueDo0Mi4xNC4yCiAgICAg
+ICAgcG9ydHM6CiAgICAgICAgLSBjb250YWluZXJQb3J0OiA4MAotLS0KYXBpVmVyc2lvbjogYXBw
+cy92MQpraW5kOiBEZXBsb3ltZW50Cm1ldGFkYXRhOgogIG5hbWU6IGRlcDIKICBsYWJlbHM6CiAg
+ICBhcHA6IGRlcDIKc3BlYzoKICByZXBsaWNhczogMwogIHNlbGVjdG9yOgogICAgbWF0Y2hMYWJl
+bHM6CiAgICAgIGFwcDogZGVwMgogIHRlbXBsYXRlOgogICAgbWV0YWRhdGE6CiAgICAgIGxhYmVs
+czoKICAgICAgICBhcHA6IGRlcDIKICAgIHNwZWM6CiAgICAgIGNvbnRhaW5lcnM6CiAgICAgIC0g
+bmFtZTogY29udGVuZXVyMQogICAgICAgIGltYWdlOiBuZ2lueDoxLjE0LjIKICAgICAgICBwb3J0
+czoKICAgICAgICAtIGNvbnRhaW5lclBvcnQ6IDgwCi0tLQphcGlWZXJzaW9uOiBhcHBzL3YxCmtp
+bmQ6IERlcGxveW1lbnQKbWV0YWRhdGE6CiAgbmFtZTogZGVwMwogIGxhYmVsczoKICAgIGFwcDog
+ZGVwMwpzcGVjOgogIHJlcGxpY2FzOiAzCiAgc2VsZWN0b3I6CiAgICBtYXRjaExhYmVsczoKICAg
+ICAgYXBwOiBkZXAzCiAgdGVtcGxhdGU6CiAgICBtZXRhZGF0YToKICAgICAgbGFiZWxzOgogICAg
+ICAgIGFwcDogZGVwMwogICAgc3BlYzoKICAgICAgY29udGFpbmVyczoKICAgICAgLSBuYW1lOiBj
+b250ZW5ldXIxCiAgICAgICAgaW1hZ2U6IGxhdXJlbnRzb2dldGkvcG9kX3Nob3duYW1lX2Zvcm1h
+dGlvbl9ja2FkOjAuMC4yCiAgICAgICAgcG9ydHM6CiAgICAgICAgLSBjb250YWluZXJQb3J0OiA4
+MAogICAgICAgIGVudjoKICAgICAgICAtIG5hbWU6IFBPRF9OQU1FCiAgICAgICAgICB2YWx1ZUZy
+b206CiAgICAgICAgICAgIGZpZWxkUmVmOgogICAgICAgICAgICAgIGZpZWxkUGF0aDogbWV0YWRh
+dGEubmFtZQotLS0KYXBpVmVyc2lvbjogYXBwcy92MQpraW5kOiBEZXBsb3ltZW50Cm1ldGFkYXRh
+OgogIG5hbWU6IGRlcDQKICBsYWJlbHM6CiAgICBhcHA6IGRlcDQKc3BlYzoKICByZXZpc2lvbkhp
+c3RvcnlMaW1pdDogMTAwCiAgcmVwbGljYXM6IDMKICBzZWxlY3RvcjoKICAgIG1hdGNoTGFiZWxz
+OgogICAgICBhcHA6IGRlcDQKICB0ZW1wbGF0ZToKICAgIG1ldGFkYXRhOgogICAgICBsYWJlbHM6
+CiAgICAgICAgYXBwOiBkZXA0CiAgICBzcGVjOgogICAgICBjb250YWluZXJzOgogICAgICAtIG5h
+bWU6IGNvbnRlbmV1cjEKICAgICAgICBpbWFnZTogbmdpbng6MS4xNC4zCiAgICAgICAgcG9ydHM6
+CiAgICAgICAgLSBjb250YWluZXJQb3J0OiA4MApFT0YKKQoKIyBBcHBseSB0aGUgWUFNTCB1c2lu
+ZyBrdWJlY3RsIHdpdGggLS1yZWNvcmQKa3ViZWN0bCBhcHBseSAtZiAtIDw8IEVPRgokeWFtbApF
+T0YKa3ViZWN0bCBnZXQgcnMgLWwgYXBwPWRlcDQgLW8ganNvbnBhdGg9J3tyYW5nZSAuaXRlbXNb
+Kl19ey5tZXRhZGF0YS5uYW1lfXsiXG4ifXtlbmR9JyA+IC90bXAvZXgyRGVwbG95cnNpbml0Cmt1
+YmVjdGwgc2V0IGltYWdlIGRlcGxveW1lbnQvZGVwNCBjb250ZW5ldXIxPW5naW54OjEuMTQuMQpr
+dWJlY3RsIHNldCBpbWFnZSBkZXBsb3ltZW50L2RlcDQgY29udGVuZXVyMT1uZ2lueDoxLjE0LjIK
+Cgo=' | base64 -d)

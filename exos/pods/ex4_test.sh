@@ -1,55 +1,27 @@
-#!/bin/bash  
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-# Vérification des logs
-log_to_test="BonjourdepuislePod1" 
-
-if [ -e "/tmp/logPod1" ]; then
-   logUser=$(cat /tmp/logPod1 | tr -d '\n' | sed 's/ //g')
-   if [ "$logUser" = "$log_to_test" ]; then
-    echo -e "Test  logs  ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "Test  logs  ${RED} KO ${ENDCOLOR}"
-    echo -e "\t Le contenu des logs est incorrect : $logUser"
-  fi
-
-   
-else
-  echo  -e "${RED} Le fichier /tmp/logPod1 n'existe pas. ${ENDCOLOR}"
-  echo  -e "\t Test  de la récupération des Logs ${RED} KO ${ENDcOLOR}"
-fi
-
-
-
-if [ -e "/tmp/nbConteneurPod1" ]; then
-   logUser=$(cat /tmp/nbConteneurPod1 | tr -d '\n' | sed 's/ //g')
-   if [ "$logUser" = "1" ]; then
-    echo -e "Nombre conteneur(s)  ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "Test nombre de Conteneur(s)  ${RED} KO ${ENDCOLOR}"
-    echo -e "\t Le contenu de /tmp/nbConteneurPod1 est incorrect $logUser"
-  fi
-
-   
-else
-  echo  -e "Test  de la récupération du nombre de Pod ${RED} KO ${ENDCOLOR} "
-  echo  -e "\t ${RED}Le fichier /tmp/nbConteneurPod1 n'existe pas. ${ENDCOLOR}"
-fi
-
-exist_pod=$(kubectl  get po  pod1 2>/dev/null |grep pod1 |wc -l   )
-if [ "$exist_pod" -eq 1 ]; then
-  # Si la variable est égale à 1, exécuter ce bloc
-  echo -e "Test  existence pod ${RED} KO ${ENDCOLOR}"
-  echo -e "\t le pod existe"
-else
-  # Sinon, exécuter ce bloc
-  echo  -e "Test  existence pod ${GREEN} OK ${ENDCOLOR}"
-fi
-
-
-
-
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggIAoKUkVEPSJcZVszMW0iCkdSRUVOPSJcZVszMm0iCkVORENPTE9SPSJcZVsw
+bSIKCgojIFbDqXJpZmljYXRpb24gZGVzIGxvZ3MKbG9nX3RvX3Rlc3Q9IkJvbmpvdXJkZXB1aXNs
+ZVBvZDEiIAoKaWYgWyAtZSAiL3RtcC9sb2dQb2QxIiBdOyB0aGVuCiAgIGxvZ1VzZXI9JChjYXQg
+L3RtcC9sb2dQb2QxIHwgdHIgLWQgJ1xuJyB8IHNlZCAncy8gLy9nJykKICAgaWYgWyAiJGxvZ1Vz
+ZXIiID0gIiRsb2dfdG9fdGVzdCIgXTsgdGhlbgogICAgZWNobyAtZSAiVGVzdCAgbG9ncyAgJHtH
+UkVFTn0gT0sgJHtFTkRDT0xPUn0iCiAgZWxzZQogICAgZWNobyAtZSAiVGVzdCAgbG9ncyAgJHtS
+RUR9IEtPICR7RU5EQ09MT1J9IgogICAgZWNobyAtZSAiXHQgTGUgY29udGVudSBkZXMgbG9ncyBl
+c3QgaW5jb3JyZWN0IDogJGxvZ1VzZXIiCiAgZmkKCiAgIAplbHNlCiAgZWNobyAgLWUgIiR7UkVE
+fSBMZSBmaWNoaWVyIC90bXAvbG9nUG9kMSBuJ2V4aXN0ZSBwYXMuICR7RU5EQ09MT1J9IgogIGVj
+aG8gIC1lICJcdCBUZXN0ICBkZSBsYSByw6ljdXDDqXJhdGlvbiBkZXMgTG9ncyAke1JFRH0gS08g
+JHtFTkRjT0xPUn0iCmZpCgoKCmlmIFsgLWUgIi90bXAvbmJDb250ZW5ldXJQb2QxIiBdOyB0aGVu
+CiAgIGxvZ1VzZXI9JChjYXQgL3RtcC9uYkNvbnRlbmV1clBvZDEgfCB0ciAtZCAnXG4nIHwgc2Vk
+ICdzLyAvL2cnKQogICBpZiBbICIkbG9nVXNlciIgPSAiMSIgXTsgdGhlbgogICAgZWNobyAtZSAi
+Tm9tYnJlIGNvbnRlbmV1cihzKSAgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCiAgZWxzZQogICAg
+ZWNobyAtZSAiVGVzdCBub21icmUgZGUgQ29udGVuZXVyKHMpICAke1JFRH0gS08gJHtFTkRDT0xP
+Un0iCiAgICBlY2hvIC1lICJcdCBMZSBjb250ZW51IGRlIC90bXAvbmJDb250ZW5ldXJQb2QxIGVz
+dCBpbmNvcnJlY3QgJGxvZ1VzZXIiCiAgZmkKCiAgIAplbHNlCiAgZWNobyAgLWUgIlRlc3QgIGRl
+IGxhIHLDqWN1cMOpcmF0aW9uIGR1IG5vbWJyZSBkZSBQb2QgJHtSRUR9IEtPICR7RU5EQ09MT1J9
+ICIKICBlY2hvICAtZSAiXHQgJHtSRUR9TGUgZmljaGllciAvdG1wL25iQ29udGVuZXVyUG9kMSBu
+J2V4aXN0ZSBwYXMuICR7RU5EQ09MT1J9IgpmaQoKZXhpc3RfcG9kPSQoa3ViZWN0bCAgZ2V0IHBv
+ICBwb2QxIDI+L2Rldi9udWxsIHxncmVwIHBvZDEgfHdjIC1sICAgKQppZiBbICIkZXhpc3RfcG9k
+IiAtZXEgMSBdOyB0aGVuCiAgIyBTaSBsYSB2YXJpYWJsZSBlc3Qgw6lnYWxlIMOgIDEsIGV4w6lj
+dXRlciBjZSBibG9jCiAgZWNobyAtZSAiVGVzdCAgZXhpc3RlbmNlIHBvZCAke1JFRH0gS08gJHtF
+TkRDT0xPUn0iCiAgZWNobyAtZSAiXHQgbGUgcG9kIGV4aXN0ZSIKZWxzZQogICMgU2lub24sIGV4
+w6ljdXRlciBjZSBibG9jCiAgZWNobyAgLWUgIlRlc3QgIGV4aXN0ZW5jZSBwb2QgJHtHUkVFTn0g
+T0sgJHtFTkRDT0xPUn0iCmZpCgoKCgo=' | base64 -d)

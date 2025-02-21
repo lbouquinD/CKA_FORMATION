@@ -1,65 +1,52 @@
-#!/bin/bash
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-nb_ready=$(kubectl get deployments -o jsonpath='{.status.readyReplicas}' dep1)
-
-if [[ "$nb_ready" == "3" ]]; then 
-    echo  -e "Analyse et correction déploiement dep1 ${GREEN} OK ${ENDCOLOR}"
-else
-    echo -e "Analyse et correction déploiement dep1 ${RED} KO ${ENDCOLOR}"
-fi
-
-# verif dep2 
-container1_image=$(kubectl get deployment dep2 -o jsonpath='{.spec.template.spec.containers[?(@.name=="conteneur1")].image}' 2>/dev/null)
-container1_command=$(kubectl get deployment dep2 -o jsonpath='{.spec.template.spec.containers[?(@.name=="conteneur1")].command}' 2>/dev/null)
-if [[ "$container1_image" == "busybox" && "$container1_command" == "[\"sleep\",\"1000\"]" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Modification de l'image et de la commande de dep2: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Modification de l'image et de la commande de dep2: ${RED}KO${ENDCOLOR}"
-  echo -e "\tL'image ou la commande du conteneur1 de dep2 sont incorrectes."
-  echo -e "\tImage actuelle : $container1_image, Commande actuelle: $container1_command" #Afficher les valeurs actuelles pour le debug
-fi
-
-
-# Verfi  dep3  
-log_to_test=$(kubectl logs -l app=dep3 |sort > /tmp/exdeployResult)
-
-if [ -e "/tmp/exDeploy2" ]; then
-   logUser=$(cat /tmp/exDeploy2 |sort )
-   sort /tmp/exDeploy2 > /tmp/exdeploy2_trie
-   errorDiff=$(diff /tmp/exdeploy2_trie /tmp/exdeployResult)
-   if [ -z "$errorDiff" ]; then
-    echo -e "Sauvegarder les logs de toutes les instances de **dep3** sur le fichier /tmp/exDeploy2   ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "Sauvegarder les logs de toutes les instances de **dep3** sur le fichier /tmp/exDeploy2  ${RED} KO ${ENDCOLOR}"
-    echo -e "\t Le contenu du log est incorrect : $logUser"
-  fi
-else 
-    echo  -e "Sauvegarder les logs de toutes les instances de **dep3** sur le fichier /tmp/exDeploy2  ${RED} KO ${ENDCOLOR}"
-    echo  -e "\t Fichier /tmp/exDeploy2 introuvable" 
-fi
-
-#  Verif dep4  
-container1_image=$(kubectl get deployment dep4 -o jsonpath='{.spec.template.spec.containers[?(@.name=="conteneur1")].image}' 2>/dev/null)
-if [[ "$container1_image" == "nginx:1.14.3" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Le deploiment dep4  doit revenir sur la version 1: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Le deploiment dep4  doit revenir sur la version 1: ${RED}KO${ENDCOLOR}"
-fi
-
-#verif dep4 updated
-verifReplicaset=$(kubectl get  deployment   dep4 -o jsonpath='{.status.conditions[?(@.reason=="ReplicaSetUpdated")].message}')
-rsinit=$(cat /tmp/ex2Deployrsinit)
-rollout=$(echo  "$verifReplicaset" |grep -c  $rsinit)
-if [[ "$rollout" == "1" ]];  then 
-  echo -e "Le déploiement a été réinitialisé depuis un rollout ${GREEN} OK ${ENDCOLOR}"
-else 
-  echo -e "Le déploiement a été réinitialisé depuis un rollout ${RED} KO ${ENDCOLOR}"
-fi
-
-
-
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKClJFRD0iXGVbMzFtIgpHUkVFTj0iXGVbMzJtIgpFTkRDT0xPUj0iXGVbMG0i
+CgoKbmJfcmVhZHk9JChrdWJlY3RsIGdldCBkZXBsb3ltZW50cyAtbyBqc29ucGF0aD0ney5zdGF0
+dXMucmVhZHlSZXBsaWNhc30nIGRlcDEpCgppZiBbWyAiJG5iX3JlYWR5IiA9PSAiMyIgXV07IHRo
+ZW4gCiAgICBlY2hvICAtZSAiQW5hbHlzZSBldCBjb3JyZWN0aW9uIGTDqXBsb2llbWVudCBkZXAx
+ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgICBlY2hvIC1lICJBbmFseXNlIGV0IGNv
+cnJlY3Rpb24gZMOpcGxvaWVtZW50IGRlcDEgJHtSRUR9IEtPICR7RU5EQ09MT1J9IgpmaQoKIyB2
+ZXJpZiBkZXAyIApjb250YWluZXIxX2ltYWdlPSQoa3ViZWN0bCBnZXQgZGVwbG95bWVudCBkZXAy
+IC1vIGpzb25wYXRoPSd7LnNwZWMudGVtcGxhdGUuc3BlYy5jb250YWluZXJzWz8oQC5uYW1lPT0i
+Y29udGVuZXVyMSIpXS5pbWFnZX0nIDI+L2Rldi9udWxsKQpjb250YWluZXIxX2NvbW1hbmQ9JChr
+dWJlY3RsIGdldCBkZXBsb3ltZW50IGRlcDIgLW8ganNvbnBhdGg9J3suc3BlYy50ZW1wbGF0ZS5z
+cGVjLmNvbnRhaW5lcnNbPyhALm5hbWU9PSJjb250ZW5ldXIxIildLmNvbW1hbmR9JyAyPi9kZXYv
+bnVsbCkKaWYgW1sgIiRjb250YWluZXIxX2ltYWdlIiA9PSAiYnVzeWJveCIgJiYgIiRjb250YWlu
+ZXIxX2NvbW1hbmQiID09ICJbXCJzbGVlcFwiLFwiMTAwMFwiXSIgXV07IHRoZW4gI0RvdWJsZSBj
+cm9jaGV0IHBvdXIgbGEgY29tcGFyYWlzb24gZGUgY2hhaW5lcywgJiYgcG91ciAiZXQiCiAgZWNo
+byAtZSAiTW9kaWZpY2F0aW9uIGRlIGwnaW1hZ2UgZXQgZGUgbGEgY29tbWFuZGUgZGUgZGVwMjog
+JHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiTW9kaWZpY2F0aW9uIGRlIGwn
+aW1hZ2UgZXQgZGUgbGEgY29tbWFuZGUgZGUgZGVwMjogJHtSRUR9S08ke0VORENPTE9SfSIKICBl
+Y2hvIC1lICJcdEwnaW1hZ2Ugb3UgbGEgY29tbWFuZGUgZHUgY29udGVuZXVyMSBkZSBkZXAyIHNv
+bnQgaW5jb3JyZWN0ZXMuIgogIGVjaG8gLWUgIlx0SW1hZ2UgYWN0dWVsbGUgOiAkY29udGFpbmVy
+MV9pbWFnZSwgQ29tbWFuZGUgYWN0dWVsbGU6ICRjb250YWluZXIxX2NvbW1hbmQiICNBZmZpY2hl
+ciBsZXMgdmFsZXVycyBhY3R1ZWxsZXMgcG91ciBsZSBkZWJ1ZwpmaQoKCiMgVmVyZmkgIGRlcDMg
+IApsb2dfdG9fdGVzdD0kKGt1YmVjdGwgbG9ncyAtbCBhcHA9ZGVwMyB8c29ydCA+IC90bXAvZXhk
+ZXBsb3lSZXN1bHQpCgppZiBbIC1lICIvdG1wL2V4RGVwbG95MiIgXTsgdGhlbgogICBsb2dVc2Vy
+PSQoY2F0IC90bXAvZXhEZXBsb3kyIHxzb3J0ICkKICAgc29ydCAvdG1wL2V4RGVwbG95MiA+IC90
+bXAvZXhkZXBsb3kyX3RyaWUKICAgZXJyb3JEaWZmPSQoZGlmZiAvdG1wL2V4ZGVwbG95Ml90cmll
+IC90bXAvZXhkZXBsb3lSZXN1bHQpCiAgIGlmIFsgLXogIiRlcnJvckRpZmYiIF07IHRoZW4KICAg
+IGVjaG8gLWUgIlNhdXZlZ2FyZGVyIGxlcyBsb2dzIGRlIHRvdXRlcyBsZXMgaW5zdGFuY2VzIGRl
+ICoqZGVwMyoqIHN1ciBsZSBmaWNoaWVyIC90bXAvZXhEZXBsb3kyICAgJHtHUkVFTn0gT0sgJHtF
+TkRDT0xPUn0iCiAgZWxzZQogICAgZWNobyAtZSAiU2F1dmVnYXJkZXIgbGVzIGxvZ3MgZGUgdG91
+dGVzIGxlcyBpbnN0YW5jZXMgZGUgKipkZXAzKiogc3VyIGxlIGZpY2hpZXIgL3RtcC9leERlcGxv
+eTIgICR7UkVEfSBLTyAke0VORENPTE9SfSIKICAgIGVjaG8gLWUgIlx0IExlIGNvbnRlbnUgZHUg
+bG9nIGVzdCBpbmNvcnJlY3QgOiAkbG9nVXNlciIKICBmaQplbHNlIAogICAgZWNobyAgLWUgIlNh
+dXZlZ2FyZGVyIGxlcyBsb2dzIGRlIHRvdXRlcyBsZXMgaW5zdGFuY2VzIGRlICoqZGVwMyoqIHN1
+ciBsZSBmaWNoaWVyIC90bXAvZXhEZXBsb3kyICAke1JFRH0gS08gJHtFTkRDT0xPUn0iCiAgICBl
+Y2hvICAtZSAiXHQgRmljaGllciAvdG1wL2V4RGVwbG95MiBpbnRyb3V2YWJsZSIgCmZpCgojICBW
+ZXJpZiBkZXA0ICAKY29udGFpbmVyMV9pbWFnZT0kKGt1YmVjdGwgZ2V0IGRlcGxveW1lbnQgZGVw
+NCAtbyBqc29ucGF0aD0ney5zcGVjLnRlbXBsYXRlLnNwZWMuY29udGFpbmVyc1s/KEAubmFtZT09
+ImNvbnRlbmV1cjEiKV0uaW1hZ2V9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250YWluZXIxX2lt
+YWdlIiA9PSAibmdpbng6MS4xNC4zIiBdXTsgdGhlbiAjRG91YmxlIGNyb2NoZXQgcG91ciBsYSBj
+b21wYXJhaXNvbiBkZSBjaGFpbmVzLCAmJiBwb3VyICJldCIKICBlY2hvIC1lICJMZSBkZXBsb2lt
+ZW50IGRlcDQgIGRvaXQgcmV2ZW5pciBzdXIgbGEgdmVyc2lvbiAxOiAke0dSRUVOfU9LJHtFTkRD
+T0xPUn0iCmVsc2UKICBlY2hvIC1lICJMZSBkZXBsb2ltZW50IGRlcDQgIGRvaXQgcmV2ZW5pciBz
+dXIgbGEgdmVyc2lvbiAxOiAke1JFRH1LTyR7RU5EQ09MT1J9IgpmaQoKI3ZlcmlmIGRlcDQgdXBk
+YXRlZAp2ZXJpZlJlcGxpY2FzZXQ9JChrdWJlY3RsIGdldCAgZGVwbG95bWVudCAgIGRlcDQgLW8g
+anNvbnBhdGg9J3suc3RhdHVzLmNvbmRpdGlvbnNbPyhALnJlYXNvbj09IlJlcGxpY2FTZXRVcGRh
+dGVkIildLm1lc3NhZ2V9JykKcnNpbml0PSQoY2F0IC90bXAvZXgyRGVwbG95cnNpbml0KQpyb2xs
+b3V0PSQoZWNobyAgIiR2ZXJpZlJlcGxpY2FzZXQiIHxncmVwIC1jICAkcnNpbml0KQppZiBbWyAi
+JHJvbGxvdXQiID09ICIxIiBdXTsgIHRoZW4gCiAgZWNobyAtZSAiTGUgZMOpcGxvaWVtZW50IGEg
+w6l0w6kgcsOpaW5pdGlhbGlzw6kgZGVwdWlzIHVuIHJvbGxvdXQgJHtHUkVFTn0gT0sgJHtFTkRD
+T0xPUn0iCmVsc2UgCiAgZWNobyAtZSAiTGUgZMOpcGxvaWVtZW50IGEgw6l0w6kgcsOpaW5pdGlh
+bGlzw6kgZGVwdWlzIHVuIHJvbGxvdXQgJHtSRUR9IEtPICR7RU5EQ09MT1J9IgpmaQoKCgo=' | base64 -d)

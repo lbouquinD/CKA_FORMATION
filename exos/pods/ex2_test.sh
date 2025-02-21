@@ -1,100 +1,59 @@
-#!/bin/bash  
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-function get_JSON_Pods() {
-    name=$1
-    namespace=$2
-    result=$(kubectl get  po $name -n  $namespace -o  json  2> /dev/null)
-    error=$? 
-    if [ $error -eq 0 ]; then
-	echo  $result
-	return 0 
-    fi 
-  echo "{}"
-  return  0 
-}
-
-jsonPod=$(get_JSON_Pods ex2pod default)
-#Verification du  nom du pod
-namePod=$(echo "$jsonPod" | jq -r  '.metadata.name' 2>/dev/null)
-
-if [[ -z "$namePod" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le nom du pod"
-elif [[ "$namePod" == "ex2pod" ]]; then
-  echo -e  "Le pod est bien nommé 'ex2pod'. ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Le pod n'est pas nommé 'ex2pod'.${RED}  KO ${ENDCOLOR}"
-fi
-
-
-# Vérification  namespace 
-namespace=$(echo "$jsonPod" | jq -r  '.metadata.namespace' 2>/dev/null)
-
-if [[ -z "$namespace" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le namespace"
-elif [[ "$namespace" == "default" ]]; then
-  echo -e  "Namespace  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e  "Namespace ${RED}  KO ${ENDCOLOR} "
-fi
-
-
-
-# Vérification du  nombre de conteneur requis
-container_count=$(echo "$jsonPod" | jq '.spec.containers | length')
-if [[ $container_count -eq 2 ]]; then
-  echo -e "Nombre de conteneur : ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nombre de conteneur ${RED} KO ${ENDCOLOR} \n\t  Explication nombre de conteneurs  trouvé: $container_count"
-fi
-
-
-# Vérification du  nom du  conteneur1
-containerName1=$(echo "$jsonPod" | jq -r  '.spec.containers[0].name' 2>/dev/null)
-if [[ "$containerName1" == "conteneur1" ]]; then
-  echo -e "Nom du conteneur1: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nom du conteneur1:  ${RED} KO ${ENDCOLOR} \n\t  Explication:  nom du  conteneur  trouvé: $containerName1"
-fi
-
-# Vérification de l'image du conteneur1  
-containerImage=$(echo "$jsonPod" | jq -r  '.spec.containers[0].image' 2>/dev/null)
-if [[ "$containerImage" == "nginx:1.27.3" ]]; then
-  echo -e "Image  du conteneur1: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Image du conteneur1:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  nom de  l'image  trouvé:  $containerImage"
-fi
-
-
-# Vérification du  nom du  conteneur2
-containerName2=$(echo "$jsonPod" | jq -r  '.spec.containers[1].name' 2>/dev/null)
-if [[ "$containerName2" == "conteneur2" ]]; then
-  echo -e "Nom du conteneur2: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nom du conteneur2:  ${RED} KO ${ENDCOLOR} \n\t  Explication:  nom du  conteneur  trouvé: $containerName2"
-fi
-
-# Vérification de l'image du conteneur1  
-containerImage2=$(echo "$jsonPod" | jq -r  '.spec.containers[1].image' 2>/dev/null)
-if [[ "$containerImage2" == "busybox" ]]; then
-  echo -e "Image  du conteneur2: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Image du conteneur2:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  nom de  l'image  trouvé:  $containerImage2"
-fi
-
-
-# Vérification de la commande du conteneur2 
-containerCommand2=$(echo "$jsonPod" | jq -r  '.spec.containers[1].command' | tr -d '\n' | sed 's/ //g' 2>/dev/null)
-if [[ "$containerCommand2" == "[\"sleep\",\"1000\"]" ]]; then
-  echo -e "Commande du conteneur2: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Commande du conteneur2:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  nom de  la commande  trouvé:  $containerCommand2"
-fi
-
-
-
-# echo  "$jsonPod" | jq
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggIAoKUkVEPSJcZVszMW0iCkdSRUVOPSJcZVszMm0iCkVORENPTE9SPSJcZVsw
+bSIKCgpmdW5jdGlvbiBnZXRfSlNPTl9Qb2RzKCkgewogICAgbmFtZT0kMQogICAgbmFtZXNwYWNl
+PSQyCiAgICByZXN1bHQ9JChrdWJlY3RsIGdldCAgcG8gJG5hbWUgLW4gICRuYW1lc3BhY2UgLW8g
+IGpzb24gIDI+IC9kZXYvbnVsbCkKICAgIGVycm9yPSQ/IAogICAgaWYgWyAkZXJyb3IgLWVxIDAg
+XTsgdGhlbgoJZWNobyAgJHJlc3VsdAoJcmV0dXJuIDAgCiAgICBmaSAKICBlY2hvICJ7fSIKICBy
+ZXR1cm4gIDAgCn0KCmpzb25Qb2Q9JChnZXRfSlNPTl9Qb2RzIGV4MnBvZCBkZWZhdWx0KQojVmVy
+aWZpY2F0aW9uIGR1ICBub20gZHUgcG9kCm5hbWVQb2Q9JChlY2hvICIkanNvblBvZCIgfCBqcSAt
+ciAgJy5tZXRhZGF0YS5uYW1lJyAyPi9kZXYvbnVsbCkKCmlmIFtbIC16ICIkbmFtZVBvZCIgXV07
+IHRoZW4KICBlY2hvIC1lICAiRXJyZXVyOiBJbXBvc3NpYmxlIGQnZXh0cmFpcmUgbGUgbm9tIGR1
+IHBvZCIKZWxpZiBbWyAiJG5hbWVQb2QiID09ICJleDJwb2QiIF1dOyB0aGVuCiAgZWNobyAtZSAg
+IkxlIHBvZCBlc3QgYmllbiBub21tw6kgJ2V4MnBvZCcuICR7R1JFRU59IE9LICR7RU5EQ09MT1J9
+IgplbHNlCiAgZWNobyAtZSAiTGUgcG9kIG4nZXN0IHBhcyBub21tw6kgJ2V4MnBvZCcuJHtSRUR9
+ICBLTyAke0VORENPTE9SfSIKZmkKCgojIFbDqXJpZmljYXRpb24gIG5hbWVzcGFjZSAKbmFtZXNw
+YWNlPSQoZWNobyAiJGpzb25Qb2QiIHwganEgLXIgICcubWV0YWRhdGEubmFtZXNwYWNlJyAyPi9k
+ZXYvbnVsbCkKCmlmIFtbIC16ICIkbmFtZXNwYWNlIiBdXTsgdGhlbgogIGVjaG8gLWUgICJFcnJl
+dXI6IEltcG9zc2libGUgZCdleHRyYWlyZSBsZSBuYW1lc3BhY2UiCmVsaWYgW1sgIiRuYW1lc3Bh
+Y2UiID09ICJkZWZhdWx0IiBdXTsgdGhlbgogIGVjaG8gLWUgICJOYW1lc3BhY2UgICR7R1JFRU59
+IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAgIk5hbWVzcGFjZSAke1JFRH0gIEtPICR7
+RU5EQ09MT1J9ICIKZmkKCgoKIyBWw6lyaWZpY2F0aW9uIGR1ICBub21icmUgZGUgY29udGVuZXVy
+IHJlcXVpcwpjb250YWluZXJfY291bnQ9JChlY2hvICIkanNvblBvZCIgfCBqcSAnLnNwZWMuY29u
+dGFpbmVycyB8IGxlbmd0aCcpCmlmIFtbICRjb250YWluZXJfY291bnQgLWVxIDIgXV07IHRoZW4K
+ICBlY2hvIC1lICJOb21icmUgZGUgY29udGVuZXVyIDogJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0i
+CmVsc2UKICBlY2hvIC1lICJOb21icmUgZGUgY29udGVuZXVyICR7UkVEfSBLTyAke0VORENPTE9S
+fSBcblx0ICBFeHBsaWNhdGlvbiBub21icmUgZGUgY29udGVuZXVycyAgdHJvdXbDqTogJGNvbnRh
+aW5lcl9jb3VudCIKZmkKCgojIFbDqXJpZmljYXRpb24gZHUgIG5vbSBkdSAgY29udGVuZXVyMQpj
+b250YWluZXJOYW1lMT0kKGVjaG8gIiRqc29uUG9kIiB8IGpxIC1yICAnLnNwZWMuY29udGFpbmVy
+c1swXS5uYW1lJyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250YWluZXJOYW1lMSIgPT0gImNvbnRl
+bmV1cjEiIF1dOyB0aGVuCiAgZWNobyAtZSAiTm9tIGR1IGNvbnRlbmV1cjE6ICR7R1JFRU59IE9L
+ICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiTm9tIGR1IGNvbnRlbmV1cjE6ICAke1JFRH0g
+S08gJHtFTkRDT0xPUn0gXG5cdCAgRXhwbGljYXRpb246ICBub20gZHUgIGNvbnRlbmV1ciAgdHJv
+dXbDqTogJGNvbnRhaW5lck5hbWUxIgpmaQoKIyBWw6lyaWZpY2F0aW9uIGRlIGwnaW1hZ2UgZHUg
+Y29udGVuZXVyMSAgCmNvbnRhaW5lckltYWdlPSQoZWNobyAiJGpzb25Qb2QiIHwganEgLXIgICcu
+c3BlYy5jb250YWluZXJzWzBdLmltYWdlJyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250YWluZXJJ
+bWFnZSIgPT0gIm5naW54OjEuMjcuMyIgXV07IHRoZW4KICBlY2hvIC1lICJJbWFnZSAgZHUgY29u
+dGVuZXVyMTogJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJJbWFnZSBk
+dSBjb250ZW5ldXIxOiAgJHtSRUR9IEtPICR7RU5EQ09MT1J9ICBcblx0ICBFeHBsaWNhdGlvbjog
+IG5vbSBkZSAgbCdpbWFnZSAgdHJvdXbDqTogICRjb250YWluZXJJbWFnZSIKZmkKCgojIFbDqXJp
+ZmljYXRpb24gZHUgIG5vbSBkdSAgY29udGVuZXVyMgpjb250YWluZXJOYW1lMj0kKGVjaG8gIiRq
+c29uUG9kIiB8IGpxIC1yICAnLnNwZWMuY29udGFpbmVyc1sxXS5uYW1lJyAyPi9kZXYvbnVsbCkK
+aWYgW1sgIiRjb250YWluZXJOYW1lMiIgPT0gImNvbnRlbmV1cjIiIF1dOyB0aGVuCiAgZWNobyAt
+ZSAiTm9tIGR1IGNvbnRlbmV1cjI6ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNo
+byAtZSAiTm9tIGR1IGNvbnRlbmV1cjI6ICAke1JFRH0gS08gJHtFTkRDT0xPUn0gXG5cdCAgRXhw
+bGljYXRpb246ICBub20gZHUgIGNvbnRlbmV1ciAgdHJvdXbDqTogJGNvbnRhaW5lck5hbWUyIgpm
+aQoKIyBWw6lyaWZpY2F0aW9uIGRlIGwnaW1hZ2UgZHUgY29udGVuZXVyMSAgCmNvbnRhaW5lcklt
+YWdlMj0kKGVjaG8gIiRqc29uUG9kIiB8IGpxIC1yICAnLnNwZWMuY29udGFpbmVyc1sxXS5pbWFn
+ZScgMj4vZGV2L251bGwpCmlmIFtbICIkY29udGFpbmVySW1hZ2UyIiA9PSAiYnVzeWJveCIgXV07
+IHRoZW4KICBlY2hvIC1lICJJbWFnZSAgZHUgY29udGVuZXVyMjogJHtHUkVFTn0gT0sgJHtFTkRD
+T0xPUn0iCmVsc2UKICBlY2hvIC1lICJJbWFnZSBkdSBjb250ZW5ldXIyOiAgJHtSRUR9IEtPICR7
+RU5EQ09MT1J9ICBcblx0ICBFeHBsaWNhdGlvbjogIG5vbSBkZSAgbCdpbWFnZSAgdHJvdXbDqTog
+ICRjb250YWluZXJJbWFnZTIiCmZpCgoKIyBWw6lyaWZpY2F0aW9uIGRlIGxhIGNvbW1hbmRlIGR1
+IGNvbnRlbmV1cjIgCmNvbnRhaW5lckNvbW1hbmQyPSQoZWNobyAiJGpzb25Qb2QiIHwganEgLXIg
+ICcuc3BlYy5jb250YWluZXJzWzFdLmNvbW1hbmQnIHwgdHIgLWQgJ1xuJyB8IHNlZCAncy8gLy9n
+JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250YWluZXJDb21tYW5kMiIgPT0gIltcInNsZWVwXCIs
+XCIxMDAwXCJdIiBdXTsgdGhlbgogIGVjaG8gLWUgIkNvbW1hbmRlIGR1IGNvbnRlbmV1cjI6ICR7
+R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiQ29tbWFuZGUgZHUgY29udGVu
+ZXVyMjogICR7UkVEfSBLTyAke0VORENPTE9SfSAgXG5cdCAgRXhwbGljYXRpb246ICBub20gZGUg
+IGxhIGNvbW1hbmRlICB0cm91dsOpOiAgJGNvbnRhaW5lckNvbW1hbmQyIgpmaQoKCgojIGVjaG8g
+ICIkanNvblBvZCIgfCBqcQ==' | base64 -d)

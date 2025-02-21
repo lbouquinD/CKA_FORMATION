@@ -1,101 +1,67 @@
-#!/bin/bash
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-
-test_service1=$(kubectl get svc exosvc21  -o jsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$test_service1" == "exosvc21" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Service exosvc21  existe: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Service existe exosvc21: ${RED}KO ${ENDCOLOR}"
-  echo -e "\t ${RED} Le service exosvc21  n'existe pas ${ENDCOLOR}"
-fi
-
-
-portsvc=$(kubectl get svc exosvc21  -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
-targetportsvc=$(kubectl get svc exosvc21 -o jsonpath='{.spec.ports[0].targetPort}' 2>/dev/null)
-
-if [[ "$portsvc" == "80" ]]; then 
-  echo  -e "Port du  service ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Port du service ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $portsvc" 
-fi  
-if [[ "$targetportsvc" == "8124" ]]; then 
-  echo  -e "targetPort du  service ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "targetPort du service ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $targetportsvc" 
-fi  
-
-portnodePort=$(kubectl get svc exosvc21  -o jsonpath='{.spec.ports[0].nodePort}' 2>/dev/null)
-if [[ "$portnodePort" == "31258" ]]; then 
-  echo  -e "NodePort du  service exosvc21  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "NodePort du service exosvc21 ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t NodePort trouvé: $portnodePort" 
-fi  
-
-typeservice=$(kubectl get svc exosvc21  -o jsonpath='{.spec.type}' 2>/dev/null)
-if [[ "$typeservice" == "NodePort" ]]; then 
-  echo  -e "Type de service NodePort  pour exosvc21  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Type de service NodePort pour exosvc21 ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $typeservice" 
-fi  
-
-selectService=$(kubectl get svc exosvc21  -o jsonpath='{.spec.selector.toto}' 2>/dev/null)
-if [[ "$selectService" == "dep-ex-service-2" ]]; then 
-  echo  -e "Le service Expose le bon deploiement ( exosvc21)  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Le service Expose le bon deploiement ( exosvc21) ${RED} KO ${ENDCOLOR}" 
-fi  
-
-
-
-
-
-########## service2 #########
-test_service1=$(kubectl get svc exosvc22  -o jsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$test_service1" == "exosvc22" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Service exosvc22  existe: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Service existe exosvc22: ${RED}KO ${ENDCOLOR}"
-  echo -e "\t ${RED} Le service exosvc22  n'existe pas ${ENDCOLOR}"
-fi
-
-
-portsvc=$(kubectl get svc exosvc22  -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
-targetportsvc=$(kubectl get svc exosvc22 -o jsonpath='{.spec.ports[0].targetPort}' 2>/dev/null)
-
-if [[ "$portsvc" == "80" ]]; then 
-  echo  -e "Port du  service ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Port du service ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $portsvc" 
-fi  
-if [[ "$targetportsvc" == "9090" ]]; then 
-  echo  -e "targetPort du  service ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "targetPort du service ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $targetportsvc" 
-fi  
-
-
-typeservice=$(kubectl get svc exosvc22  -o jsonpath='{.spec.type}' 2>/dev/null)
-if [[ "$typeservice" == "LoadBalancer" ]]; then 
-  echo  -e "Type de service LoadBalancer  pour exosvc22  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Type de service LoadBalancer pour exosvc22 ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $typeservice" 
-fi  
-
-selectService=$(kubectl get svc exosvc22  -o jsonpath='{.spec.selector.truc}' 2>/dev/null)
-if [[ "$selectService" == "dep-ex-service-3" ]]; then 
-  echo  -e "Le service Expose le bon deploiement ( exosvc22)  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Le service Expose le bon deploiement ( exosvc22) ${RED} KO ${ENDCOLOR}" 
-fi  
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKClJFRD0iXGVbMzFtIgpHUkVFTj0iXGVbMzJtIgpFTkRDT0xPUj0iXGVbMG0i
+CgoKCnRlc3Rfc2VydmljZTE9JChrdWJlY3RsIGdldCBzdmMgZXhvc3ZjMjEgIC1vIGpzb25wYXRo
+PSd7Lm1ldGFkYXRhLm5hbWV9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiR0ZXN0X3NlcnZpY2UxIiA9
+PSAiZXhvc3ZjMjEiIF1dOyB0aGVuICNEb3VibGUgY3JvY2hldCBwb3VyIGxhIGNvbXBhcmFpc29u
+IGRlIGNoYWluZXMsICYmIHBvdXIgImV0IgogIGVjaG8gLWUgIlNlcnZpY2UgZXhvc3ZjMjEgIGV4
+aXN0ZTogJHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiU2VydmljZSBleGlz
+dGUgZXhvc3ZjMjE6ICR7UkVEfUtPICR7RU5EQ09MT1J9IgogIGVjaG8gLWUgIlx0ICR7UkVEfSBM
+ZSBzZXJ2aWNlIGV4b3N2YzIxICBuJ2V4aXN0ZSBwYXMgJHtFTkRDT0xPUn0iCmZpCgoKcG9ydHN2
+Yz0kKGt1YmVjdGwgZ2V0IHN2YyBleG9zdmMyMSAgLW8ganNvbnBhdGg9J3suc3BlYy5wb3J0c1sw
+XS5wb3J0fScgMj4vZGV2L251bGwpCnRhcmdldHBvcnRzdmM9JChrdWJlY3RsIGdldCBzdmMgZXhv
+c3ZjMjEgLW8ganNvbnBhdGg9J3suc3BlYy5wb3J0c1swXS50YXJnZXRQb3J0fScgMj4vZGV2L251
+bGwpCgppZiBbWyAiJHBvcnRzdmMiID09ICI4MCIgXV07IHRoZW4gCiAgZWNobyAgLWUgIlBvcnQg
+ZHUgIHNlcnZpY2UgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJQb3J0
+IGR1IHNlcnZpY2UgJHtSRUR9IEtPICR7RU5EQ09MT1J9IiAKICBlY2hvICAtZSAiXHQgUG9ydCB0
+cm91dsOpOiAkcG9ydHN2YyIgCmZpICAKaWYgW1sgIiR0YXJnZXRwb3J0c3ZjIiA9PSAiODEyNCIg
+XV07IHRoZW4gCiAgZWNobyAgLWUgInRhcmdldFBvcnQgZHUgIHNlcnZpY2UgJHtHUkVFTn0gT0sg
+JHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJ0YXJnZXRQb3J0IGR1IHNlcnZpY2UgJHtSRUR9
+IEtPICR7RU5EQ09MT1J9IiAKICBlY2hvICAtZSAiXHQgUG9ydCB0cm91dsOpOiAkdGFyZ2V0cG9y
+dHN2YyIgCmZpICAKCnBvcnRub2RlUG9ydD0kKGt1YmVjdGwgZ2V0IHN2YyBleG9zdmMyMSAgLW8g
+anNvbnBhdGg9J3suc3BlYy5wb3J0c1swXS5ub2RlUG9ydH0nIDI+L2Rldi9udWxsKQppZiBbWyAi
+JHBvcnRub2RlUG9ydCIgPT0gIjMxMjU4IiBdXTsgdGhlbiAKICBlY2hvICAtZSAiTm9kZVBvcnQg
+ZHUgIHNlcnZpY2UgZXhvc3ZjMjEgICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNo
+byAtZSAiTm9kZVBvcnQgZHUgc2VydmljZSBleG9zdmMyMSAke1JFRH0gS08gJHtFTkRDT0xPUn0i
+IAogIGVjaG8gIC1lICJcdCBOb2RlUG9ydCB0cm91dsOpOiAkcG9ydG5vZGVQb3J0IiAKZmkgIAoK
+dHlwZXNlcnZpY2U9JChrdWJlY3RsIGdldCBzdmMgZXhvc3ZjMjEgIC1vIGpzb25wYXRoPSd7LnNw
+ZWMudHlwZX0nIDI+L2Rldi9udWxsKQppZiBbWyAiJHR5cGVzZXJ2aWNlIiA9PSAiTm9kZVBvcnQi
+IF1dOyB0aGVuIAogIGVjaG8gIC1lICJUeXBlIGRlIHNlcnZpY2UgTm9kZVBvcnQgIHBvdXIgZXhv
+c3ZjMjEgICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiVHlwZSBkZSBz
+ZXJ2aWNlIE5vZGVQb3J0IHBvdXIgZXhvc3ZjMjEgJHtSRUR9IEtPICR7RU5EQ09MT1J9IiAKICBl
+Y2hvICAtZSAiXHQgUG9ydCB0cm91dsOpOiAkdHlwZXNlcnZpY2UiIApmaSAgCgpzZWxlY3RTZXJ2
+aWNlPSQoa3ViZWN0bCBnZXQgc3ZjIGV4b3N2YzIxICAtbyBqc29ucGF0aD0ney5zcGVjLnNlbGVj
+dG9yLnRvdG99JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRzZWxlY3RTZXJ2aWNlIiA9PSAiZGVwLWV4
+LXNlcnZpY2UtMiIgXV07IHRoZW4gCiAgZWNobyAgLWUgIkxlIHNlcnZpY2UgRXhwb3NlIGxlIGJv
+biBkZXBsb2llbWVudCAoIGV4b3N2YzIxKSAgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UK
+ICBlY2hvIC1lICJMZSBzZXJ2aWNlIEV4cG9zZSBsZSBib24gZGVwbG9pZW1lbnQgKCBleG9zdmMy
+MSkgJHtSRUR9IEtPICR7RU5EQ09MT1J9IiAKZmkgIAoKCgoKCiMjIyMjIyMjIyMgc2VydmljZTIg
+IyMjIyMjIyMjCnRlc3Rfc2VydmljZTE9JChrdWJlY3RsIGdldCBzdmMgZXhvc3ZjMjIgIC1vIGpz
+b25wYXRoPSd7Lm1ldGFkYXRhLm5hbWV9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiR0ZXN0X3NlcnZp
+Y2UxIiA9PSAiZXhvc3ZjMjIiIF1dOyB0aGVuICNEb3VibGUgY3JvY2hldCBwb3VyIGxhIGNvbXBh
+cmFpc29uIGRlIGNoYWluZXMsICYmIHBvdXIgImV0IgogIGVjaG8gLWUgIlNlcnZpY2UgZXhvc3Zj
+MjIgIGV4aXN0ZTogJHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiU2Vydmlj
+ZSBleGlzdGUgZXhvc3ZjMjI6ICR7UkVEfUtPICR7RU5EQ09MT1J9IgogIGVjaG8gLWUgIlx0ICR7
+UkVEfSBMZSBzZXJ2aWNlIGV4b3N2YzIyICBuJ2V4aXN0ZSBwYXMgJHtFTkRDT0xPUn0iCmZpCgoK
+cG9ydHN2Yz0kKGt1YmVjdGwgZ2V0IHN2YyBleG9zdmMyMiAgLW8ganNvbnBhdGg9J3suc3BlYy5w
+b3J0c1swXS5wb3J0fScgMj4vZGV2L251bGwpCnRhcmdldHBvcnRzdmM9JChrdWJlY3RsIGdldCBz
+dmMgZXhvc3ZjMjIgLW8ganNvbnBhdGg9J3suc3BlYy5wb3J0c1swXS50YXJnZXRQb3J0fScgMj4v
+ZGV2L251bGwpCgppZiBbWyAiJHBvcnRzdmMiID09ICI4MCIgXV07IHRoZW4gCiAgZWNobyAgLWUg
+IlBvcnQgZHUgIHNlcnZpY2UgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1l
+ICJQb3J0IGR1IHNlcnZpY2UgJHtSRUR9IEtPICR7RU5EQ09MT1J9IiAKICBlY2hvICAtZSAiXHQg
+UG9ydCB0cm91dsOpOiAkcG9ydHN2YyIgCmZpICAKaWYgW1sgIiR0YXJnZXRwb3J0c3ZjIiA9PSAi
+OTA5MCIgXV07IHRoZW4gCiAgZWNobyAgLWUgInRhcmdldFBvcnQgZHUgIHNlcnZpY2UgJHtHUkVF
+Tn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJ0YXJnZXRQb3J0IGR1IHNlcnZpY2Ug
+JHtSRUR9IEtPICR7RU5EQ09MT1J9IiAKICBlY2hvICAtZSAiXHQgUG9ydCB0cm91dsOpOiAkdGFy
+Z2V0cG9ydHN2YyIgCmZpICAKCgp0eXBlc2VydmljZT0kKGt1YmVjdGwgZ2V0IHN2YyBleG9zdmMy
+MiAgLW8ganNvbnBhdGg9J3suc3BlYy50eXBlfScgMj4vZGV2L251bGwpCmlmIFtbICIkdHlwZXNl
+cnZpY2UiID09ICJMb2FkQmFsYW5jZXIiIF1dOyB0aGVuIAogIGVjaG8gIC1lICJUeXBlIGRlIHNl
+cnZpY2UgTG9hZEJhbGFuY2VyICBwb3VyIGV4b3N2YzIyICAke0dSRUVOfSBPSyAke0VORENPTE9S
+fSIKZWxzZQogIGVjaG8gLWUgIlR5cGUgZGUgc2VydmljZSBMb2FkQmFsYW5jZXIgcG91ciBleG9z
+dmMyMiAke1JFRH0gS08gJHtFTkRDT0xPUn0iIAogIGVjaG8gIC1lICJcdCBQb3J0IHRyb3V2w6k6
+ICR0eXBlc2VydmljZSIgCmZpICAKCnNlbGVjdFNlcnZpY2U9JChrdWJlY3RsIGdldCBzdmMgZXhv
+c3ZjMjIgIC1vIGpzb25wYXRoPSd7LnNwZWMuc2VsZWN0b3IudHJ1Y30nIDI+L2Rldi9udWxsKQpp
+ZiBbWyAiJHNlbGVjdFNlcnZpY2UiID09ICJkZXAtZXgtc2VydmljZS0zIiBdXTsgdGhlbiAKICBl
+Y2hvICAtZSAiTGUgc2VydmljZSBFeHBvc2UgbGUgYm9uIGRlcGxvaWVtZW50ICggZXhvc3ZjMjIp
+ICAke0dSRUVOfSBPSyAke0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIkxlIHNlcnZpY2UgRXhw
+b3NlIGxlIGJvbiBkZXBsb2llbWVudCAoIGV4b3N2YzIyKSAke1JFRH0gS08gJHtFTkRDT0xPUn0i
+IApmaSAgCg==' | base64 -d)

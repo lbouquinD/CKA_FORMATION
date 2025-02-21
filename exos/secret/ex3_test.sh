@@ -1,29 +1,21 @@
-#!/bin/bash
-
-
-RED="\e[31m\e[1m"
-GREEN="\e[32m\e[1m"
-ENDCOLOR="\e[0m"
-BLUE="\e[34m\e[1m"
-echo -e "${BLUE}\n\t [TEST monpremiersecrettls] \n${ENDCOLOR}"
-typesecret=$(kubectl get secret  -o yaml monpremiersecrettls -o jsonpath='{.type}' 2>/dev/null)
-if [[ "$typesecret" == "kubernetes.io/tls"  ]]; then 
-  echo -e " Le type de secret  est  correct ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e " Le type de secret est  correct  ${RED}KO${ENDCOLOR}" 
-  echo -e "\t ${RED} type de secret  trouvé: $typesecret -> secret souhaité tls ${ENDCOLOR}" 
-fi
-
-
-base64cle=$(cat /tmp/ex3secret/private.key |base64 |tr -d "\n")
-base64crt=$(cat /tmp/ex3secret/public.crt |base64 |tr -d "\n")
-
-tlskey=$(kubectl get secret  -o yaml monpremiersecrettls -o jsonpath='{.data.tls\.key}' 2>/dev/null)
-tlscrt=$(kubectl get secret  -o yaml monpremiersecrettls -o jsonpath='{.data.tls\.crt}' 2>/dev/null)
-
-
-if [[ "$base64cle" == "$tlskey"  && "$base64crt" ==  "$tlscrt" ]]; then 
-  echo -e " la clé et/ou le certificat sont correct ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e " La cle ou/et le certificat sont incorrect  ${RED}KO${ENDCOLOR}" 
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpSRUQ9IlxlWzMxbVxlWzFtIgpHUkVFTj0iXGVbMzJtXGVbMW0iCkVORENP
+TE9SPSJcZVswbSIKQkxVRT0iXGVbMzRtXGVbMW0iCmVjaG8gLWUgIiR7QkxVRX1cblx0IFtURVNU
+IG1vbnByZW1pZXJzZWNyZXR0bHNdIFxuJHtFTkRDT0xPUn0iCnR5cGVzZWNyZXQ9JChrdWJlY3Rs
+IGdldCBzZWNyZXQgIC1vIHlhbWwgbW9ucHJlbWllcnNlY3JldHRscyAtbyBqc29ucGF0aD0ney50
+eXBlfScgMj4vZGV2L251bGwpCmlmIFtbICIkdHlwZXNlY3JldCIgPT0gImt1YmVybmV0ZXMuaW8v
+dGxzIiAgXV07IHRoZW4gCiAgZWNobyAtZSAiIExlIHR5cGUgZGUgc2VjcmV0ICBlc3QgIGNvcnJl
+Y3QgJHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiIExlIHR5cGUgZGUgc2Vj
+cmV0IGVzdCAgY29ycmVjdCAgJHtSRUR9S08ke0VORENPTE9SfSIgCiAgZWNobyAtZSAiXHQgJHtS
+RUR9IHR5cGUgZGUgc2VjcmV0ICB0cm91dsOpOiAkdHlwZXNlY3JldCAtPiBzZWNyZXQgc291aGFp
+dMOpIHRscyAke0VORENPTE9SfSIgCmZpCgoKYmFzZTY0Y2xlPSQoY2F0IC90bXAvZXgzc2VjcmV0
+L3ByaXZhdGUua2V5IHxiYXNlNjQgfHRyIC1kICJcbiIpCmJhc2U2NGNydD0kKGNhdCAvdG1wL2V4
+M3NlY3JldC9wdWJsaWMuY3J0IHxiYXNlNjQgfHRyIC1kICJcbiIpCgp0bHNrZXk9JChrdWJlY3Rs
+IGdldCBzZWNyZXQgIC1vIHlhbWwgbW9ucHJlbWllcnNlY3JldHRscyAtbyBqc29ucGF0aD0ney5k
+YXRhLnRsc1wua2V5fScgMj4vZGV2L251bGwpCnRsc2NydD0kKGt1YmVjdGwgZ2V0IHNlY3JldCAg
+LW8geWFtbCBtb25wcmVtaWVyc2VjcmV0dGxzIC1vIGpzb25wYXRoPSd7LmRhdGEudGxzXC5jcnR9
+JyAyPi9kZXYvbnVsbCkKCgppZiBbWyAiJGJhc2U2NGNsZSIgPT0gIiR0bHNrZXkiICAmJiAiJGJh
+c2U2NGNydCIgPT0gICIkdGxzY3J0IiBdXTsgdGhlbiAKICBlY2hvIC1lICIgbGEgY2zDqSBldC9v
+dSBsZSBjZXJ0aWZpY2F0IHNvbnQgY29ycmVjdCAke0dSRUVOfU9LJHtFTkRDT0xPUn0iCmVsc2UK
+ICBlY2hvIC1lICIgTGEgY2xlIG91L2V0IGxlIGNlcnRpZmljYXQgc29udCBpbmNvcnJlY3QgICR7
+UkVEfUtPJHtFTkRDT0xPUn0iIApmaQ==' | base64 -d)

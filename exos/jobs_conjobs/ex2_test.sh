@@ -1,39 +1,32 @@
-#!/bin/bash
-
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-
-# verif job 
-container1_image=$(kubectl get cronjob mon-cronjob -o jsonpath='{.spec.jobTemplate.spec.template.spec.containers[?(@.name=="task-exec")].image}' 2>/dev/null)
-container1_name=$(kubectl get cronjob mon-cronjob -o jsonpath='{.spec.jobTemplate.spec.template.spec.containers[?(@.name=="task-exec")].name}' 2>/dev/null)
-if [[ "$container1_image" == "alpine" && "$container1_name" == "task-exec" ]]; then 
-  echo -e "Création cronjob 1 nom conteneur et Image: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Création cronjob 1 nom conteneur et  Image: ${RED}KO${ENDCOLOR}"
-  echo -e "\tle nom du conteneur ou  l'image est  incorrecte"
-  echo -e "\tImage actuelle : $container1_image, nom_conteneur: $container1_name" 
-fi
-
-command=$(kubectl get cronjob mon-cronjob -o jsonpath='{.spec.jobTemplate.spec.template.spec.containers[?(@.name=="task-exec")].command}' 2>/dev/null)
-command_without_quote=$(echo "$command" | sed 's/"//g' | sed 's/[$]//g' |sed 's/\\//g')
-#  Verif commandc
-if [[ "$command_without_quote" == "[/bin/sh,-c,echo Tâche exécutée à (date)]" ]]; then 
-  echo -e "Création cronjob mon-cronjob command: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Création cronjob mon-cronjob command: ${RED}KO${ENDCOLOR}  "
-  echo -e "\t Commande lancée: $command  -> $command_without_quote "
-fi
-
-# verif restart  policy 
-
-restartPolicy=$(kubectl get cronjob mon-cronjob -o jsonpath='{.spec.jobTemplate.spec.template.spec.restartPolicy}')
-if [[ "$restartPolicy" == "OnFailure" ]]; then 
-    echo  -e "Création  Job 1  restartPolicy ${GREEN} OK ${ENDCOLOR}"
-else 
-    echo  -e "Création  Job 1  restartPolicy ${RED} KO ${ENDCOLOR}"
-    echo  -e " Politique de redémarrage trouvé: $restartpolicy" 
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpSRUQ9IlxlWzMxbSIKR1JFRU49IlxlWzMybSIKRU5EQ09MT1I9IlxlWzBt
+IgoKCgojIHZlcmlmIGpvYiAKY29udGFpbmVyMV9pbWFnZT0kKGt1YmVjdGwgZ2V0IGNyb25qb2Ig
+bW9uLWNyb25qb2IgLW8ganNvbnBhdGg9J3suc3BlYy5qb2JUZW1wbGF0ZS5zcGVjLnRlbXBsYXRl
+LnNwZWMuY29udGFpbmVyc1s/KEAubmFtZT09InRhc2stZXhlYyIpXS5pbWFnZX0nIDI+L2Rldi9u
+dWxsKQpjb250YWluZXIxX25hbWU9JChrdWJlY3RsIGdldCBjcm9uam9iIG1vbi1jcm9uam9iIC1v
+IGpzb25wYXRoPSd7LnNwZWMuam9iVGVtcGxhdGUuc3BlYy50ZW1wbGF0ZS5zcGVjLmNvbnRhaW5l
+cnNbPyhALm5hbWU9PSJ0YXNrLWV4ZWMiKV0ubmFtZX0nIDI+L2Rldi9udWxsKQppZiBbWyAiJGNv
+bnRhaW5lcjFfaW1hZ2UiID09ICJhbHBpbmUiICYmICIkY29udGFpbmVyMV9uYW1lIiA9PSAidGFz
+ay1leGVjIiBdXTsgdGhlbiAKICBlY2hvIC1lICJDcsOpYXRpb24gY3JvbmpvYiAxIG5vbSBjb250
+ZW5ldXIgZXQgSW1hZ2U6ICR7R1JFRU59T0ske0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIkNy
+w6lhdGlvbiBjcm9uam9iIDEgbm9tIGNvbnRlbmV1ciBldCAgSW1hZ2U6ICR7UkVEfUtPJHtFTkRD
+T0xPUn0iCiAgZWNobyAtZSAiXHRsZSBub20gZHUgY29udGVuZXVyIG91ICBsJ2ltYWdlIGVzdCAg
+aW5jb3JyZWN0ZSIKICBlY2hvIC1lICJcdEltYWdlIGFjdHVlbGxlIDogJGNvbnRhaW5lcjFfaW1h
+Z2UsIG5vbV9jb250ZW5ldXI6ICRjb250YWluZXIxX25hbWUiIApmaQoKY29tbWFuZD0kKGt1YmVj
+dGwgZ2V0IGNyb25qb2IgbW9uLWNyb25qb2IgLW8ganNvbnBhdGg9J3suc3BlYy5qb2JUZW1wbGF0
+ZS5zcGVjLnRlbXBsYXRlLnNwZWMuY29udGFpbmVyc1s/KEAubmFtZT09InRhc2stZXhlYyIpXS5j
+b21tYW5kfScgMj4vZGV2L251bGwpCmNvbW1hbmRfd2l0aG91dF9xdW90ZT0kKGVjaG8gIiRjb21t
+YW5kIiB8IHNlZCAncy8iLy9nJyB8IHNlZCAncy9bJF0vL2cnIHxzZWQgJ3MvXFwvL2cnKQojICBW
+ZXJpZiBjb21tYW5kYwppZiBbWyAiJGNvbW1hbmRfd2l0aG91dF9xdW90ZSIgPT0gIlsvYmluL3No
+LC1jLGVjaG8gVMOiY2hlIGV4w6ljdXTDqWUgw6AgKGRhdGUpXSIgXV07IHRoZW4gCiAgZWNobyAt
+ZSAiQ3LDqWF0aW9uIGNyb25qb2IgbW9uLWNyb25qb2IgY29tbWFuZDogJHtHUkVFTn1PSyR7RU5E
+Q09MT1J9IgplbHNlCiAgZWNobyAtZSAiQ3LDqWF0aW9uIGNyb25qb2IgbW9uLWNyb25qb2IgY29t
+bWFuZDogJHtSRUR9S08ke0VORENPTE9SfSAgIgogIGVjaG8gLWUgIlx0IENvbW1hbmRlIGxhbmPD
+qWU6ICRjb21tYW5kICAtPiAkY29tbWFuZF93aXRob3V0X3F1b3RlICIKZmkKCiMgdmVyaWYgcmVz
+dGFydCAgcG9saWN5IAoKcmVzdGFydFBvbGljeT0kKGt1YmVjdGwgZ2V0IGNyb25qb2IgbW9uLWNy
+b25qb2IgLW8ganNvbnBhdGg9J3suc3BlYy5qb2JUZW1wbGF0ZS5zcGVjLnRlbXBsYXRlLnNwZWMu
+cmVzdGFydFBvbGljeX0nKQppZiBbWyAiJHJlc3RhcnRQb2xpY3kiID09ICJPbkZhaWx1cmUiIF1d
+OyB0aGVuIAogICAgZWNobyAgLWUgIkNyw6lhdGlvbiAgSm9iIDEgIHJlc3RhcnRQb2xpY3kgJHtH
+UkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiQ3LDqWF0aW9uICBKb2Ig
+MSAgcmVzdGFydFBvbGljeSAke1JFRH0gS08gJHtFTkRDT0xPUn0iCiAgICBlY2hvICAtZSAiIFBv
+bGl0aXF1ZSBkZSByZWTDqW1hcnJhZ2UgdHJvdXbDqTogJHJlc3RhcnRwb2xpY3kiIApmaQ==' | base64 -d)

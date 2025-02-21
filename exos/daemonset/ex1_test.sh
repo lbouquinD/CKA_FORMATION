@@ -1,18 +1,17 @@
-#!/bin/bash
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-
-# verif daemonset 
-container1_image=$(kubectl get daemonset exdaemon -o jsonpath='{.spec.template.spec.containers[?(@.name=="conteneur1")].image}' 2>/dev/null)
-container1_name=$(kubectl get daemonset exdaemon -o jsonpath='{.spec.template.spec.containers[?(@.name=="conteneur1")].name}' 2>/dev/null)
-if [[ "$container1_image" == "nginx:1.27.3" && "$container1_name" == "conteneur1" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Création daemonset 1 nom daemonset et  Image: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Création daemonset 1 nom daemonset et  Image: ${RED}KO${ENDCOLOR}"
-  echo -e "\tle nom du conteneur ou  l'image est  incorrecte"
-  echo -e "\tImage actuelle : $container1_image, .nom_conteneur: $container1_name" #Afficher les valeurs actuelles pour le debug
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKClJFRD0iXGVbMzFtIgpHUkVFTj0iXGVbMzJtIgpFTkRDT0xPUj0iXGVbMG0i
+CgoKCiMgdmVyaWYgZGFlbW9uc2V0IApjb250YWluZXIxX2ltYWdlPSQoa3ViZWN0bCBnZXQgZGFl
+bW9uc2V0IGV4ZGFlbW9uIC1vIGpzb25wYXRoPSd7LnNwZWMudGVtcGxhdGUuc3BlYy5jb250YWlu
+ZXJzWz8oQC5uYW1lPT0iY29udGVuZXVyMSIpXS5pbWFnZX0nIDI+L2Rldi9udWxsKQpjb250YWlu
+ZXIxX25hbWU9JChrdWJlY3RsIGdldCBkYWVtb25zZXQgZXhkYWVtb24gLW8ganNvbnBhdGg9J3su
+c3BlYy50ZW1wbGF0ZS5zcGVjLmNvbnRhaW5lcnNbPyhALm5hbWU9PSJjb250ZW5ldXIxIildLm5h
+bWV9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250YWluZXIxX2ltYWdlIiA9PSAibmdpbng6MS4y
+Ny4zIiAmJiAiJGNvbnRhaW5lcjFfbmFtZSIgPT0gImNvbnRlbmV1cjEiIF1dOyB0aGVuICNEb3Vi
+bGUgY3JvY2hldCBwb3VyIGxhIGNvbXBhcmFpc29uIGRlIGNoYWluZXMsICYmIHBvdXIgImV0Igog
+IGVjaG8gLWUgIkNyw6lhdGlvbiBkYWVtb25zZXQgMSBub20gZGFlbW9uc2V0IGV0ICBJbWFnZTog
+JHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiQ3LDqWF0aW9uIGRhZW1vbnNl
+dCAxIG5vbSBkYWVtb25zZXQgZXQgIEltYWdlOiAke1JFRH1LTyR7RU5EQ09MT1J9IgogIGVjaG8g
+LWUgIlx0bGUgbm9tIGR1IGNvbnRlbmV1ciBvdSAgbCdpbWFnZSBlc3QgIGluY29ycmVjdGUiCiAg
+ZWNobyAtZSAiXHRJbWFnZSBhY3R1ZWxsZSA6ICRjb250YWluZXIxX2ltYWdlLCAubm9tX2NvbnRl
+bmV1cjogJGNvbnRhaW5lcjFfbmFtZSIgI0FmZmljaGVyIGxlcyB2YWxldXJzIGFjdHVlbGxlcyBw
+b3VyIGxlIGRlYnVnCmZp' | base64 -d)

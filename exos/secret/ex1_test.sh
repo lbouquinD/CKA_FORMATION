@@ -1,32 +1,20 @@
-#!/bin/bash
-
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-
-# verif job 
-username=$(kubectl get secret test-secret  -ojsonpath='{.data.username}' |base64 -d 2>/dev/null)
-password=$(kubectl get secret test-secret  -ojsonpath='{.data.password}' |base64 -d 2>/dev/null)
-uneautrecle=$(kubectl get secret test-secret  -ojsonpath='{.data.uneautrecle}' |base64 -d 2>/dev/null)
-echo -e "[ TEST secret  test-secret ]"
-if [[ "$username" == "Us2R"  ]]; then 
-  echo -e "\t username ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "\t username:  ${RED}KO${ENDCOLOR}" 
-  echo -e "\t \t ${RED} username: $username ${ENDCOLOR}" 
-fi
-if [[ "$password" == "unPassordpresquepassecurise"  ]]; then 
-  echo -e "\t password ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "\t password:  ${RED}KO${ENDCOLOR}" 
-  echo -e "\t \t  ${RED} password: $password ${ENDCOLOR}" 
-fi
-if [[ "$uneautrecle" == "Et vero introrsum spiritu velariis."  ]]; then 
-  echo -e "\t uneautrecle ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "\t uneautrecle:  ${RED}KO${ENDCOLOR}" 
-  echo -e "\t \t  ${RED} uneautrecle: $uneautrecle ${ENDCOLOR}" 
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpSRUQ9IlxlWzMxbSIKR1JFRU49IlxlWzMybSIKRU5EQ09MT1I9IlxlWzBt
+IgoKCgojIHZlcmlmIGpvYiAKdXNlcm5hbWU9JChrdWJlY3RsIGdldCBzZWNyZXQgdGVzdC1zZWNy
+ZXQgIC1vanNvbnBhdGg9J3suZGF0YS51c2VybmFtZX0nIHxiYXNlNjQgLWQgMj4vZGV2L251bGwp
+CnBhc3N3b3JkPSQoa3ViZWN0bCBnZXQgc2VjcmV0IHRlc3Qtc2VjcmV0ICAtb2pzb25wYXRoPSd7
+LmRhdGEucGFzc3dvcmR9JyB8YmFzZTY0IC1kIDI+L2Rldi9udWxsKQp1bmVhdXRyZWNsZT0kKGt1
+YmVjdGwgZ2V0IHNlY3JldCB0ZXN0LXNlY3JldCAgLW9qc29ucGF0aD0ney5kYXRhLnVuZWF1dHJl
+Y2xlfScgfGJhc2U2NCAtZCAyPi9kZXYvbnVsbCkKZWNobyAtZSAiWyBURVNUIHNlY3JldCAgdGVz
+dC1zZWNyZXQgXSIKaWYgW1sgIiR1c2VybmFtZSIgPT0gIlVzMlIiICBdXTsgdGhlbiAKICBlY2hv
+IC1lICJcdCB1c2VybmFtZSAke0dSRUVOfU9LJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJc
+dCB1c2VybmFtZTogICR7UkVEfUtPJHtFTkRDT0xPUn0iIAogIGVjaG8gLWUgIlx0IFx0ICR7UkVE
+fSB1c2VybmFtZTogJHVzZXJuYW1lICR7RU5EQ09MT1J9IiAKZmkKaWYgW1sgIiRwYXNzd29yZCIg
+PT0gInVuUGFzc29yZHByZXNxdWVwYXNzZWN1cmlzZSIgIF1dOyB0aGVuIAogIGVjaG8gLWUgIlx0
+IHBhc3N3b3JkICR7R1JFRU59T0ske0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIlx0IHBhc3N3
+b3JkOiAgJHtSRUR9S08ke0VORENPTE9SfSIgCiAgZWNobyAtZSAiXHQgXHQgICR7UkVEfSBwYXNz
+d29yZDogJHBhc3N3b3JkICR7RU5EQ09MT1J9IiAKZmkKaWYgW1sgIiR1bmVhdXRyZWNsZSIgPT0g
+IkV0IHZlcm8gaW50cm9yc3VtIHNwaXJpdHUgdmVsYXJpaXMuIiAgXV07IHRoZW4gCiAgZWNobyAt
+ZSAiXHQgdW5lYXV0cmVjbGUgJHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAi
+XHQgdW5lYXV0cmVjbGU6ICAke1JFRH1LTyR7RU5EQ09MT1J9IiAKICBlY2hvIC1lICJcdCBcdCAg
+JHtSRUR9IHVuZWF1dHJlY2xlOiAkdW5lYXV0cmVjbGUgJHtFTkRDT0xPUn0iIApmaQo=' | base64 -d)

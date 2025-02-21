@@ -1,32 +1,22 @@
-#!/bin/bash
-
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-echo -e "[TEST  liste des secret  dans /tmp/listSecret ]"
-if [ -e "/tmp/listSecret" ]; then
-   logUser=$(cat /tmp/listSecret |sort |tr -d "\n"  | sed 's/ //g' )
-   if [ "$logUser" = "secret-agentsecret-contactsecret-lieusecret-operationsecret-projet" ]; then
-    echo -e "\t Liste des secrets  ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "\t Liste des secrets   ${RED} KO ${ENDCOLOR}"
-    echo -e "\t\t Contenu du fichier:  $(cat /tmp/listSecret)"
-  fi
-else 
-  echo  -e "\t ${RED}  Le fichier /tmp/listSecret n'existe pas. ${ENDCOLOR}"
-fi
-
-echo -e "[TEST  contenu du secret secret-contact dans /tmp/topsecret ]"
-if [ -e "/tmp/topsecret" ]; then
-   logUser=$(cat /tmp/topsecret |sort |tr -d "\n" |sed 's/ //g' )
-   if [ "$logUser" = "nom-du-contact-suspect:nom:contact-suspectnumero-de-telephone-du-contact-a-surveiller:numero:777-770-777" ]; then
-    echo -e "\t Contenu du secret  ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "\t Contenu du secret  ${RED} KO ${ENDCOLOR}"
-    echo -e "\t\t Contenu du fichier:  $(cat /tmp/topsecret)"
-  fi
-else 
-  echo  -e "\t ${RED}  Le fichier /tmp/topsecret n'existe pas. ${ENDCOLOR}"
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpSRUQ9IlxlWzMxbSIKR1JFRU49IlxlWzMybSIKRU5EQ09MT1I9IlxlWzBt
+IgoKZWNobyAtZSAiW1RFU1QgIGxpc3RlIGRlcyBzZWNyZXQgIGRhbnMgL3RtcC9saXN0U2VjcmV0
+IF0iCmlmIFsgLWUgIi90bXAvbGlzdFNlY3JldCIgXTsgdGhlbgogICBsb2dVc2VyPSQoY2F0IC90
+bXAvbGlzdFNlY3JldCB8c29ydCB8dHIgLWQgIlxuIiAgfCBzZWQgJ3MvIC8vZycgKQogICBpZiBb
+ICIkbG9nVXNlciIgPSAic2VjcmV0LWFnZW50c2VjcmV0LWNvbnRhY3RzZWNyZXQtbGlldXNlY3Jl
+dC1vcGVyYXRpb25zZWNyZXQtcHJvamV0IiBdOyB0aGVuCiAgICBlY2hvIC1lICJcdCBMaXN0ZSBk
+ZXMgc2VjcmV0cyAgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCiAgZWxzZQogICAgZWNobyAtZSAi
+XHQgTGlzdGUgZGVzIHNlY3JldHMgICAke1JFRH0gS08gJHtFTkRDT0xPUn0iCiAgICBlY2hvIC1l
+ICJcdFx0IENvbnRlbnUgZHUgZmljaGllcjogICQoY2F0IC90bXAvbGlzdFNlY3JldCkiCiAgZmkK
+ZWxzZSAKICBlY2hvICAtZSAiXHQgJHtSRUR9ICBMZSBmaWNoaWVyIC90bXAvbGlzdFNlY3JldCBu
+J2V4aXN0ZSBwYXMuICR7RU5EQ09MT1J9IgpmaQoKZWNobyAtZSAiW1RFU1QgIGNvbnRlbnUgZHUg
+c2VjcmV0IHNlY3JldC1jb250YWN0IGRhbnMgL3RtcC90b3BzZWNyZXQgXSIKaWYgWyAtZSAiL3Rt
+cC90b3BzZWNyZXQiIF07IHRoZW4KICAgbG9nVXNlcj0kKGNhdCAvdG1wL3RvcHNlY3JldCB8c29y
+dCB8dHIgLWQgIlxuIiB8c2VkICdzLyAvL2cnICkKICAgaWYgWyAiJGxvZ1VzZXIiID0gIm5vbS1k
+dS1jb250YWN0LXN1c3BlY3Q6bm9tOmNvbnRhY3Qtc3VzcGVjdG51bWVyby1kZS10ZWxlcGhvbmUt
+ZHUtY29udGFjdC1hLXN1cnZlaWxsZXI6bnVtZXJvOjc3Ny03NzAtNzc3IiBdOyB0aGVuCiAgICBl
+Y2hvIC1lICJcdCBDb250ZW51IGR1IHNlY3JldCAgJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCiAg
+ZWxzZQogICAgZWNobyAtZSAiXHQgQ29udGVudSBkdSBzZWNyZXQgICR7UkVEfSBLTyAke0VORENP
+TE9SfSIKICAgIGVjaG8gLWUgIlx0XHQgQ29udGVudSBkdSBmaWNoaWVyOiAgJChjYXQgL3RtcC90
+b3BzZWNyZXQpIgogIGZpCmVsc2UgCiAgZWNobyAgLWUgIlx0ICR7UkVEfSAgTGUgZmljaGllciAv
+dG1wL3RvcHNlY3JldCBuJ2V4aXN0ZSBwYXMuICR7RU5EQ09MT1J9IgpmaQo=' | base64 -d)

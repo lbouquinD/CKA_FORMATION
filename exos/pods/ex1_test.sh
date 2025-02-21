@@ -1,70 +1,37 @@
-#!/bin/bash  
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-function get_JSON_Pods() {
-    name=$1
-    namespace=$2
-    result=$(kubectl get  po $name -n  $namespace -o  json  2> /dev/null)
-    error=$? 
-    if [ $error -eq 0 ]; then
-	echo  $result
-	return 0 
-    fi 
-  echo "{}"
-  return  0 
-}
-
-jsonPod=$(get_JSON_Pods ex1pod default)
-#Verification du  nom du pod
-namePod=$(echo "$jsonPod" | jq -r  '.metadata.name' 2>/dev/null)
-
-if [[ -z "$namePod" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le nom du pod"
-elif [[ "$namePod" == "ex1pod" ]]; then
-  echo -e  "Le pod est bien nommé 'ex1pod'. ${GREEN} OK ${ENDCOLOR}"
-else
-  echo  -e "Le pod n'est pas nommé 'ex1pod'.${RED}  KO ${ENDCOLOR}"
-fi
-
-
-# Vérification  namespace 
-namespace=$(echo "$jsonPod" | jq -r  '.metadata.namespace' 2>/dev/null)
-
-if [[ -z "$namespace" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le namespace"
-elif [[ "$namespace" == "default" ]]; then
-  echo -e  "Namespace  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e  "Namespace ${RED}  KO ${ENDCOLOR} "
-fi
-
-
-
-# Vérification du  nombre de conteneur requis
-container_count=$(echo "$jsonPod" | jq '.spec.containers | length')
-if [[ $container_count -eq 1 ]]; then
-  echo -e "Un seul conteneur: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Un seul conteneur ${RED} KO ${ENDCOLOR}"
-fi
-
-
-# Vérification du  nom du  conteneur
-containerName=$(echo "$jsonPod" | jq -r  '.spec.containers[0].name' 2>/dev/null)
-if [[ "$containerName" == "premier-pod" ]]; then
-  echo -e "Nom du conteneur: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nom du conteneur:  ${RED} KO ${ENDCOLOR} \n\t  Explication:  nom du  conteneur  trouvé: $containerName"
-fi
-
-# Vérification de l'image diu conteneur1  
-containerImage=$(echo "$jsonPod" | jq -r  '.spec.containers[0].image' 2>/dev/null)
-if [[ "$containerImage" == "nginx:1.27.3" ]]; then
-  echo -e "Image  du conteneur: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Image du conteneur:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  nom de  l'image  trouvé:  $containerImage"
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggIAoKUkVEPSJcZVszMW0iCkdSRUVOPSJcZVszMm0iCkVORENPTE9SPSJcZVsw
+bSIKCgpmdW5jdGlvbiBnZXRfSlNPTl9Qb2RzKCkgewogICAgbmFtZT0kMQogICAgbmFtZXNwYWNl
+PSQyCiAgICByZXN1bHQ9JChrdWJlY3RsIGdldCAgcG8gJG5hbWUgLW4gICRuYW1lc3BhY2UgLW8g
+IGpzb24gIDI+IC9kZXYvbnVsbCkKICAgIGVycm9yPSQ/IAogICAgaWYgWyAkZXJyb3IgLWVxIDAg
+XTsgdGhlbgoJZWNobyAgJHJlc3VsdAoJcmV0dXJuIDAgCiAgICBmaSAKICBlY2hvICJ7fSIKICBy
+ZXR1cm4gIDAgCn0KCmpzb25Qb2Q9JChnZXRfSlNPTl9Qb2RzIGV4MXBvZCBkZWZhdWx0KQojVmVy
+aWZpY2F0aW9uIGR1ICBub20gZHUgcG9kCm5hbWVQb2Q9JChlY2hvICIkanNvblBvZCIgfCBqcSAt
+ciAgJy5tZXRhZGF0YS5uYW1lJyAyPi9kZXYvbnVsbCkKCmlmIFtbIC16ICIkbmFtZVBvZCIgXV07
+IHRoZW4KICBlY2hvIC1lICAiRXJyZXVyOiBJbXBvc3NpYmxlIGQnZXh0cmFpcmUgbGUgbm9tIGR1
+IHBvZCIKZWxpZiBbWyAiJG5hbWVQb2QiID09ICJleDFwb2QiIF1dOyB0aGVuCiAgZWNobyAtZSAg
+IkxlIHBvZCBlc3QgYmllbiBub21tw6kgJ2V4MXBvZCcuICR7R1JFRU59IE9LICR7RU5EQ09MT1J9
+IgplbHNlCiAgZWNobyAgLWUgIkxlIHBvZCBuJ2VzdCBwYXMgbm9tbcOpICdleDFwb2QnLiR7UkVE
+fSAgS08gJHtFTkRDT0xPUn0iCmZpCgoKIyBWw6lyaWZpY2F0aW9uICBuYW1lc3BhY2UgCm5hbWVz
+cGFjZT0kKGVjaG8gIiRqc29uUG9kIiB8IGpxIC1yICAnLm1ldGFkYXRhLm5hbWVzcGFjZScgMj4v
+ZGV2L251bGwpCgppZiBbWyAteiAiJG5hbWVzcGFjZSIgXV07IHRoZW4KICBlY2hvIC1lICAiRXJy
+ZXVyOiBJbXBvc3NpYmxlIGQnZXh0cmFpcmUgbGUgbmFtZXNwYWNlIgplbGlmIFtbICIkbmFtZXNw
+YWNlIiA9PSAiZGVmYXVsdCIgXV07IHRoZW4KICBlY2hvIC1lICAiTmFtZXNwYWNlICAke0dSRUVO
+fSBPSyAke0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgICJOYW1lc3BhY2UgJHtSRUR9ICBLTyAk
+e0VORENPTE9SfSAiCmZpCgoKCiMgVsOpcmlmaWNhdGlvbiBkdSAgbm9tYnJlIGRlIGNvbnRlbmV1
+ciByZXF1aXMKY29udGFpbmVyX2NvdW50PSQoZWNobyAiJGpzb25Qb2QiIHwganEgJy5zcGVjLmNv
+bnRhaW5lcnMgfCBsZW5ndGgnKQppZiBbWyAkY29udGFpbmVyX2NvdW50IC1lcSAxIF1dOyB0aGVu
+CiAgZWNobyAtZSAiVW4gc2V1bCBjb250ZW5ldXI6ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9Igpl
+bHNlCiAgZWNobyAtZSAiVW4gc2V1bCBjb250ZW5ldXIgJHtSRUR9IEtPICR7RU5EQ09MT1J9Igpm
+aQoKCiMgVsOpcmlmaWNhdGlvbiBkdSAgbm9tIGR1ICBjb250ZW5ldXIKY29udGFpbmVyTmFtZT0k
+KGVjaG8gIiRqc29uUG9kIiB8IGpxIC1yICAnLnNwZWMuY29udGFpbmVyc1swXS5uYW1lJyAyPi9k
+ZXYvbnVsbCkKaWYgW1sgIiRjb250YWluZXJOYW1lIiA9PSAicHJlbWllci1wb2QiIF1dOyB0aGVu
+CiAgZWNobyAtZSAiTm9tIGR1IGNvbnRlbmV1cjogJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVs
+c2UKICBlY2hvIC1lICJOb20gZHUgY29udGVuZXVyOiAgJHtSRUR9IEtPICR7RU5EQ09MT1J9IFxu
+XHQgIEV4cGxpY2F0aW9uOiAgbm9tIGR1ICBjb250ZW5ldXIgIHRyb3V2w6k6ICRjb250YWluZXJO
+YW1lIgpmaQoKIyBWw6lyaWZpY2F0aW9uIGRlIGwnaW1hZ2UgZGl1IGNvbnRlbmV1cjEgIApjb250
+YWluZXJJbWFnZT0kKGVjaG8gIiRqc29uUG9kIiB8IGpxIC1yICAnLnNwZWMuY29udGFpbmVyc1sw
+XS5pbWFnZScgMj4vZGV2L251bGwpCmlmIFtbICIkY29udGFpbmVySW1hZ2UiID09ICJuZ2lueDox
+LjI3LjMiIF1dOyB0aGVuCiAgZWNobyAtZSAiSW1hZ2UgIGR1IGNvbnRlbmV1cjogJHtHUkVFTn0g
+T0sgJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJJbWFnZSBkdSBjb250ZW5ldXI6ICAke1JF
+RH0gS08gJHtFTkRDT0xPUn0gIFxuXHQgIEV4cGxpY2F0aW9uOiAgbm9tIGRlICBsJ2ltYWdlICB0
+cm91dsOpOiAgJGNvbnRhaW5lckltYWdlIgpmaQo=' | base64 -d)

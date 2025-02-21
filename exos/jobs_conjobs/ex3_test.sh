@@ -1,26 +1,13 @@
-#!/bin/bash
-
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-
-existJob=$(kubectl get job test 2>/dev/null |wc -l)
-if [[ $existJob -gt 0 ]]; then
-  echo  -e "Le job test exist ${GREEN} OK ${ENDCOLOR}"
-else
-  echo  -e "Le job test exist ${RED} KO ${ENDCOLOR}"
-  exit 1
-fi  
-
-
-
-jobCreateByCron=$(kubectl get job test  -o jsonpath='{.metadata.annotations.cronjob\.kubernetes\.io/instantiate}')
-if [[ "$jobCreateByCron" == "manual" ]]; then 
-    echo  -e "Le job test  est  créé  par  ex3cron ${GREEN} OK ${ENDCOLOR}"
-else 
-    echo  -e "Le job test  est  créé  par  ex3cron ${RED} KO ${ENDCOLOR}"
-    echo  -e " Le cron test n'as pas été créé a partir du cron demandé " 
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpSRUQ9IlxlWzMxbSIKR1JFRU49IlxlWzMybSIKRU5EQ09MT1I9IlxlWzBt
+IgoKCgpleGlzdEpvYj0kKGt1YmVjdGwgZ2V0IGpvYiB0ZXN0IDI+L2Rldi9udWxsIHx3YyAtbCkK
+aWYgW1sgJGV4aXN0Sm9iIC1ndCAwIF1dOyB0aGVuCiAgZWNobyAgLWUgIkxlIGpvYiB0ZXN0IGV4
+aXN0ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAgLWUgIkxlIGpvYiB0ZXN0
+IGV4aXN0ICR7UkVEfSBLTyAke0VORENPTE9SfSIKICBleGl0IDEKZmkgIAoKCgpqb2JDcmVhdGVC
+eUNyb249JChrdWJlY3RsIGdldCBqb2IgdGVzdCAgLW8ganNvbnBhdGg9J3subWV0YWRhdGEuYW5u
+b3RhdGlvbnMuY3JvbmpvYlwua3ViZXJuZXRlc1wuaW8vaW5zdGFudGlhdGV9JykKaWYgW1sgIiRq
+b2JDcmVhdGVCeUNyb24iID09ICJtYW51YWwiIF1dOyB0aGVuIAogICAgZWNobyAgLWUgIkxlIGpv
+YiB0ZXN0ICBlc3QgIGNyw6nDqSAgcGFyICBleDNjcm9uICR7R1JFRU59IE9LICR7RU5EQ09MT1J9
+IgplbHNlIAogICAgZWNobyAgLWUgIkxlIGpvYiB0ZXN0ICBlc3QgIGNyw6nDqSAgcGFyICBleDNj
+cm9uICR7UkVEfSBLTyAke0VORENPTE9SfSIKICAgIGVjaG8gIC1lICIgTGUgY3JvbiB0ZXN0IG4n
+YXMgcGFzIMOpdMOpIGNyw6nDqSBhIHBhcnRpciBkdSBjcm9uIGRlbWFuZMOpICIgCmZp' | base64 -d)

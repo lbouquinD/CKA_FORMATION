@@ -1,109 +1,67 @@
-#!/bin/bash  
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-function get_JSON_Pods() {
-    name=$1
-    namespace=$2
-    result=$(kubectl get  po $name -n  $namespace -o  json  2> /dev/null)
-    error=$? 
-    if [ $error -eq 0 ]; then
-	echo  $result
-	return 0 
-    fi 
-  echo "{}"
-  return  0 
-}
-
-jsonPod=$(get_JSON_Pods podinitcontainer default)
-#Verification du  nom du pod
-namePod=$(echo "$jsonPod" | jq -r  '.metadata.name' 2>/dev/null)
-
-if [[ -z "$namePod" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le nom du pod"
-elif [[ "$namePod" == "podinitcontainer" ]]; then
-  echo -e  "Le pod est bien nommé 'podinitcontainer'. ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Le pod n'est pas nommé 'podinitcontainer'.${RED}  KO ${ENDCOLOR}"
-fi
-
-
-# Vérification  namespace 
-namespace=$(echo "$jsonPod" | jq -r  '.metadata.namespace' 2>/dev/null)
-
-if [[ -z "$namespace" ]]; then
-  echo -e  "Erreur: Impossible d'extraire le namespace"
-elif [[ "$namespace" == "default" ]]; then
-  echo -e  "Namespace  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e  "Namespace ${RED}  KO ${ENDCOLOR} "
-fi
-
-
-
-# Vérification du  nombre de conteneur requis
-container_count=$(echo "$jsonPod" | jq '.spec.initContainers | length')
-if [[ $container_count -eq 1 ]]; then
-  echo -e "nombre initConteneur : ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "nombre initConteneur ${RED} KO ${ENDCOLOR} \n\t  Explication nombre initConteneur trouvé: $container_count"
-fi
-
-
-# Vérification du  nombre de init conteneur requis
-initcontainer_count=$(echo "$jsonPod" | jq '.spec.containers | length')
-if [[ $initcontainer_count -eq 1 ]]; then
-  echo -e "Nombre de conteneur : ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nombre de conteneur ${RED} KO ${ENDCOLOR} \n\t  Explication nombre de conteneurs  trouvé: $initcontainer_count"
-fi
-
-
-# Vérification du  nom du  conteneur1
-containerName1=$(echo "$jsonPod" | jq -r  '.spec.containers[0].name' 2>/dev/null)
-if [[ "$containerName1" == "conteneur1" ]]; then
-  echo -e "Nom du conteneur1: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nom du conteneur1:  ${RED} KO ${ENDCOLOR} \n\t  Explication:  nom du  conteneur  trouvé: $containerName1"
-fi
-
-# Vérification de l'image du conteneur1  
-containerImage=$(echo "$jsonPod" | jq -r  '.spec.containers[0].image' 2>/dev/null)
-if [[ "$containerImage" == "nginx:1.27.3" ]]; then
-  echo -e "Image  du conteneur1: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Image du conteneur1:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  nom de  l'image  trouvé:  $containerImage"
-fi
-
-
-# Vérification du  nom de l'init conteneur
-initconteneurName=$(echo "$jsonPod" | jq -r  '.spec.initContainers[0].name' 2>/dev/null)
-if [[ "$initconteneurName" == "initconteneur" ]]; then
-  echo -e "Nom init Conteneur1: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Nom init Conteneur1:  ${RED} KO ${ENDCOLOR} \n\t  Explication:  Nom init Conteneur1  trouvé: $initconteneurName"
-fi
-
-# Vérification de Image init Conteneur1
-initcontainerImage=$(echo "$jsonPod" | jq -r  '.spec.initContainers[0].image' 2>/dev/null)
-if [[ "$initcontainerImage" == "busybox" ]]; then
-  echo -e "Image init Conteneur1: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Image init Conteneur1:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  Image init Conteneur1 trouvé:  $initcontainerImage"
-fi
-
-
-# Vérification de la commande du conteneur2 
-initcontainerCommand=$(echo "$jsonPod" | jq -r  '.spec.initContainers[0].command' | tr -d '\n' | sed 's/ //g' 2>/dev/null)
-if [[ "$initcontainerCommand" == "[\"sleep\",\"10\"]" ]]; then
-  echo -e "Commande  de l'init  conteneur: ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Commande  de l'init  conteneur:  ${RED} KO ${ENDCOLOR}  \n\t  Explication:  Commande  de l'init  conteneur  trouvé:  $initcontainerCommand"
-fi
-
-
-
-# echo  "$jsonPod" | jq
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggIAoKUkVEPSJcZVszMW0iCkdSRUVOPSJcZVszMm0iCkVORENPTE9SPSJcZVsw
+bSIKCgpmdW5jdGlvbiBnZXRfSlNPTl9Qb2RzKCkgewogICAgbmFtZT0kMQogICAgbmFtZXNwYWNl
+PSQyCiAgICByZXN1bHQ9JChrdWJlY3RsIGdldCAgcG8gJG5hbWUgLW4gICRuYW1lc3BhY2UgLW8g
+IGpzb24gIDI+IC9kZXYvbnVsbCkKICAgIGVycm9yPSQ/IAogICAgaWYgWyAkZXJyb3IgLWVxIDAg
+XTsgdGhlbgoJZWNobyAgJHJlc3VsdAoJcmV0dXJuIDAgCiAgICBmaSAKICBlY2hvICJ7fSIKICBy
+ZXR1cm4gIDAgCn0KCmpzb25Qb2Q9JChnZXRfSlNPTl9Qb2RzIHBvZGluaXRjb250YWluZXIgZGVm
+YXVsdCkKI1ZlcmlmaWNhdGlvbiBkdSAgbm9tIGR1IHBvZApuYW1lUG9kPSQoZWNobyAiJGpzb25Q
+b2QiIHwganEgLXIgICcubWV0YWRhdGEubmFtZScgMj4vZGV2L251bGwpCgppZiBbWyAteiAiJG5h
+bWVQb2QiIF1dOyB0aGVuCiAgZWNobyAtZSAgIkVycmV1cjogSW1wb3NzaWJsZSBkJ2V4dHJhaXJl
+IGxlIG5vbSBkdSBwb2QiCmVsaWYgW1sgIiRuYW1lUG9kIiA9PSAicG9kaW5pdGNvbnRhaW5lciIg
+XV07IHRoZW4KICBlY2hvIC1lICAiTGUgcG9kIGVzdCBiaWVuIG5vbW3DqSAncG9kaW5pdGNvbnRh
+aW5lcicuICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiTGUgcG9kIG4n
+ZXN0IHBhcyBub21tw6kgJ3BvZGluaXRjb250YWluZXInLiR7UkVEfSAgS08gJHtFTkRDT0xPUn0i
+CmZpCgoKIyBWw6lyaWZpY2F0aW9uICBuYW1lc3BhY2UgCm5hbWVzcGFjZT0kKGVjaG8gIiRqc29u
+UG9kIiB8IGpxIC1yICAnLm1ldGFkYXRhLm5hbWVzcGFjZScgMj4vZGV2L251bGwpCgppZiBbWyAt
+eiAiJG5hbWVzcGFjZSIgXV07IHRoZW4KICBlY2hvIC1lICAiRXJyZXVyOiBJbXBvc3NpYmxlIGQn
+ZXh0cmFpcmUgbGUgbmFtZXNwYWNlIgplbGlmIFtbICIkbmFtZXNwYWNlIiA9PSAiZGVmYXVsdCIg
+XV07IHRoZW4KICBlY2hvIC1lICAiTmFtZXNwYWNlICAke0dSRUVOfSBPSyAke0VORENPTE9SfSIK
+ZWxzZQogIGVjaG8gLWUgICJOYW1lc3BhY2UgJHtSRUR9ICBLTyAke0VORENPTE9SfSAiCmZpCgoK
+CiMgVsOpcmlmaWNhdGlvbiBkdSAgbm9tYnJlIGRlIGNvbnRlbmV1ciByZXF1aXMKY29udGFpbmVy
+X2NvdW50PSQoZWNobyAiJGpzb25Qb2QiIHwganEgJy5zcGVjLmluaXRDb250YWluZXJzIHwgbGVu
+Z3RoJykKaWYgW1sgJGNvbnRhaW5lcl9jb3VudCAtZXEgMSBdXTsgdGhlbgogIGVjaG8gLWUgIm5v
+bWJyZSBpbml0Q29udGVuZXVyIDogJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0iCmVsc2UKICBlY2hv
+IC1lICJub21icmUgaW5pdENvbnRlbmV1ciAke1JFRH0gS08gJHtFTkRDT0xPUn0gXG5cdCAgRXhw
+bGljYXRpb24gbm9tYnJlIGluaXRDb250ZW5ldXIgdHJvdXbDqTogJGNvbnRhaW5lcl9jb3VudCIK
+ZmkKCgojIFbDqXJpZmljYXRpb24gZHUgIG5vbWJyZSBkZSBpbml0IGNvbnRlbmV1ciByZXF1aXMK
+aW5pdGNvbnRhaW5lcl9jb3VudD0kKGVjaG8gIiRqc29uUG9kIiB8IGpxICcuc3BlYy5jb250YWlu
+ZXJzIHwgbGVuZ3RoJykKaWYgW1sgJGluaXRjb250YWluZXJfY291bnQgLWVxIDEgXV07IHRoZW4K
+ICBlY2hvIC1lICJOb21icmUgZGUgY29udGVuZXVyIDogJHtHUkVFTn0gT0sgJHtFTkRDT0xPUn0i
+CmVsc2UKICBlY2hvIC1lICJOb21icmUgZGUgY29udGVuZXVyICR7UkVEfSBLTyAke0VORENPTE9S
+fSBcblx0ICBFeHBsaWNhdGlvbiBub21icmUgZGUgY29udGVuZXVycyAgdHJvdXbDqTogJGluaXRj
+b250YWluZXJfY291bnQiCmZpCgoKIyBWw6lyaWZpY2F0aW9uIGR1ICBub20gZHUgIGNvbnRlbmV1
+cjEKY29udGFpbmVyTmFtZTE9JChlY2hvICIkanNvblBvZCIgfCBqcSAtciAgJy5zcGVjLmNvbnRh
+aW5lcnNbMF0ubmFtZScgMj4vZGV2L251bGwpCmlmIFtbICIkY29udGFpbmVyTmFtZTEiID09ICJj
+b250ZW5ldXIxIiBdXTsgdGhlbgogIGVjaG8gLWUgIk5vbSBkdSBjb250ZW5ldXIxOiAke0dSRUVO
+fSBPSyAke0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIk5vbSBkdSBjb250ZW5ldXIxOiAgJHtS
+RUR9IEtPICR7RU5EQ09MT1J9IFxuXHQgIEV4cGxpY2F0aW9uOiAgbm9tIGR1ICBjb250ZW5ldXIg
+IHRyb3V2w6k6ICRjb250YWluZXJOYW1lMSIKZmkKCiMgVsOpcmlmaWNhdGlvbiBkZSBsJ2ltYWdl
+IGR1IGNvbnRlbmV1cjEgIApjb250YWluZXJJbWFnZT0kKGVjaG8gIiRqc29uUG9kIiB8IGpxIC1y
+ICAnLnNwZWMuY29udGFpbmVyc1swXS5pbWFnZScgMj4vZGV2L251bGwpCmlmIFtbICIkY29udGFp
+bmVySW1hZ2UiID09ICJuZ2lueDoxLjI3LjMiIF1dOyB0aGVuCiAgZWNobyAtZSAiSW1hZ2UgIGR1
+IGNvbnRlbmV1cjE6ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiSW1h
+Z2UgZHUgY29udGVuZXVyMTogICR7UkVEfSBLTyAke0VORENPTE9SfSAgXG5cdCAgRXhwbGljYXRp
+b246ICBub20gZGUgIGwnaW1hZ2UgIHRyb3V2w6k6ICAkY29udGFpbmVySW1hZ2UiCmZpCgoKIyBW
+w6lyaWZpY2F0aW9uIGR1ICBub20gZGUgbCdpbml0IGNvbnRlbmV1cgppbml0Y29udGVuZXVyTmFt
+ZT0kKGVjaG8gIiRqc29uUG9kIiB8IGpxIC1yICAnLnNwZWMuaW5pdENvbnRhaW5lcnNbMF0ubmFt
+ZScgMj4vZGV2L251bGwpCmlmIFtbICIkaW5pdGNvbnRlbmV1ck5hbWUiID09ICJpbml0Y29udGVu
+ZXVyIiBdXTsgdGhlbgogIGVjaG8gLWUgIk5vbSBpbml0IENvbnRlbmV1cjE6ICR7R1JFRU59IE9L
+ICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiTm9tIGluaXQgQ29udGVuZXVyMTogICR7UkVE
+fSBLTyAke0VORENPTE9SfSBcblx0ICBFeHBsaWNhdGlvbjogIE5vbSBpbml0IENvbnRlbmV1cjEg
+IHRyb3V2w6k6ICRpbml0Y29udGVuZXVyTmFtZSIKZmkKCiMgVsOpcmlmaWNhdGlvbiBkZSBJbWFn
+ZSBpbml0IENvbnRlbmV1cjEKaW5pdGNvbnRhaW5lckltYWdlPSQoZWNobyAiJGpzb25Qb2QiIHwg
+anEgLXIgICcuc3BlYy5pbml0Q29udGFpbmVyc1swXS5pbWFnZScgMj4vZGV2L251bGwpCmlmIFtb
+ICIkaW5pdGNvbnRhaW5lckltYWdlIiA9PSAiYnVzeWJveCIgXV07IHRoZW4KICBlY2hvIC1lICJJ
+bWFnZSBpbml0IENvbnRlbmV1cjE6ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNo
+byAtZSAiSW1hZ2UgaW5pdCBDb250ZW5ldXIxOiAgJHtSRUR9IEtPICR7RU5EQ09MT1J9ICBcblx0
+ICBFeHBsaWNhdGlvbjogIEltYWdlIGluaXQgQ29udGVuZXVyMSB0cm91dsOpOiAgJGluaXRjb250
+YWluZXJJbWFnZSIKZmkKCgojIFbDqXJpZmljYXRpb24gZGUgbGEgY29tbWFuZGUgZHUgY29udGVu
+ZXVyMiAKaW5pdGNvbnRhaW5lckNvbW1hbmQ9JChlY2hvICIkanNvblBvZCIgfCBqcSAtciAgJy5z
+cGVjLmluaXRDb250YWluZXJzWzBdLmNvbW1hbmQnIHwgdHIgLWQgJ1xuJyB8IHNlZCAncy8gLy9n
+JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRpbml0Y29udGFpbmVyQ29tbWFuZCIgPT0gIltcInNsZWVw
+XCIsXCIxMFwiXSIgXV07IHRoZW4KICBlY2hvIC1lICJDb21tYW5kZSAgZGUgbCdpbml0ICBjb250
+ZW5ldXI6ICR7R1JFRU59IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiQ29tbWFuZGUg
+IGRlIGwnaW5pdCAgY29udGVuZXVyOiAgJHtSRUR9IEtPICR7RU5EQ09MT1J9ICBcblx0ICBFeHBs
+aWNhdGlvbjogIENvbW1hbmRlICBkZSBsJ2luaXQgIGNvbnRlbmV1ciAgdHJvdXbDqTogICRpbml0
+Y29udGFpbmVyQ29tbWFuZCIKZmkKCgoKIyBlY2hvICAiJGpzb25Qb2QiIHwganE=' | base64 -d)

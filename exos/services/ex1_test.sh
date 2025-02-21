@@ -1,58 +1,39 @@
-#!/bin/bash
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-test_po=$(kubectl get  po test  -o jsonpath='{.metadata.name}' 2>/dev/null)
-
-if [[ "$test_po" == "test" ]]; then 
-    echo  -e "Création pod avec le nom test  ${GREEN} OK ${ENDCOLOR}"
-else
-    echo -e "Création pod avec le nom test ${RED} KO ${ENDCOLOR}"
-    echo -e "\t ${RED} Le pod n'existe pas ${ENDCOLOR}"
-fi
-
-# verif dep2 
-container1_image=$(kubectl get po test -o jsonpath='{.spec.containers[?(@.name=="test")].image}' 2>/dev/null)
-if [[ "$container1_image" == "nginx:1.27.3" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Image du pod test: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Image du pod test: ${RED}KO ${ENDCOLOR}"
-  echo -e "\t ${RED} L'image est  incorrect:  image du pods test actuel: $container1_image ${ENDCOLOR}"
-fi
-
-
-test_service=$(kubectl get svc test-svc-ex1  -o jsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$test_service" == "test-svc-ex1" ]]; then #Double crochet pour la comparaison de chaines, && pour "et"
-  echo -e "Service test-svc-ex1  existe: ${GREEN}OK${ENDCOLOR}"
-else
-  echo -e "Service existe test-svc-ex1: ${RED}KO ${ENDCOLOR}"
-  echo -e "\t ${RED} Le service test-svc-ex1  n'existe pas ${ENDCOLOR}"
-fi
-
-
-portsvc=$(kubectl get svc test-svc-ex1  -o jsonpath='{.spec.ports[0].port}' 2>/dev/null)
-targetportsvc=$(kubectl get svc test-svc-ex1  -o jsonpath='{.spec.ports[0].targetPort}' 2>/dev/null)
-
-if [[ "$portsvc" == "80" ]]; then 
-  echo  -e "Port du  service ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Port du service ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $portsvc" 
-fi  
-if [[ "$targetportsvc" == "80" ]]; then 
-  echo  -e "targetPort du  service ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "targetPort du service ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $targetportsvc" 
-fi  
-
-typeservice=$(kubectl get svc test-svc-ex1  -o jsonpath='{.spec.type}' 2>/dev/null)
-if [[ "$typeservice" == "ClusterIP" ]]; then 
-  echo  -e "Type de service ClusterIP  ${GREEN} OK ${ENDCOLOR}"
-else
-  echo -e "Type de service ClusterIP ${RED} KO ${ENDCOLOR}" 
-  echo  -e "\t Port trouvé: $typeservice" 
-fi  
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKClJFRD0iXGVbMzFtIgpHUkVFTj0iXGVbMzJtIgpFTkRDT0xPUj0iXGVbMG0i
+CgoKdGVzdF9wbz0kKGt1YmVjdGwgZ2V0ICBwbyB0ZXN0ICAtbyBqc29ucGF0aD0ney5tZXRhZGF0
+YS5uYW1lfScgMj4vZGV2L251bGwpCgppZiBbWyAiJHRlc3RfcG8iID09ICJ0ZXN0IiBdXTsgdGhl
+biAKICAgIGVjaG8gIC1lICJDcsOpYXRpb24gcG9kIGF2ZWMgbGUgbm9tIHRlc3QgICR7R1JFRU59
+IE9LICR7RU5EQ09MT1J9IgplbHNlCiAgICBlY2hvIC1lICJDcsOpYXRpb24gcG9kIGF2ZWMgbGUg
+bm9tIHRlc3QgJHtSRUR9IEtPICR7RU5EQ09MT1J9IgogICAgZWNobyAtZSAiXHQgJHtSRUR9IExl
+IHBvZCBuJ2V4aXN0ZSBwYXMgJHtFTkRDT0xPUn0iCmZpCgojIHZlcmlmIGRlcDIgCmNvbnRhaW5l
+cjFfaW1hZ2U9JChrdWJlY3RsIGdldCBwbyB0ZXN0IC1vIGpzb25wYXRoPSd7LnNwZWMuY29udGFp
+bmVyc1s/KEAubmFtZT09InRlc3QiKV0uaW1hZ2V9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250
+YWluZXIxX2ltYWdlIiA9PSAibmdpbng6MS4yNy4zIiBdXTsgdGhlbiAjRG91YmxlIGNyb2NoZXQg
+cG91ciBsYSBjb21wYXJhaXNvbiBkZSBjaGFpbmVzLCAmJiBwb3VyICJldCIKICBlY2hvIC1lICJJ
+bWFnZSBkdSBwb2QgdGVzdDogJHtHUkVFTn1PSyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAi
+SW1hZ2UgZHUgcG9kIHRlc3Q6ICR7UkVEfUtPICR7RU5EQ09MT1J9IgogIGVjaG8gLWUgIlx0ICR7
+UkVEfSBMJ2ltYWdlIGVzdCAgaW5jb3JyZWN0OiAgaW1hZ2UgZHUgcG9kcyB0ZXN0IGFjdHVlbDog
+JGNvbnRhaW5lcjFfaW1hZ2UgJHtFTkRDT0xPUn0iCmZpCgoKdGVzdF9zZXJ2aWNlPSQoa3ViZWN0
+bCBnZXQgc3ZjIHRlc3Qtc3ZjLWV4MSAgLW8ganNvbnBhdGg9J3subWV0YWRhdGEubmFtZX0nIDI+
+L2Rldi9udWxsKQppZiBbWyAiJHRlc3Rfc2VydmljZSIgPT0gInRlc3Qtc3ZjLWV4MSIgXV07IHRo
+ZW4gI0RvdWJsZSBjcm9jaGV0IHBvdXIgbGEgY29tcGFyYWlzb24gZGUgY2hhaW5lcywgJiYgcG91
+ciAiZXQiCiAgZWNobyAtZSAiU2VydmljZSB0ZXN0LXN2Yy1leDEgIGV4aXN0ZTogJHtHUkVFTn1P
+SyR7RU5EQ09MT1J9IgplbHNlCiAgZWNobyAtZSAiU2VydmljZSBleGlzdGUgdGVzdC1zdmMtZXgx
+OiAke1JFRH1LTyAke0VORENPTE9SfSIKICBlY2hvIC1lICJcdCAke1JFRH0gTGUgc2VydmljZSB0
+ZXN0LXN2Yy1leDEgIG4nZXhpc3RlIHBhcyAke0VORENPTE9SfSIKZmkKCgpwb3J0c3ZjPSQoa3Vi
+ZWN0bCBnZXQgc3ZjIHRlc3Qtc3ZjLWV4MSAgLW8ganNvbnBhdGg9J3suc3BlYy5wb3J0c1swXS5w
+b3J0fScgMj4vZGV2L251bGwpCnRhcmdldHBvcnRzdmM9JChrdWJlY3RsIGdldCBzdmMgdGVzdC1z
+dmMtZXgxICAtbyBqc29ucGF0aD0ney5zcGVjLnBvcnRzWzBdLnRhcmdldFBvcnR9JyAyPi9kZXYv
+bnVsbCkKCmlmIFtbICIkcG9ydHN2YyIgPT0gIjgwIiBdXTsgdGhlbiAKICBlY2hvICAtZSAiUG9y
+dCBkdSAgc2VydmljZSAke0dSRUVOfSBPSyAke0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIlBv
+cnQgZHUgc2VydmljZSAke1JFRH0gS08gJHtFTkRDT0xPUn0iIAogIGVjaG8gIC1lICJcdCBQb3J0
+IHRyb3V2w6k6ICRwb3J0c3ZjIiAKZmkgIAppZiBbWyAiJHRhcmdldHBvcnRzdmMiID09ICI4MCIg
+XV07IHRoZW4gCiAgZWNobyAgLWUgInRhcmdldFBvcnQgZHUgIHNlcnZpY2UgJHtHUkVFTn0gT0sg
+JHtFTkRDT0xPUn0iCmVsc2UKICBlY2hvIC1lICJ0YXJnZXRQb3J0IGR1IHNlcnZpY2UgJHtSRUR9
+IEtPICR7RU5EQ09MT1J9IiAKICBlY2hvICAtZSAiXHQgUG9ydCB0cm91dsOpOiAkdGFyZ2V0cG9y
+dHN2YyIgCmZpICAKCnR5cGVzZXJ2aWNlPSQoa3ViZWN0bCBnZXQgc3ZjIHRlc3Qtc3ZjLWV4MSAg
+LW8ganNvbnBhdGg9J3suc3BlYy50eXBlfScgMj4vZGV2L251bGwpCmlmIFtbICIkdHlwZXNlcnZp
+Y2UiID09ICJDbHVzdGVySVAiIF1dOyB0aGVuIAogIGVjaG8gIC1lICJUeXBlIGRlIHNlcnZpY2Ug
+Q2x1c3RlcklQICAke0dSRUVOfSBPSyAke0VORENPTE9SfSIKZWxzZQogIGVjaG8gLWUgIlR5cGUg
+ZGUgc2VydmljZSBDbHVzdGVySVAgJHtSRUR9IEtPICR7RU5EQ09MT1J9IiAKICBlY2hvICAtZSAi
+XHQgUG9ydCB0cm91dsOpOiAkdHlwZXNlcnZpY2UiIApmaSAgCg==' | base64 -d)

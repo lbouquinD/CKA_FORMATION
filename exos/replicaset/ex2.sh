@@ -1,70 +1,21 @@
-#!/bin/bash  
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-kubectl  delete rs --all  --grace-period=0 --force
-
-yaml=$(cat << EOF
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata:
-  name: ex2replicaset
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: ex2replicaset
-  template:
-    metadata:
-      labels:
-        app: ex2replicaset
-    spec:
-      containers:
-      - name: premier-replicaset
-        image: nginx:1.27.3
-
----
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata:
-  name: ex2replicaset2
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: ex2replicaset2
-  template:
-    metadata:
-      labels:
-        app: ex2replicaset2
-    spec:
-      containers:
-      - name: premier-replicaset
-        image: nginx:1.27.3
----
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata:
-  name: testresplicatset
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: ex2replicaset3
-  template:
-    metadata:
-      labels:
-        app: ex2replicaset3
-    spec:
-      containers:
-      - name: premier-replicaset
-        image: nginx:1.27.3
-EOF
-)
-
-# Apply the YAML using kubectl
-kubectl apply -f - << EOF
-$yaml
-EOF
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggIAoKUkVEPSJcZVszMW0iCkdSRUVOPSJcZVszMm0iCkVORENPTE9SPSJcZVsw
+bSIKCmt1YmVjdGwgIGRlbGV0ZSBycyAtLWFsbCAgLS1ncmFjZS1wZXJpb2Q9MCAtLWZvcmNlCgp5
+YW1sPSQoY2F0IDw8IEVPRgphcGlWZXJzaW9uOiBhcHBzL3YxCmtpbmQ6IFJlcGxpY2FTZXQKbWV0
+YWRhdGE6CiAgbmFtZTogZXgycmVwbGljYXNldApzcGVjOgogIHJlcGxpY2FzOiAzCiAgc2VsZWN0
+b3I6CiAgICBtYXRjaExhYmVsczoKICAgICAgYXBwOiBleDJyZXBsaWNhc2V0CiAgdGVtcGxhdGU6
+CiAgICBtZXRhZGF0YToKICAgICAgbGFiZWxzOgogICAgICAgIGFwcDogZXgycmVwbGljYXNldAog
+ICAgc3BlYzoKICAgICAgY29udGFpbmVyczoKICAgICAgLSBuYW1lOiBwcmVtaWVyLXJlcGxpY2Fz
+ZXQKICAgICAgICBpbWFnZTogbmdpbng6MS4yNy4zCgotLS0KYXBpVmVyc2lvbjogYXBwcy92MQpr
+aW5kOiBSZXBsaWNhU2V0Cm1ldGFkYXRhOgogIG5hbWU6IGV4MnJlcGxpY2FzZXQyCnNwZWM6CiAg
+cmVwbGljYXM6IDMKICBzZWxlY3RvcjoKICAgIG1hdGNoTGFiZWxzOgogICAgICBhcHA6IGV4MnJl
+cGxpY2FzZXQyCiAgdGVtcGxhdGU6CiAgICBtZXRhZGF0YToKICAgICAgbGFiZWxzOgogICAgICAg
+IGFwcDogZXgycmVwbGljYXNldDIKICAgIHNwZWM6CiAgICAgIGNvbnRhaW5lcnM6CiAgICAgIC0g
+bmFtZTogcHJlbWllci1yZXBsaWNhc2V0CiAgICAgICAgaW1hZ2U6IG5naW54OjEuMjcuMwotLS0K
+YXBpVmVyc2lvbjogYXBwcy92MQpraW5kOiBSZXBsaWNhU2V0Cm1ldGFkYXRhOgogIG5hbWU6IHRl
+c3RyZXNwbGljYXRzZXQKc3BlYzoKICByZXBsaWNhczogMgogIHNlbGVjdG9yOgogICAgbWF0Y2hM
+YWJlbHM6CiAgICAgIGFwcDogZXgycmVwbGljYXNldDMKICB0ZW1wbGF0ZToKICAgIG1ldGFkYXRh
+OgogICAgICBsYWJlbHM6CiAgICAgICAgYXBwOiBleDJyZXBsaWNhc2V0MwogICAgc3BlYzoKICAg
+ICAgY29udGFpbmVyczoKICAgICAgLSBuYW1lOiBwcmVtaWVyLXJlcGxpY2FzZXQKICAgICAgICBp
+bWFnZTogbmdpbng6MS4yNy4zCkVPRgopCgojIEFwcGx5IHRoZSBZQU1MIHVzaW5nIGt1YmVjdGwK
+a3ViZWN0bCBhcHBseSAtZiAtIDw8IEVPRgokeWFtbApFT0Y=' | base64 -d)

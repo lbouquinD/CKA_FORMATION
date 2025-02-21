@@ -1,25 +1,19 @@
-#!/bin/bash
-
-RED="\e[31m"
-GREEN="\e[32m"
-ENDCOLOR="\e[0m"
-
-
-
-#Verif  ex  
-log_to_test=$(kubectl get  daemonset -o=custom-columns='Name:.metadata.name' |grep -v Name |sort > /tmp/exdeployResult)
-
-if [ -e "/tmp/exdaemon1" ]; then
-   logUser=$(cat /tmp/exdaemon1 |sort )
-   sort /tmp/exdaemon1 > /tmp/exdaemon1_trie
-   errorDiff=$(diff /tmp/exdaemon1_trie /tmp/exdeployResult)
-   if [ -z "$errorDiff" ]; then
-    echo -e "Lister des daemonset  présent  sur le cluster dans le fichier **/tmp/exdaemon1**  dans le namespace default   ${GREEN} OK ${ENDCOLOR}"
-  else
-    echo -e "Lister des daemonset  présent  sur le cluster dans le fichier **/tmp/exdaemon1**  dans le namespace default  ${RED} KO ${ENDCOLOR}"
-    echo -e "\t Le contenu du log est incorrect : $logUser"
-  fi
-else 
-    echo  -e "Lister des daemonset  présent  sur le cluster dans le fichier **/tmp/exdaemon1**  dans le namespace default  ${RED} KO ${ENDCOLOR}"
-    echo  -e "\t Fichier /tmp/exdaemon1 introuvable" 
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKClJFRD0iXGVbMzFtIgpHUkVFTj0iXGVbMzJtIgpFTkRDT0xPUj0iXGVbMG0i
+CgoKCiNWZXJpZiAgZXggIApsb2dfdG9fdGVzdD0kKGt1YmVjdGwgZ2V0ICBkYWVtb25zZXQgLW89
+Y3VzdG9tLWNvbHVtbnM9J05hbWU6Lm1ldGFkYXRhLm5hbWUnIHxncmVwIC12IE5hbWUgfHNvcnQg
+PiAvdG1wL2V4ZGVwbG95UmVzdWx0KQoKaWYgWyAtZSAiL3RtcC9leGRhZW1vbjEiIF07IHRoZW4K
+ICAgbG9nVXNlcj0kKGNhdCAvdG1wL2V4ZGFlbW9uMSB8c29ydCApCiAgIHNvcnQgL3RtcC9leGRh
+ZW1vbjEgPiAvdG1wL2V4ZGFlbW9uMV90cmllCiAgIGVycm9yRGlmZj0kKGRpZmYgL3RtcC9leGRh
+ZW1vbjFfdHJpZSAvdG1wL2V4ZGVwbG95UmVzdWx0KQogICBpZiBbIC16ICIkZXJyb3JEaWZmIiBd
+OyB0aGVuCiAgICBlY2hvIC1lICJMaXN0ZXIgZGVzIGRhZW1vbnNldCAgcHLDqXNlbnQgIHN1ciBs
+ZSBjbHVzdGVyIGRhbnMgbGUgZmljaGllciAqKi90bXAvZXhkYWVtb24xKiogIGRhbnMgbGUgbmFt
+ZXNwYWNlIGRlZmF1bHQgICAke0dSRUVOfSBPSyAke0VORENPTE9SfSIKICBlbHNlCiAgICBlY2hv
+IC1lICJMaXN0ZXIgZGVzIGRhZW1vbnNldCAgcHLDqXNlbnQgIHN1ciBsZSBjbHVzdGVyIGRhbnMg
+bGUgZmljaGllciAqKi90bXAvZXhkYWVtb24xKiogIGRhbnMgbGUgbmFtZXNwYWNlIGRlZmF1bHQg
+ICR7UkVEfSBLTyAke0VORENPTE9SfSIKICAgIGVjaG8gLWUgIlx0IExlIGNvbnRlbnUgZHUgbG9n
+IGVzdCBpbmNvcnJlY3QgOiAkbG9nVXNlciIKICBmaQplbHNlIAogICAgZWNobyAgLWUgIkxpc3Rl
+ciBkZXMgZGFlbW9uc2V0ICBwcsOpc2VudCAgc3VyIGxlIGNsdXN0ZXIgZGFucyBsZSBmaWNoaWVy
+ICoqL3RtcC9leGRhZW1vbjEqKiAgZGFucyBsZSBuYW1lc3BhY2UgZGVmYXVsdCAgJHtSRUR9IEtP
+ICR7RU5EQ09MT1J9IgogICAgZWNobyAgLWUgIlx0IEZpY2hpZXIgL3RtcC9leGRhZW1vbjEgaW50
+cm91dmFibGUiIApmaQ==' | base64 -d)
