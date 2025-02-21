@@ -1,226 +1,115 @@
-#!/bin/bash
-
-RED="\e[31m\e[1m"
-GREEN="\e[32m\e[1m"
-ENDCOLOR="\e[0m"
-BLUE="\e[34m\e[1m"
-# Fonction pour tester la connectivité depuis un pod
-test_connectivity() {
-  local source_namespace=$1
-  local source_pod=$2
-  local dest_namespace=$3
-  local dest_service=$4
-  local expected_result=$5 # "success" ou "failure"
-
-    #Récupérer le type de service
-  service_type=$(kubectl get service "$dest_service" -n "$dest_namespace" -o jsonpath='{.spec.type}')
-
-  # Déterminer l'IP de destination en fonction du type de service
-  if [[ "$service_type" == "ExternalName" ]]; then
-    dest_ip="$dest_service.$dest_namespace.svc.cluster.local"
-  else
-    dest_ip=$(kubectl get service "$dest_service" -n "$dest_namespace" -o jsonpath='{.spec.clusterIP}')
-  fi
-
-  # Executer curl depuis le pod source
-  result=$(kubectl exec -it $source_pod -n $source_namespace -- curl --connect-timeout 5 -s $dest_ip:80 2>/dev/null )
-
-  if [[ "$expected_result" == "success" ]]; then
-    if [[ ! -z "$result" ]]; then # Vérifier si curl a retourné quelque chose (succès)
-      echo -e "Test connectivité $source_namespace/$source_pod -> $dest_namespace/$dest_service : ${GREEN}OK${ENDCOLOR}"
-      return 0
-    else
-      echo -e "Test connectivité $source_namespace/$source_pod -> $dest_namespace/$dest_service : ${RED}KO${ENDCOLOR}"
-      return 1
-    fi
-  else # expected_result == "failure"
-    if [[ -z "$result" ]]; then # Vérifier si curl n'a rien retourné (échec)
-      echo -e "Test de non connectivité $source_namespace/$source_pod -> $dest_namespace/$dest_service : ${GREEN}OK${ENDCOLOR}"
-      return 0
-    else
-      echo -e "Test de non connectivité $source_namespace/$source_pod -> $dest_namespace/$dest_service : ${RED}KO${ENDCOLOR} (Le service ne devrait pas pouvoir se connecter )"
-      return 1
-    fi
-  fi
-}
-
-
-check_endpoint_subset() {
-  local service_name=$1
-  local namespace=$2
-
-  # Vérifier si .subsets existe (retourne vide si non)
-  subsets=$(kubectl get endpoints "$service_name" -n "$namespace" -o jsonpath='{.subsets}' 2>/dev/null)
-
-  # Si $subsets est vide, il n'y a pas de subsets, on retourne 0
-  if [[ -z "$subsets" ]]; then
-    echo 0
-  else
-    echo 1 # Sinon, il y a au moins un subset, on retourne 1
-  fi
-}
-
-echo  -e "\n ${BLUE} [CRéation des ressoucr pour tester votre configuration]\n ${ENDCOLOR}"
-# Créer un pod de test dans le namespace dev (busybox)
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: allow-monitoring
-  labels:
-    allowmonitoring: autorise  
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: test-pod
-  namespace: allow-monitoring
-  labels:
-    allowmonitoring: autorise  
-spec:
-  containers:
-  - name: test-container
-    image: nginx
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: test
----
-
-apiVersion: v1
-kind: Pod
-metadata:
-  name: test-pod
-  namespace: test
-  labels:
-    allowmonitoring: autorise  
-spec:
-  containers:
-  - name: test-container
-    image: nginx
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-service
-  namespace: test
-spec:
-  selector:
-    app: test
-    app: monitoring
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-EOF
-
-# Créer un pod de test dans le namespace monitoring (busybox)
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name: test-pod-monitoring
-  namespace: monitoring
-  labels:
-    app: monitoring
-spec:
-  containers:
-  - name: test-container
-    image: nginx
-
-EOF
-
-# Créer un pod de test dans le namespace prod (busybox)
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name:  test-pod-prod
-  namespace: prod
-  labels:
-    app: prod
-spec:
-  containers:
-  - name: test-container
-    image: nginx
-EOF
-
-
-# Créer un pod de test dans le namespace prod (busybox)
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Pod
-metadata:
-  name:  test-pod-dev
-  namespace: dev
-  labels:
-    test: dev
-spec:
-  containers:
-  - name: test-container
-    image: nginx
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: test-svc-dev
-  namespace: dev
-spec:
-  selector:
-    test: dev
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-EOF
-# Attendre que les pods soient prêts
-kubectl wait --for=condition=Ready pod/test-pod -n test --timeout=60s
-kubectl wait --for=condition=Ready pod/test-pod-monitoring -n monitoring --timeout=60s
-kubectl wait --for=condition=Ready pod/test-pod-prod -n prod --timeout=60s
-kubectl wait --for=condition=Ready pod/test-pod-dev -n dev --timeout=60s
-kubectl wait --for=condition=Ready pod/test-pod -n allow-monitoring --timeout=60s
-
-echo  -e "${BLUE} [Test des services] \n ${ENDCOLOR}"
-if [[ $(check_endpoint_subset "nginx-service" "prod") -eq 0 ]]; then
-  echo -e " ${RED}Erreur: Le service nginx-service dans prod n'a pas de endpoint Vérifier que ex1.yaml  ait bien eété appliqué. Le script s'arrête.${ENDCOLOR}"
-  exit 1  # Code de sortie 1 pour indiquer une erreur
-fi
-
-if [[ $(check_endpoint_subset "nginx-service" "monitoring") -eq 0 ]]; then
-  echo -e " ${RED}Erreur: Le service nginx-service dans monitoring n'a pas de endpoint Vérifier que ex1.yaml  ait bien eété appliqué. Le script s'arrête.${ENDCOLOR}"
-  exit 1  # Code de sortie 1 pour indiquer une erreur
-fi
-echo  -e "${GREEN} OK ${ENDCOLOR}\n"
-# Tests
-
-# 1. blockall (prod) : Aucun trafic entrant/sortant
-echo  -e "${BLUE}\n [TEST  BlockAll  prod]\n ${ENDCOLOR}"
-test_connectivity prod test-pod-prod dev nginx-service failure
-test_connectivity prod test-pod-prod monitoring nginx-service failure
-test_connectivity prod test-pod-prod prod google failure
-test_connectivity test test-pod prod nginx-service failure
-test_connectivity monitoring test-pod-monitoring prod nginx-service failure
-test_connectivity dev test-pod-dev dev google  success
-
-# 2. allow-mon-app (dev) : Trafic entrant vers nginx-dev
-echo  -e "${BLUE}\n [TEST  allow-mon-app  prod]\n${ENDCOLOR}"
-test_connectivity test test-pod dev nginx-service success
-test_connectivity test test-pod dev test-svc-dev failure 
-
-
-
-# # 3. allow-monitoring (dev) : Communication depuis dev vers monitoring
-echo  -e "${BLUE}\n [TEST  allow-monitoring]\n${ENDCOLOR}"
-test_connectivity dev deployments/nginx-dev monitoring nginx-service success
-test_connectivity allow-monitoring test-pod monitoring nginx-service success 
-test_connectivity test test-pod monitoring nginx-service failure
-
-
-
-
-# # Nettoyage (facultatif)
-# # kubectl delete pod test-pod-dev -n dev
-# # kubectl delete pod test-pod-monitoring -n monitoring
-
-# echo "" # Saut de ligne final
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKClJFRD0iXGVbMzFtXGVbMW0iCkdSRUVOPSJcZVszMm1cZVsxbSIKRU5EQ09M
+T1I9IlxlWzBtIgpCTFVFPSJcZVszNG1cZVsxbSIKIyBGb25jdGlvbiBwb3VyIHRlc3RlciBsYSBj
+b25uZWN0aXZpdMOpIGRlcHVpcyB1biBwb2QKdGVzdF9jb25uZWN0aXZpdHkoKSB7CiAgbG9jYWwg
+c291cmNlX25hbWVzcGFjZT0kMQogIGxvY2FsIHNvdXJjZV9wb2Q9JDIKICBsb2NhbCBkZXN0X25h
+bWVzcGFjZT0kMwogIGxvY2FsIGRlc3Rfc2VydmljZT0kNAogIGxvY2FsIGV4cGVjdGVkX3Jlc3Vs
+dD0kNSAjICJzdWNjZXNzIiBvdSAiZmFpbHVyZSIKCiAgICAjUsOpY3Vww6lyZXIgbGUgdHlwZSBk
+ZSBzZXJ2aWNlCiAgc2VydmljZV90eXBlPSQoa3ViZWN0bCBnZXQgc2VydmljZSAiJGRlc3Rfc2Vy
+dmljZSIgLW4gIiRkZXN0X25hbWVzcGFjZSIgLW8ganNvbnBhdGg9J3suc3BlYy50eXBlfScpCgog
+ICMgRMOpdGVybWluZXIgbCdJUCBkZSBkZXN0aW5hdGlvbiBlbiBmb25jdGlvbiBkdSB0eXBlIGRl
+IHNlcnZpY2UKICBpZiBbWyAiJHNlcnZpY2VfdHlwZSIgPT0gIkV4dGVybmFsTmFtZSIgXV07IHRo
+ZW4KICAgIGRlc3RfaXA9IiRkZXN0X3NlcnZpY2UuJGRlc3RfbmFtZXNwYWNlLnN2Yy5jbHVzdGVy
+LmxvY2FsIgogIGVsc2UKICAgIGRlc3RfaXA9JChrdWJlY3RsIGdldCBzZXJ2aWNlICIkZGVzdF9z
+ZXJ2aWNlIiAtbiAiJGRlc3RfbmFtZXNwYWNlIiAtbyBqc29ucGF0aD0ney5zcGVjLmNsdXN0ZXJJ
+UH0nKQogIGZpCgogICMgRXhlY3V0ZXIgY3VybCBkZXB1aXMgbGUgcG9kIHNvdXJjZQogIHJlc3Vs
+dD0kKGt1YmVjdGwgZXhlYyAtaXQgJHNvdXJjZV9wb2QgLW4gJHNvdXJjZV9uYW1lc3BhY2UgLS0g
+Y3VybCAtLWNvbm5lY3QtdGltZW91dCA1IC1zICRkZXN0X2lwOjgwIDI+L2Rldi9udWxsICkKCiAg
+aWYgW1sgIiRleHBlY3RlZF9yZXN1bHQiID09ICJzdWNjZXNzIiBdXTsgdGhlbgogICAgaWYgW1sg
+ISAteiAiJHJlc3VsdCIgXV07IHRoZW4gIyBWw6lyaWZpZXIgc2kgY3VybCBhIHJldG91cm7DqSBx
+dWVscXVlIGNob3NlIChzdWNjw6hzKQogICAgICBlY2hvIC1lICJUZXN0IGNvbm5lY3Rpdml0w6kg
+JHNvdXJjZV9uYW1lc3BhY2UvJHNvdXJjZV9wb2QgLT4gJGRlc3RfbmFtZXNwYWNlLyRkZXN0X3Nl
+cnZpY2UgOiAke0dSRUVOfU9LJHtFTkRDT0xPUn0iCiAgICAgIHJldHVybiAwCiAgICBlbHNlCiAg
+ICAgIGVjaG8gLWUgIlRlc3QgY29ubmVjdGl2aXTDqSAkc291cmNlX25hbWVzcGFjZS8kc291cmNl
+X3BvZCAtPiAkZGVzdF9uYW1lc3BhY2UvJGRlc3Rfc2VydmljZSA6ICR7UkVEfUtPJHtFTkRDT0xP
+Un0iCiAgICAgIHJldHVybiAxCiAgICBmaQogIGVsc2UgIyBleHBlY3RlZF9yZXN1bHQgPT0gImZh
+aWx1cmUiCiAgICBpZiBbWyAteiAiJHJlc3VsdCIgXV07IHRoZW4gIyBWw6lyaWZpZXIgc2kgY3Vy
+bCBuJ2EgcmllbiByZXRvdXJuw6kgKMOpY2hlYykKICAgICAgZWNobyAtZSAiVGVzdCBkZSBub24g
+Y29ubmVjdGl2aXTDqSAkc291cmNlX25hbWVzcGFjZS8kc291cmNlX3BvZCAtPiAkZGVzdF9uYW1l
+c3BhY2UvJGRlc3Rfc2VydmljZSA6ICR7R1JFRU59T0ske0VORENPTE9SfSIKICAgICAgcmV0dXJu
+IDAKICAgIGVsc2UKICAgICAgZWNobyAtZSAiVGVzdCBkZSBub24gY29ubmVjdGl2aXTDqSAkc291
+cmNlX25hbWVzcGFjZS8kc291cmNlX3BvZCAtPiAkZGVzdF9uYW1lc3BhY2UvJGRlc3Rfc2Vydmlj
+ZSA6ICR7UkVEfUtPJHtFTkRDT0xPUn0gKExlIHNlcnZpY2UgbmUgZGV2cmFpdCBwYXMgcG91dm9p
+ciBzZSBjb25uZWN0ZXIgKSIKICAgICAgcmV0dXJuIDEKICAgIGZpCiAgZmkKfQoKCmNoZWNrX2Vu
+ZHBvaW50X3N1YnNldCgpIHsKICBsb2NhbCBzZXJ2aWNlX25hbWU9JDEKICBsb2NhbCBuYW1lc3Bh
+Y2U9JDIKCiAgIyBWw6lyaWZpZXIgc2kgLnN1YnNldHMgZXhpc3RlIChyZXRvdXJuZSB2aWRlIHNp
+IG5vbikKICBzdWJzZXRzPSQoa3ViZWN0bCBnZXQgZW5kcG9pbnRzICIkc2VydmljZV9uYW1lIiAt
+biAiJG5hbWVzcGFjZSIgLW8ganNvbnBhdGg9J3suc3Vic2V0c30nIDI+L2Rldi9udWxsKQoKICAj
+IFNpICRzdWJzZXRzIGVzdCB2aWRlLCBpbCBuJ3kgYSBwYXMgZGUgc3Vic2V0cywgb24gcmV0b3Vy
+bmUgMAogIGlmIFtbIC16ICIkc3Vic2V0cyIgXV07IHRoZW4KICAgIGVjaG8gMAogIGVsc2UKICAg
+IGVjaG8gMSAjIFNpbm9uLCBpbCB5IGEgYXUgbW9pbnMgdW4gc3Vic2V0LCBvbiByZXRvdXJuZSAx
+CiAgZmkKfQoKZWNobyAgLWUgIlxuICR7QkxVRX0gW0NSw6lhdGlvbiBkZXMgcmVzc291Y3IgcG91
+ciB0ZXN0ZXIgdm90cmUgY29uZmlndXJhdGlvbl1cbiAke0VORENPTE9SfSIKIyBDcsOpZXIgdW4g
+cG9kIGRlIHRlc3QgZGFucyBsZSBuYW1lc3BhY2UgZGV2IChidXN5Ym94KQprdWJlY3RsIGFwcGx5
+IC1mIC0gPDxFT0YKYXBpVmVyc2lvbjogdjEKa2luZDogTmFtZXNwYWNlCm1ldGFkYXRhOgogIG5h
+bWU6IGFsbG93LW1vbml0b3JpbmcKICBsYWJlbHM6CiAgICBhbGxvd21vbml0b3Jpbmc6IGF1dG9y
+aXNlICAKLS0tCmFwaVZlcnNpb246IHYxCmtpbmQ6IFBvZAptZXRhZGF0YToKICBuYW1lOiB0ZXN0
+LXBvZAogIG5hbWVzcGFjZTogYWxsb3ctbW9uaXRvcmluZwogIGxhYmVsczoKICAgIGFsbG93bW9u
+aXRvcmluZzogYXV0b3Jpc2UgIApzcGVjOgogIGNvbnRhaW5lcnM6CiAgLSBuYW1lOiB0ZXN0LWNv
+bnRhaW5lcgogICAgaW1hZ2U6IG5naW54Ci0tLQphcGlWZXJzaW9uOiB2MQpraW5kOiBOYW1lc3Bh
+Y2UKbWV0YWRhdGE6CiAgbmFtZTogdGVzdAotLS0KCmFwaVZlcnNpb246IHYxCmtpbmQ6IFBvZApt
+ZXRhZGF0YToKICBuYW1lOiB0ZXN0LXBvZAogIG5hbWVzcGFjZTogdGVzdAogIGxhYmVsczoKICAg
+IGFsbG93bW9uaXRvcmluZzogYXV0b3Jpc2UgIApzcGVjOgogIGNvbnRhaW5lcnM6CiAgLSBuYW1l
+OiB0ZXN0LWNvbnRhaW5lcgogICAgaW1hZ2U6IG5naW54Ci0tLQphcGlWZXJzaW9uOiB2MQpraW5k
+OiBTZXJ2aWNlCm1ldGFkYXRhOgogIG5hbWU6IG5naW54LXNlcnZpY2UKICBuYW1lc3BhY2U6IHRl
+c3QKc3BlYzoKICBzZWxlY3RvcjoKICAgIGFwcDogdGVzdAogICAgYXBwOiBtb25pdG9yaW5nCiAg
+cG9ydHM6CiAgICAtIHByb3RvY29sOiBUQ1AKICAgICAgcG9ydDogODAKICAgICAgdGFyZ2V0UG9y
+dDogODAKRU9GCgojIENyw6llciB1biBwb2QgZGUgdGVzdCBkYW5zIGxlIG5hbWVzcGFjZSBtb25p
+dG9yaW5nIChidXN5Ym94KQprdWJlY3RsIGFwcGx5IC1mIC0gPDxFT0YKYXBpVmVyc2lvbjogdjEK
+a2luZDogUG9kCm1ldGFkYXRhOgogIG5hbWU6IHRlc3QtcG9kLW1vbml0b3JpbmcKICBuYW1lc3Bh
+Y2U6IG1vbml0b3JpbmcKICBsYWJlbHM6CiAgICBhcHA6IG1vbml0b3JpbmcKc3BlYzoKICBjb250
+YWluZXJzOgogIC0gbmFtZTogdGVzdC1jb250YWluZXIKICAgIGltYWdlOiBuZ2lueAoKRU9GCgoj
+IENyw6llciB1biBwb2QgZGUgdGVzdCBkYW5zIGxlIG5hbWVzcGFjZSBwcm9kIChidXN5Ym94KQpr
+dWJlY3RsIGFwcGx5IC1mIC0gPDxFT0YKYXBpVmVyc2lvbjogdjEKa2luZDogUG9kCm1ldGFkYXRh
+OgogIG5hbWU6ICB0ZXN0LXBvZC1wcm9kCiAgbmFtZXNwYWNlOiBwcm9kCiAgbGFiZWxzOgogICAg
+YXBwOiBwcm9kCnNwZWM6CiAgY29udGFpbmVyczoKICAtIG5hbWU6IHRlc3QtY29udGFpbmVyCiAg
+ICBpbWFnZTogbmdpbngKRU9GCgoKIyBDcsOpZXIgdW4gcG9kIGRlIHRlc3QgZGFucyBsZSBuYW1l
+c3BhY2UgcHJvZCAoYnVzeWJveCkKa3ViZWN0bCBhcHBseSAtZiAtIDw8RU9GCmFwaVZlcnNpb246
+IHYxCmtpbmQ6IFBvZAptZXRhZGF0YToKICBuYW1lOiAgdGVzdC1wb2QtZGV2CiAgbmFtZXNwYWNl
+OiBkZXYKICBsYWJlbHM6CiAgICB0ZXN0OiBkZXYKc3BlYzoKICBjb250YWluZXJzOgogIC0gbmFt
+ZTogdGVzdC1jb250YWluZXIKICAgIGltYWdlOiBuZ2lueAotLS0KYXBpVmVyc2lvbjogdjEKa2lu
+ZDogU2VydmljZQptZXRhZGF0YToKICBuYW1lOiB0ZXN0LXN2Yy1kZXYKICBuYW1lc3BhY2U6IGRl
+dgpzcGVjOgogIHNlbGVjdG9yOgogICAgdGVzdDogZGV2CiAgcG9ydHM6CiAgICAtIHByb3RvY29s
+OiBUQ1AKICAgICAgcG9ydDogODAKICAgICAgdGFyZ2V0UG9ydDogODAKRU9GCiMgQXR0ZW5kcmUg
+cXVlIGxlcyBwb2RzIHNvaWVudCBwcsOqdHMKa3ViZWN0bCB3YWl0IC0tZm9yPWNvbmRpdGlvbj1S
+ZWFkeSBwb2QvdGVzdC1wb2QgLW4gdGVzdCAtLXRpbWVvdXQ9NjBzCmt1YmVjdGwgd2FpdCAtLWZv
+cj1jb25kaXRpb249UmVhZHkgcG9kL3Rlc3QtcG9kLW1vbml0b3JpbmcgLW4gbW9uaXRvcmluZyAt
+LXRpbWVvdXQ9NjBzCmt1YmVjdGwgd2FpdCAtLWZvcj1jb25kaXRpb249UmVhZHkgcG9kL3Rlc3Qt
+cG9kLXByb2QgLW4gcHJvZCAtLXRpbWVvdXQ9NjBzCmt1YmVjdGwgd2FpdCAtLWZvcj1jb25kaXRp
+b249UmVhZHkgcG9kL3Rlc3QtcG9kLWRldiAtbiBkZXYgLS10aW1lb3V0PTYwcwprdWJlY3RsIHdh
+aXQgLS1mb3I9Y29uZGl0aW9uPVJlYWR5IHBvZC90ZXN0LXBvZCAtbiBhbGxvdy1tb25pdG9yaW5n
+IC0tdGltZW91dD02MHMKCmVjaG8gIC1lICIke0JMVUV9IFtUZXN0IGRlcyBzZXJ2aWNlc10gXG4g
+JHtFTkRDT0xPUn0iCmlmIFtbICQoY2hlY2tfZW5kcG9pbnRfc3Vic2V0ICJuZ2lueC1zZXJ2aWNl
+IiAicHJvZCIpIC1lcSAwIF1dOyB0aGVuCiAgZWNobyAtZSAiICR7UkVEfUVycmV1cjogTGUgc2Vy
+dmljZSBuZ2lueC1zZXJ2aWNlIGRhbnMgcHJvZCBuJ2EgcGFzIGRlIGVuZHBvaW50IFbDqXJpZmll
+ciBxdWUgZXgxLnlhbWwgIGFpdCBiaWVuIGXDqXTDqSBhcHBsaXF1w6kuIExlIHNjcmlwdCBzJ2Fy
+csOqdGUuJHtFTkRDT0xPUn0iCiAgZXhpdCAxICAjIENvZGUgZGUgc29ydGllIDEgcG91ciBpbmRp
+cXVlciB1bmUgZXJyZXVyCmZpCgppZiBbWyAkKGNoZWNrX2VuZHBvaW50X3N1YnNldCAibmdpbngt
+c2VydmljZSIgIm1vbml0b3JpbmciKSAtZXEgMCBdXTsgdGhlbgogIGVjaG8gLWUgIiAke1JFRH1F
+cnJldXI6IExlIHNlcnZpY2Ugbmdpbngtc2VydmljZSBkYW5zIG1vbml0b3JpbmcgbidhIHBhcyBk
+ZSBlbmRwb2ludCBWw6lyaWZpZXIgcXVlIGV4MS55YW1sICBhaXQgYmllbiBlw6l0w6kgYXBwbGlx
+dcOpLiBMZSBzY3JpcHQgcydhcnLDqnRlLiR7RU5EQ09MT1J9IgogIGV4aXQgMSAgIyBDb2RlIGRl
+IHNvcnRpZSAxIHBvdXIgaW5kaXF1ZXIgdW5lIGVycmV1cgpmaQplY2hvICAtZSAiJHtHUkVFTn0g
+T0sgJHtFTkRDT0xPUn1cbiIKIyBUZXN0cwoKIyAxLiBibG9ja2FsbCAocHJvZCkgOiBBdWN1biB0
+cmFmaWMgZW50cmFudC9zb3J0YW50CmVjaG8gIC1lICIke0JMVUV9XG4gW1RFU1QgIEJsb2NrQWxs
+ICBwcm9kXVxuICR7RU5EQ09MT1J9Igp0ZXN0X2Nvbm5lY3Rpdml0eSBwcm9kIHRlc3QtcG9kLXBy
+b2QgZGV2IG5naW54LXNlcnZpY2UgZmFpbHVyZQp0ZXN0X2Nvbm5lY3Rpdml0eSBwcm9kIHRlc3Qt
+cG9kLXByb2QgbW9uaXRvcmluZyBuZ2lueC1zZXJ2aWNlIGZhaWx1cmUKdGVzdF9jb25uZWN0aXZp
+dHkgcHJvZCB0ZXN0LXBvZC1wcm9kIHByb2QgZ29vZ2xlIGZhaWx1cmUKdGVzdF9jb25uZWN0aXZp
+dHkgdGVzdCB0ZXN0LXBvZCBwcm9kIG5naW54LXNlcnZpY2UgZmFpbHVyZQp0ZXN0X2Nvbm5lY3Rp
+dml0eSBtb25pdG9yaW5nIHRlc3QtcG9kLW1vbml0b3JpbmcgcHJvZCBuZ2lueC1zZXJ2aWNlIGZh
+aWx1cmUKdGVzdF9jb25uZWN0aXZpdHkgZGV2IHRlc3QtcG9kLWRldiBkZXYgZ29vZ2xlICBzdWNj
+ZXNzCgojIDIuIGFsbG93LW1vbi1hcHAgKGRldikgOiBUcmFmaWMgZW50cmFudCB2ZXJzIG5naW54
+LWRldgplY2hvICAtZSAiJHtCTFVFfVxuIFtURVNUICBhbGxvdy1tb24tYXBwICBwcm9kXVxuJHtF
+TkRDT0xPUn0iCnRlc3RfY29ubmVjdGl2aXR5IHRlc3QgdGVzdC1wb2QgZGV2IG5naW54LXNlcnZp
+Y2Ugc3VjY2Vzcwp0ZXN0X2Nvbm5lY3Rpdml0eSB0ZXN0IHRlc3QtcG9kIGRldiB0ZXN0LXN2Yy1k
+ZXYgZmFpbHVyZSAKCgoKIyAjIDMuIGFsbG93LW1vbml0b3JpbmcgKGRldikgOiBDb21tdW5pY2F0
+aW9uIGRlcHVpcyBkZXYgdmVycyBtb25pdG9yaW5nCmVjaG8gIC1lICIke0JMVUV9XG4gW1RFU1Qg
+IGFsbG93LW1vbml0b3JpbmddXG4ke0VORENPTE9SfSIKdGVzdF9jb25uZWN0aXZpdHkgZGV2IGRl
+cGxveW1lbnRzL25naW54LWRldiBtb25pdG9yaW5nIG5naW54LXNlcnZpY2Ugc3VjY2Vzcwp0ZXN0
+X2Nvbm5lY3Rpdml0eSBhbGxvdy1tb25pdG9yaW5nIHRlc3QtcG9kIG1vbml0b3Jpbmcgbmdpbngt
+c2VydmljZSBzdWNjZXNzIAp0ZXN0X2Nvbm5lY3Rpdml0eSB0ZXN0IHRlc3QtcG9kIG1vbml0b3Jp
+bmcgbmdpbngtc2VydmljZSBmYWlsdXJlCgoKCgojICMgTmV0dG95YWdlIChmYWN1bHRhdGlmKQoj
+ICMga3ViZWN0bCBkZWxldGUgcG9kIHRlc3QtcG9kLWRldiAtbiBkZXYKIyAjIGt1YmVjdGwgZGVs
+ZXRlIHBvZCB0ZXN0LXBvZC1tb25pdG9yaW5nIC1uIG1vbml0b3JpbmcKCiMgZWNobyAiIiAjIFNh
+dXQgZGUgbGlnbmUgZmluYWw=' | base64 -d)
