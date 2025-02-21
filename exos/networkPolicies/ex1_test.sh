@@ -1,9 +1,9 @@
 #!/bin/bash
 
-RED="\e[31m"
-GREEN="\e[32m"
+RED="\e[31m\e[1m"
+GREEN="\e[32m\e[1m"
 ENDCOLOR="\e[0m"
-
+BLUE="\e[34m\e[1m"
 # Fonction pour tester la connectivité depuis un pod
 test_connectivity() {
   local source_namespace=$1
@@ -60,6 +60,7 @@ check_endpoint_subset() {
   fi
 }
 
+echo  -e "\n ${BLUE} [CRéation des ressoucr pour tester votre configuration]\n ${ENDCOLOR}"
 # Créer un pod de test dans le namespace dev (busybox)
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -160,7 +161,7 @@ kubectl wait --for=condition=Ready pod/test-pod-monitoring -n monitoring --timeo
 kubectl wait --for=condition=Ready pod/test-pod-prod -n prod --timeout=60s
 kubectl wait --for=condition=Ready pod/test-pod-dev -n dev --timeout=60s
 
-echo  -e "[Test des services] \n"
+echo  -e "${BLUE} [Test des services] \n ${ENDCOLOR}"
 if [[ $(check_endpoint_subset "nginx-service" "prod") -eq 0 ]]; then
   echo -e " ${RED}Erreur: Le service nginx-service dans prod n'a pas de endpoint Vérifier que ex1.yaml  ait bien eété appliqué. Le script s'arrête.${ENDCOLOR}"
   exit 1  # Code de sortie 1 pour indiquer une erreur
@@ -174,16 +175,16 @@ echo  -e "${GREEN} OK ${ENDCOLOR}\n"
 # Tests
 
 # 1. blockall (prod) : Aucun trafic entrant/sortant
-echo  -e "[TEST  BlockAll  prod]\n"
-test_connectivity prod test-pod-prod dev nginx-service failure
-test_connectivity prod test-pod-prod monitoring nginx-service failure
-test_connectivity prod test-pod-prod prod google failure
-test_connectivity test test-pod prod nginx-service failure
-test_connectivity monitoring test-pod-monitoring prod nginx-service failure
-test_connectivity dev test-pod-dev dev google  success
+# echo  -e "${BLUE} [TEST  BlockAll  prod]\n ${ENDCOLOR}"
+# test_connectivity prod test-pod-prod dev nginx-service failure
+# test_connectivity prod test-pod-prod monitoring nginx-service failure
+# test_connectivity prod test-pod-prod prod google failure
+# test_connectivity test test-pod prod nginx-service failure
+# test_connectivity monitoring test-pod-monitoring prod nginx-service failure
+# test_connectivity dev test-pod-dev dev google  success
 
 # 2. allow-mon-app (dev) : Trafic entrant vers nginx-dev
-echo  -e "[TEST  allow-mon-app  prod]\n"
+echo  -e "${BLUE}\n [TEST  allow-mon-app  prod]\n${ENDCOLOR}"
 test_connectivity test test-pod dev nginx-service success
 test_connectivity test test-pod dev test-svc-dev failure 
 

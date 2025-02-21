@@ -1,0 +1,91 @@
+# ex1_test :  allow-mon-app
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: dev
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-only-nginx-dev
+  namespace: dev
+spec:
+  podSelector: 
+    matchLabels: 
+        test:  nginx-dev-label
+  policyTypes:
+  - Ingress
+  ingress: 
+    - {} 
+
+# blockall
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: blockall
+  namespace: prod
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+
+---
+# allow-monitoring
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring
+  namespace: dev
+spec:
+  podSelector: 
+    matchLabels: 
+      test: nginx-dev-label
+  policyTypes:
+  - Ingress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          type:  monitoring
+      namespaceSelector: 
+        matchLabels: 
+          lelabel: monitoring-label 
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: monitoring
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dev-nginx
+  namespace: monitoring
+spec:
+  podSelector: 
+    matchLabels: 
+      type:  monitoring
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          test: nginx-dev-label
+      namespaceSelector: 
+        matchLabels: 
+          environment: dev  

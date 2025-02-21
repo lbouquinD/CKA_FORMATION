@@ -5,8 +5,10 @@
 Creer les ressources  ex1.yaml puis créer les networkpolicies suivantes: 
 
 - blockall:  dans le namespace prod  pour n'autoriser aucun flux entrant et  sortant
-- allow-mon-app:  qui autorise tout flux entrants dans le namespace dev **uniquement** sur les pods du deploiement nginx-dev
-- allow-monitoring:  qui autorise tout les pods du namespace dev à commmuniquer avec  les pods ayant pour labels **app: monitoring**
+- allow-mon-app:  qui autorise tout flux entrants dans le namespace dev **uniquement** sur les pods du deploiement nginx-dev. Vous pouvez rajouter toutes règles qui pourrait être necessaire.
+- allow-monitoring: qui autorise **UNIQUEMENT** 
+      - Le deploiement **nginx-dev**  du namepsace **dev** a communiquer avec le deploiement **nginx-monitoring** du namespace **monitoring** 
+      - Tout les pods provenant des namespaces ayant pour label **allow-monitoring: true**    
 
 
  <li><h3>ex2</h3></li>
