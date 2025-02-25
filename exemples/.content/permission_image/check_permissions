@@ -1,0 +1,48 @@
+#!/bin/bash
+
+TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+API_SERVER="https://kubernetes.default.svc"
+
+# Fonction pour vérifier les permissions sur une ressource
+check_permissions() {
+  RESOURCE="$1"
+  VERB="$2"
+  NAMEPASCED="$3"
+  NAMESPACE="$4"
+  # Vérifier si NAMESPACE est vide, et utiliser "default" si c'est le cas
+  if [ -z "$NAMESPACE" ]; then
+      NAMESPACE="default"
+  fi
+  if [ -z "$NAMEPASCED" ]; then
+      NAMEPASCED="false"
+  fi
+  if [ "$NAMEPASCED" == "true" ] ; then 
+    resul=$(curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "Content-Type: application/json" \
+        -X "POST" \
+        "$API_SERVER/apis/authorization.k8s.io/v1/selfsubjectaccessreviews" \
+        -d "{\"apiVersion\": \"authorization.k8s.io/v1\", \"kind\": \"SelfSubjectAccessReview\", \"spec\": {\"resourceAttributes\": {\"namespace\": \"$NAMESPACE\", \"verb\": \"$VERB\", \"resource\": \"$RESOURCE\"}}}" | jq '.status.allowed')
+  else
+    result=$(curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "Content-Type: application/json" \
+        -X "POST" \
+        "$API_SERVER/apis/authorization.k8s.io/v1/selfsubjectaccessreviews" \
+        -d "{\"apiVersion\": \"authorization.k8s.io/v1\", \"kind\": \"SelfSubjectAccessReview\", \"spec\": {\"resourceAttributes\": {\"verb\": \"$VERB\", \"resource\": \"$RESOURCE\"}}}" | jq '.status.allowed')
+  fi  
+  echo  -e "allow:  $result" 
+}
+# Gestion des arguments
+if [ $# -ge 2 ]; then  # Au moins RESOURCE et VERB doivent être fournis
+    RESOURCE="$1"
+    VERB="$2"
+    NAMESPACE="$3"  # Peut être vide, donc la valeur par défaut sera utilisée
+    NAMESPACED="$4" # Peut être vide, donc la valeur par défaut sera utilisée
+
+    # Appel de la fonction avec les arguments
+    check_permissions "$RESOURCE" "$VERB" "$NAMESPACE" "$NAMESPACED"
+else
+    echo "Usage: $0 <RESOURCE> <VERB> [<NAMESPACE>] [<NAMESPACED>]"
+    exit 1
+fi

@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mon-service-account
+  namespace: default # Remplacez par votre namespace
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mon-deployment
+  namespace: default # Remplacez par votre namespace
+spec:
+  replicas: 1 # Nombre de pods
+  selector:
+    matchLabels:
+      app: mon-app
+  template:
+    metadata:
+      labels:
+        app: mon-app
+    spec:
+      serviceAccountName: mon-service-account # Utilise le ServiceAccount créé
+      containers:
+        - name: mon-conteneur
+          image: laurentsogeti/ckad_formation_permission:0.0.2
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: selfsubjectaccessreviews-reader
+rules:
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["selfsubjectaccessreviews"]
+    verbs: ["get", "list", "watch"] # Permissions de lecture
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mon-service-account-selfsubjectaccessreviews
+subjects:
+  - kind: ServiceAccount
+    name: mon-service-account
+    namespace: default # Remplacez par votre namespace
+roleRef:
+  kind: ClusterRole
+  name: selfsubjectaccessreviews-reader
+  apiGroup: rbac.authorization.k8s.io

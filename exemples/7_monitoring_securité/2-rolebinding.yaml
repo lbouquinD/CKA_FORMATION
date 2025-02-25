@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: namespace-reader
+rules:
+- apiGroups: [""] # Groupe d'API core
+  resources: ["namespaces"]
+  verbs: ["list"]
+
+---
+
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mon-service-account-namespaces-reader
+subjects:
+- kind: ServiceAccount
+  name: mon-service-account # Le nom de votre ServiceAccount
+  namespace: mon-namespace # Le namespace de votre ServiceAccount
+roleRef:
+  kind: ClusterRole
+  name: namespace-reader
+  apiGroup: rbac.authorization.k8s.io
