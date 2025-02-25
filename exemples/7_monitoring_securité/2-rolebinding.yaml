@@ -1,3 +1,4 @@
+###  POUR TESTER: kubectl auth can-i create namespaces --as=system:serviceaccount:default:mon-service-account
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -8,8 +9,6 @@ rules:
   verbs: ["list"]
 
 ---
-
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -17,8 +16,34 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: mon-service-account # Le nom de votre ServiceAccount
-  namespace: mon-namespace # Le namespace de votre ServiceAccount
+  namespace: default # Le namespace de votre ServiceAccount
 roleRef:
   kind: ClusterRole
   name: namespace-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace:  default
+rules:
+- apiGroups: [""] # Groupe d'API core
+  resources: ["pods"]
+  verbs: ["list","get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mon-service-account-pod-reader
+  namespace:  default
+subjects:
+- kind: ServiceAccount
+  name: mon-service-account # Le nom de votre ServiceAccount
+  namespace: default # Le namespace de votre ServiceAccount
+roleRef:
+  kind: Role
+  name: pod-reader
   apiGroup: rbac.authorization.k8s.io

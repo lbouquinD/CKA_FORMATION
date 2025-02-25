@@ -49,3 +49,28 @@ roleRef:
   kind: ClusterRole
   name: selfsubjectaccessreviews-reader
   apiGroup: rbac.authorization.k8s.io
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: impersonate-serviceaccounts
+rules:
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["impersonate"]  # La permission cruciale
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: allow-impersonate-serviceaccounts
+subjects:
+- kind: User  # Ou Group si vous utilisez des groupes
+  name: cloud_user_p_f25620d1@linuxacademygclabs.com # Votre utilisateur
+roleRef:
+  kind: ClusterRole
+  name: impersonate-serviceaccounts
+  apiGroup: rbac.authorization.k8s.io
