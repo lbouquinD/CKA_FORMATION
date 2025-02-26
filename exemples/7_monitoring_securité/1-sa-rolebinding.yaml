@@ -24,7 +24,7 @@ spec:
       serviceAccountName: mon-service-account # Utilise le ServiceAccount créé
       containers:
         - name: mon-conteneur
-          image: laurentsogeti/ckad_formation_permission:0.0.9
+          image: laurentsogeti/ckad_formation_permission:0.0.10
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
