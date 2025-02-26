@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-emptydir
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dep-emptydir
+  template:
+    metadata:
+      labels:
+        app: dep-emptydir
+    spec:
+      containers:
+      - name: conteneur1
+        image: nginx:1.27.3
+        volumeMounts:
+        - name: mon-volume-empty-dir
+          mountPath: /tmp/test
+      - name: conteneur2
+        image: wardsco/sleep
+        volumeMounts:
+        - name: mon-volume-empty-dir
+          mountPath: /tmp/test2
+      volumes:
+      - name: mon-volume-empty-dir
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ex2-hostpath
+spec:
+  containers:
+  - name: conteneur1
+    image: nginx:1.27.3
+    volumeMounts:
+    - name: mon-volume-hostpath
+      mountPath: /tmp
+  volumes:
+  - name: mon-volume-hostpath
+    hostPath:
+      path: /tmp/ex2hostpath # Assurez-vous que ce chemin correspond à l'emplacement du fichier ex2.sh sur le nœud
+      type: DirectoryOrCreate # Indique que c'est un fichier, ou DirectoryOrCreate si c'est un dossier.
+
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ex3pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi
+  storageClassName: local-path
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ex3-pod-pvc
+spec:
+  containers:
+  - name: conteneur1
+    image: nginx:1.27.3
+    volumeMounts:
+    - name: mon-volume-pvc
+      mountPath: /tmp/stockage
+  volumes:
+  - name: mon-volume-pvc
+    persistentVolumeClaim:
+      claimName: ex3pvc
