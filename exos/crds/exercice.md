@@ -33,13 +33,6 @@ Créer les objets geekHero suivants:
 
 
 
- <li><h3> ex2 </h3></li>
-
--  Lancer le script  **ex2.sh**  
--  Lister des daemonset  présents  sur le cluster dans le fichier **/tmp/exdaemon1**  dans le namespace default
-
-
-</ol>
 
 
 
