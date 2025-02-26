@@ -1,0 +1,83 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: geekheroes.geek.com
+spec:
+  group: geek.com
+  names:
+    kind: GeekHero
+    listKind: GeekHeroList
+    plural: geekheroes
+    singular: geekhero
+    shortNames:
+      - gk
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              type: object
+            spec:
+              type: object
+              properties:
+                name:
+                  type: string
+                universe:
+                  type: string
+                specialPower:
+                  type: string
+                powerLevel:
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+      additionalPrinterColumns:
+        - name: Universe
+          type: string
+          jsonPath: .spec.universe
+        - name: Special Power
+          type: string
+          jsonPath: .spec.specialPower
+        - name: Power Level
+          type: integer
+          jsonPath: .spec.powerLevel
+---
+apiVersion: geek.com/v1
+kind: GeekHero
+metadata:
+  name: batman
+spec:
+  name: Batman
+  universe: Comics
+  specialPower: Intellect & Martial Arts
+  powerLevel: 85
+---
+apiVersion: geek.com/v1
+kind: GeekHero
+metadata:
+  name: gandalf
+spec:
+  name: Gandalf
+  universe: Fantasy
+  specialPower: Magic
+  powerLevel: 9000
+---
+apiVersion: geek.com/v1
+kind: GeekHero
+metadata:
+  name: goku
+spec:
+  name: Goku
+  universe: Manga
+  specialPower: Super Saiyan
+  powerLevel: 9500
+
+
