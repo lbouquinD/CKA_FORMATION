@@ -17,7 +17,7 @@ check_permissions() {
       NAMEPASCED="false"
   fi
   if [ "$NAMEPASCED" == "true" ] ; then 
-    resul=$(curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+    result=$(curl -s --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
         -H "Authorization: Bearer $TOKEN" \
         -H "Content-Type: application/json" \
         -X "POST" \

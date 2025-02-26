@@ -1,0 +1,58 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ex2-role
+  namespace: right-ns
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list", "get", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ex2-role-binding
+  namespace: right-ns
+subjects:
+- kind: ServiceAccount
+  name: ex2sa
+  namespace: right-ns
+roleRef:
+  kind: Role
+  name: ex2-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ex2-Clusterrole
+  namespace: right-ns
+rules:
+- apiGroups: [""]
+  resources: ["namespace"]
+  verbs: ["list"]
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ex2-Clusterrole-binding
+  namespace: right-ns
+subjects:
+- kind: ServiceAccount
+  name: ex2sa
+  namespace: right-ns
+roleRef:
+  kind: ClusterRole
+  name: ex2-Clusterrole
+  apiGroup: rbac.authorization.k8s.io
