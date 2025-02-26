@@ -1,126 +1,101 @@
-#!/bin/bash 
-
-RED="\e[31m\e[1m"
-GREEN="\e[32m\e[1m"
-ENDCOLOR="\e[0m"
-BLUE="\e[34m\e[1m"
-
-
-dep_exist=$(kubectl get  deployment dep-emptydir -o jsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$dep_exist" == "dep-emptydir"  ]]; then 
-    echo  -e "Déploiement dep-emptydir  exist  ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Déploiement dep-emptydir  exist  ? ${RED} KO  ${ENDCOLOR}"
-    exit 1 
-fi 
-nb_container=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[*].name}' |wc -w 2>/dev/null)
-if [[ "$nb_container" == "2"  ]]; then 
-    echo  -e "Nombre de conteneur ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Nombre de conteneur? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nombre trouvé:  $nb_container  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-conteneur1_name=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[0].name}')
-if [[ "$conteneur1_name" == "conteneur1"  ]]; then 
-    echo  -e "nom conteneur1 ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "nom conteneur1 ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $conteneur1_name  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-conteneur2_name=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[1].name}')
-if [[ "$conteneur2_name" == "conteneur2"  ]]; then 
-    echo  -e "nom conteneur2 ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "nom conteneur2 ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $conteneur2_name  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-conteneur1_image=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur1")].image}')
-if [[ "$conteneur1_image" == "nginx:1.27.3"  ]]; then 
-    echo  -e "conteneur1_image ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "conteneur1_image ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} image trouvé:  $conteneur1_image  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-conteneur2_image=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur2")].image}')
-if [[ "$conteneur2_image" == "wardsco/sleep"  ]]; then 
-    echo  -e "conteneur2_image ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "conteneur2_image ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} image trouvé:  $conteneur2_image  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-nb_volumes=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.volumes[*].name}' |wc -w 2>/dev/null)
-if [[ "$nb_volumes" == "1"  ]]; then 
-    echo  -e "Nombre de volumes ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Nombre de volumes? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nombre trouvé:  $nb_volumes  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-nom_volumes=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.volumes[0].name}' 2>/dev/null)
-if [[ "$nom_volumes" == "mon-volume-empty-dir"  ]]; then 
-    echo  -e "Nom du volume ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Nom du volume ? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $nom_volumes  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-type_volume=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.volumes[0].emptyDir}' 2>/dev/null)
-if [[ "$type_volume" == "{}"  ]]; then 
-    echo  -e "Type du volume ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Type du volume ? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $type_volume  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-conteneur1_nb_volume_mount=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur1")].volumeMounts[*].name}' |wc -w 2>/dev/null)
-if [[ "$conteneur1_nb_volume_mount" == "1"  ]]; then 
-    conteneur1_name_volume_mount=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur1")].volumeMounts[0].name}' 2>/dev/null)
-    if [[ "$conteneur1_name_volume_mount" == "mon-volume-empty-dir"  ]]; then 
-        conteneur1_mountpath_volume_mount=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur1")].volumeMounts[0].mountPath}' 2>/dev/null)
-        if [[ "$conteneur1_mountpath_volume_mount" == "/tmp/test"  ]]; then 
-            echo  -e "montage volume sur conteneur1 ? ${GREEN} OK  ${ENDCOLOR}"
-        else
-            echo  -e "montage volume sur conteneur1  ${RED} KO  ${ENDCOLOR}"
-        fi
-    else
-        echo  -e "montage volume sur conteneur1  ${RED} KO  ${ENDCOLOR}"
-    fi
-else 
-    echo  -e "montage volume sur conteneur1  ${RED} KO  ${ENDCOLOR}"
-fi 
-
-
-conteneur2_nb_volume_mount=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur2")].volumeMounts[*].name}' |wc -w 2>/dev/null)
-if [[ "$conteneur2_nb_volume_mount" == "1"  ]]; then 
-    conteneur2_name_volume_mount=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur2")].volumeMounts[0].name}' 2>/dev/null)
-    if [[ "$conteneur2_name_volume_mount" == "mon-volume-empty-dir"  ]]; then 
-        conteneur2_mountpath_volume_mount=$(kubectl get  deployment dep-emptydir -o jsonpath='{.spec.template.spec.containers[?(@.name == "conteneur2")].volumeMounts[0].mountPath}' 2>/dev/null)
-        if [[ "$conteneur2_mountpath_volume_mount" == "/tmp/test2"  ]]; then 
-            echo  -e "montage volume sur conteneur2 ? ${GREEN} OK  ${ENDCOLOR}"
-        else
-            echo  -e "montage volume sur conteneur2  ${RED} KO  ${ENDCOLOR}"
-        fi
-    else
-        echo  -e "montage volume sur conteneur2  ${RED} KO  ${ENDCOLOR}"
-    fi
-else 
-    echo  -e "montage volume sur conteneur2  ${RED} KO  ${ENDCOLOR}"
-fi 
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggCgpSRUQ9IlxlWzMxbVxlWzFtIgpHUkVFTj0iXGVbMzJtXGVbMW0iCkVORENP
+TE9SPSJcZVswbSIKQkxVRT0iXGVbMzRtXGVbMW0iCgoKZGVwX2V4aXN0PSQoa3ViZWN0bCBnZXQg
+IGRlcGxveW1lbnQgZGVwLWVtcHR5ZGlyIC1vIGpzb25wYXRoPSd7Lm1ldGFkYXRhLm5hbWV9JyAy
+Pi9kZXYvbnVsbCkKaWYgW1sgIiRkZXBfZXhpc3QiID09ICJkZXAtZW1wdHlkaXIiICBdXTsgdGhl
+biAKICAgIGVjaG8gIC1lICJEw6lwbG9pZW1lbnQgZGVwLWVtcHR5ZGlyICBleGlzdCAgPyAke0dS
+RUVOfSBPSyAgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiRMOpcGxvaWVtZW50IGRl
+cC1lbXB0eWRpciAgZXhpc3QgID8gJHtSRUR9IEtPICAke0VORENPTE9SfSIKICAgIGV4aXQgMSAK
+ZmkgCm5iX2NvbnRhaW5lcj0kKGt1YmVjdGwgZ2V0ICBkZXBsb3ltZW50IGRlcC1lbXB0eWRpciAt
+byBqc29ucGF0aD0ney5zcGVjLnRlbXBsYXRlLnNwZWMuY29udGFpbmVyc1sqXS5uYW1lfScgfHdj
+IC13IDI+L2Rldi9udWxsKQppZiBbWyAiJG5iX2NvbnRhaW5lciIgPT0gIjIiICBdXTsgdGhlbiAK
+ICAgIGVjaG8gIC1lICJOb21icmUgZGUgY29udGVuZXVyID8gJHtHUkVFTn0gT0sgICR7RU5EQ09M
+T1J9IgplbHNlIAogICAgZWNobyAgLWUgIk5vbWJyZSBkZSBjb250ZW5ldXI/ICR7UkVEfSBLTyAg
+JHtFTkRDT0xPUn0iCiAgICBlY2hvICAtZSAiXHQgJHtSRUR9IG5vbWJyZSB0cm91dsOpOiAgJG5i
+X2NvbnRhaW5lciAgJHtFTkRDT0xPUn0iCiAgICBleGl0IDEgCmZpIAoKY29udGVuZXVyMV9uYW1l
+PSQoa3ViZWN0bCBnZXQgIGRlcGxveW1lbnQgZGVwLWVtcHR5ZGlyIC1vIGpzb25wYXRoPSd7LnNw
+ZWMudGVtcGxhdGUuc3BlYy5jb250YWluZXJzWzBdLm5hbWV9JykKaWYgW1sgIiRjb250ZW5ldXIx
+X25hbWUiID09ICJjb250ZW5ldXIxIiAgXV07IHRoZW4gCiAgICBlY2hvICAtZSAibm9tIGNvbnRl
+bmV1cjEgPyAke0dSRUVOfSBPSyAgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAibm9t
+IGNvbnRlbmV1cjEgJHtSRUR9IEtPICAke0VORENPTE9SfSIKICAgIGVjaG8gIC1lICJcdCAke1JF
+RH0gbm9tIHRyb3V2w6k6ICAkY29udGVuZXVyMV9uYW1lICAke0VORENPTE9SfSIKICAgIGV4aXQg
+MSAKZmkgCgoKY29udGVuZXVyMl9uYW1lPSQoa3ViZWN0bCBnZXQgIGRlcGxveW1lbnQgZGVwLWVt
+cHR5ZGlyIC1vIGpzb25wYXRoPSd7LnNwZWMudGVtcGxhdGUuc3BlYy5jb250YWluZXJzWzFdLm5h
+bWV9JykKaWYgW1sgIiRjb250ZW5ldXIyX25hbWUiID09ICJjb250ZW5ldXIyIiAgXV07IHRoZW4g
+CiAgICBlY2hvICAtZSAibm9tIGNvbnRlbmV1cjIgPyAke0dSRUVOfSBPSyAgJHtFTkRDT0xPUn0i
+CmVsc2UgCiAgICBlY2hvICAtZSAibm9tIGNvbnRlbmV1cjIgJHtSRUR9IEtPICAke0VORENPTE9S
+fSIKICAgIGVjaG8gIC1lICJcdCAke1JFRH0gbm9tIHRyb3V2w6k6ICAkY29udGVuZXVyMl9uYW1l
+ICAke0VORENPTE9SfSIKICAgIGV4aXQgMSAKZmkgCgoKY29udGVuZXVyMV9pbWFnZT0kKGt1YmVj
+dGwgZ2V0ICBkZXBsb3ltZW50IGRlcC1lbXB0eWRpciAtbyBqc29ucGF0aD0ney5zcGVjLnRlbXBs
+YXRlLnNwZWMuY29udGFpbmVyc1s/KEAubmFtZSA9PSAiY29udGVuZXVyMSIpXS5pbWFnZX0nKQpp
+ZiBbWyAiJGNvbnRlbmV1cjFfaW1hZ2UiID09ICJuZ2lueDoxLjI3LjMiICBdXTsgdGhlbiAKICAg
+IGVjaG8gIC1lICJjb250ZW5ldXIxX2ltYWdlID8gJHtHUkVFTn0gT0sgICR7RU5EQ09MT1J9Igpl
+bHNlIAogICAgZWNobyAgLWUgImNvbnRlbmV1cjFfaW1hZ2UgJHtSRUR9IEtPICAke0VORENPTE9S
+fSIKICAgIGVjaG8gIC1lICJcdCAke1JFRH0gaW1hZ2UgdHJvdXbDqTogICRjb250ZW5ldXIxX2lt
+YWdlICAke0VORENPTE9SfSIKICAgIGV4aXQgMSAKZmkgCgpjb250ZW5ldXIyX2ltYWdlPSQoa3Vi
+ZWN0bCBnZXQgIGRlcGxveW1lbnQgZGVwLWVtcHR5ZGlyIC1vIGpzb25wYXRoPSd7LnNwZWMudGVt
+cGxhdGUuc3BlYy5jb250YWluZXJzWz8oQC5uYW1lID09ICJjb250ZW5ldXIyIildLmltYWdlfScp
+CmlmIFtbICIkY29udGVuZXVyMl9pbWFnZSIgPT0gIndhcmRzY28vc2xlZXAiICBdXTsgdGhlbiAK
+ICAgIGVjaG8gIC1lICJjb250ZW5ldXIyX2ltYWdlID8gJHtHUkVFTn0gT0sgICR7RU5EQ09MT1J9
+IgplbHNlIAogICAgZWNobyAgLWUgImNvbnRlbmV1cjJfaW1hZ2UgJHtSRUR9IEtPICAke0VORENP
+TE9SfSIKICAgIGVjaG8gIC1lICJcdCAke1JFRH0gaW1hZ2UgdHJvdXbDqTogICRjb250ZW5ldXIy
+X2ltYWdlICAke0VORENPTE9SfSIKICAgIGV4aXQgMSAKZmkgCgoKbmJfdm9sdW1lcz0kKGt1YmVj
+dGwgZ2V0ICBkZXBsb3ltZW50IGRlcC1lbXB0eWRpciAtbyBqc29ucGF0aD0ney5zcGVjLnRlbXBs
+YXRlLnNwZWMudm9sdW1lc1sqXS5uYW1lfScgfHdjIC13IDI+L2Rldi9udWxsKQppZiBbWyAiJG5i
+X3ZvbHVtZXMiID09ICIxIiAgXV07IHRoZW4gCiAgICBlY2hvICAtZSAiTm9tYnJlIGRlIHZvbHVt
+ZXMgPyAke0dSRUVOfSBPSyAgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiTm9tYnJl
+IGRlIHZvbHVtZXM/ICR7UkVEfSBLTyAgJHtFTkRDT0xPUn0iCiAgICBlY2hvICAtZSAiXHQgJHtS
+RUR9IG5vbWJyZSB0cm91dsOpOiAgJG5iX3ZvbHVtZXMgICR7RU5EQ09MT1J9IgogICAgZXhpdCAx
+IApmaSAKCgpub21fdm9sdW1lcz0kKGt1YmVjdGwgZ2V0ICBkZXBsb3ltZW50IGRlcC1lbXB0eWRp
+ciAtbyBqc29ucGF0aD0ney5zcGVjLnRlbXBsYXRlLnNwZWMudm9sdW1lc1swXS5uYW1lfScgMj4v
+ZGV2L251bGwpCmlmIFtbICIkbm9tX3ZvbHVtZXMiID09ICJtb24tdm9sdW1lLWVtcHR5LWRpciIg
+IF1dOyB0aGVuIAogICAgZWNobyAgLWUgIk5vbSBkdSB2b2x1bWUgPyAke0dSRUVOfSBPSyAgJHtF
+TkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiTm9tIGR1IHZvbHVtZSA/ICR7UkVEfSBLTyAg
+JHtFTkRDT0xPUn0iCiAgICBlY2hvICAtZSAiXHQgJHtSRUR9IG5vbSB0cm91dsOpOiAgJG5vbV92
+b2x1bWVzICAke0VORENPTE9SfSIKICAgIGV4aXQgMSAKZmkgCgoKdHlwZV92b2x1bWU9JChrdWJl
+Y3RsIGdldCAgZGVwbG95bWVudCBkZXAtZW1wdHlkaXIgLW8ganNvbnBhdGg9J3suc3BlYy50ZW1w
+bGF0ZS5zcGVjLnZvbHVtZXNbMF0uZW1wdHlEaXJ9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiR0eXBl
+X3ZvbHVtZSIgPT0gInt9IiAgXV07IHRoZW4gCiAgICBlY2hvICAtZSAiVHlwZSBkdSB2b2x1bWUg
+PyAke0dSRUVOfSBPSyAgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiVHlwZSBkdSB2
+b2x1bWUgPyAke1JFRH0gS08gICR7RU5EQ09MT1J9IgogICAgZWNobyAgLWUgIlx0ICR7UkVEfSBu
+b20gdHJvdXbDqTogICR0eXBlX3ZvbHVtZSAgJHtFTkRDT0xPUn0iCiAgICBleGl0IDEgCmZpIAoK
+Y29udGVuZXVyMV9uYl92b2x1bWVfbW91bnQ9JChrdWJlY3RsIGdldCAgZGVwbG95bWVudCBkZXAt
+ZW1wdHlkaXIgLW8ganNvbnBhdGg9J3suc3BlYy50ZW1wbGF0ZS5zcGVjLmNvbnRhaW5lcnNbPyhA
+Lm5hbWUgPT0gImNvbnRlbmV1cjEiKV0udm9sdW1lTW91bnRzWypdLm5hbWV9JyB8d2MgLXcgMj4v
+ZGV2L251bGwpCmlmIFtbICIkY29udGVuZXVyMV9uYl92b2x1bWVfbW91bnQiID09ICIxIiAgXV07
+IHRoZW4gCiAgICBjb250ZW5ldXIxX25hbWVfdm9sdW1lX21vdW50PSQoa3ViZWN0bCBnZXQgIGRl
+cGxveW1lbnQgZGVwLWVtcHR5ZGlyIC1vIGpzb25wYXRoPSd7LnNwZWMudGVtcGxhdGUuc3BlYy5j
+b250YWluZXJzWz8oQC5uYW1lID09ICJjb250ZW5ldXIxIildLnZvbHVtZU1vdW50c1swXS5uYW1l
+fScgMj4vZGV2L251bGwpCiAgICBpZiBbWyAiJGNvbnRlbmV1cjFfbmFtZV92b2x1bWVfbW91bnQi
+ID09ICJtb24tdm9sdW1lLWVtcHR5LWRpciIgIF1dOyB0aGVuIAogICAgICAgIGNvbnRlbmV1cjFf
+bW91bnRwYXRoX3ZvbHVtZV9tb3VudD0kKGt1YmVjdGwgZ2V0ICBkZXBsb3ltZW50IGRlcC1lbXB0
+eWRpciAtbyBqc29ucGF0aD0ney5zcGVjLnRlbXBsYXRlLnNwZWMuY29udGFpbmVyc1s/KEAubmFt
+ZSA9PSAiY29udGVuZXVyMSIpXS52b2x1bWVNb3VudHNbMF0ubW91bnRQYXRofScgMj4vZGV2L251
+bGwpCiAgICAgICAgaWYgW1sgIiRjb250ZW5ldXIxX21vdW50cGF0aF92b2x1bWVfbW91bnQiID09
+ICIvdG1wL3Rlc3QiICBdXTsgdGhlbiAKICAgICAgICAgICAgZWNobyAgLWUgIm1vbnRhZ2Ugdm9s
+dW1lIHN1ciBjb250ZW5ldXIxID8gJHtHUkVFTn0gT0sgICR7RU5EQ09MT1J9IgogICAgICAgIGVs
+c2UKICAgICAgICAgICAgZWNobyAgLWUgIm1vbnRhZ2Ugdm9sdW1lIHN1ciBjb250ZW5ldXIxICAk
+e1JFRH0gS08gICR7RU5EQ09MT1J9IgogICAgICAgIGZpCiAgICBlbHNlCiAgICAgICAgZWNobyAg
+LWUgIm1vbnRhZ2Ugdm9sdW1lIHN1ciBjb250ZW5ldXIxICAke1JFRH0gS08gICR7RU5EQ09MT1J9
+IgogICAgZmkKZWxzZSAKICAgIGVjaG8gIC1lICJtb250YWdlIHZvbHVtZSBzdXIgY29udGVuZXVy
+MSAgJHtSRUR9IEtPICAke0VORENPTE9SfSIKZmkgCgoKY29udGVuZXVyMl9uYl92b2x1bWVfbW91
+bnQ9JChrdWJlY3RsIGdldCAgZGVwbG95bWVudCBkZXAtZW1wdHlkaXIgLW8ganNvbnBhdGg9J3su
+c3BlYy50ZW1wbGF0ZS5zcGVjLmNvbnRhaW5lcnNbPyhALm5hbWUgPT0gImNvbnRlbmV1cjIiKV0u
+dm9sdW1lTW91bnRzWypdLm5hbWV9JyB8d2MgLXcgMj4vZGV2L251bGwpCmlmIFtbICIkY29udGVu
+ZXVyMl9uYl92b2x1bWVfbW91bnQiID09ICIxIiAgXV07IHRoZW4gCiAgICBjb250ZW5ldXIyX25h
+bWVfdm9sdW1lX21vdW50PSQoa3ViZWN0bCBnZXQgIGRlcGxveW1lbnQgZGVwLWVtcHR5ZGlyIC1v
+IGpzb25wYXRoPSd7LnNwZWMudGVtcGxhdGUuc3BlYy5jb250YWluZXJzWz8oQC5uYW1lID09ICJj
+b250ZW5ldXIyIildLnZvbHVtZU1vdW50c1swXS5uYW1lfScgMj4vZGV2L251bGwpCiAgICBpZiBb
+WyAiJGNvbnRlbmV1cjJfbmFtZV92b2x1bWVfbW91bnQiID09ICJtb24tdm9sdW1lLWVtcHR5LWRp
+ciIgIF1dOyB0aGVuIAogICAgICAgIGNvbnRlbmV1cjJfbW91bnRwYXRoX3ZvbHVtZV9tb3VudD0k
+KGt1YmVjdGwgZ2V0ICBkZXBsb3ltZW50IGRlcC1lbXB0eWRpciAtbyBqc29ucGF0aD0ney5zcGVj
+LnRlbXBsYXRlLnNwZWMuY29udGFpbmVyc1s/KEAubmFtZSA9PSAiY29udGVuZXVyMiIpXS52b2x1
+bWVNb3VudHNbMF0ubW91bnRQYXRofScgMj4vZGV2L251bGwpCiAgICAgICAgaWYgW1sgIiRjb250
+ZW5ldXIyX21vdW50cGF0aF92b2x1bWVfbW91bnQiID09ICIvdG1wL3Rlc3QyIiAgXV07IHRoZW4g
+CiAgICAgICAgICAgIGVjaG8gIC1lICJtb250YWdlIHZvbHVtZSBzdXIgY29udGVuZXVyMiA/ICR7
+R1JFRU59IE9LICAke0VORENPTE9SfSIKICAgICAgICBlbHNlCiAgICAgICAgICAgIGVjaG8gIC1l
+ICJtb250YWdlIHZvbHVtZSBzdXIgY29udGVuZXVyMiAgJHtSRUR9IEtPICAke0VORENPTE9SfSIK
+ICAgICAgICBmaQogICAgZWxzZQogICAgICAgIGVjaG8gIC1lICJtb250YWdlIHZvbHVtZSBzdXIg
+Y29udGVuZXVyMiAgJHtSRUR9IEtPICAke0VORENPTE9SfSIKICAgIGZpCmVsc2UgCiAgICBlY2hv
+ICAtZSAibW9udGFnZSB2b2x1bWUgc3VyIGNvbnRlbmV1cjIgICR7UkVEfSBLTyAgJHtFTkRDT0xP
+Un0iCmZpIAo=' | base64 -d)

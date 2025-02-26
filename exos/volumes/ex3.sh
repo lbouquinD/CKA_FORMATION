@@ -1,176 +1,72 @@
-#!/bin/bash
-
-
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: local-path-storage
-
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: local-path-provisioner-service-account
-  namespace: local-path-storage
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: local-path-provisioner-role
-  namespace: local-path-storage
-rules:
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: local-path-provisioner-role
-rules:
-  - apiGroups: [""]
-    resources: ["nodes", "persistentvolumeclaims", "configmaps", "pods", "pods/log"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["persistentvolumes"]
-    verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create", "patch"]
-  - apiGroups: ["storage.k8s.io"]
-    resources: ["storageclasses"]
-    verbs: ["get", "list", "watch"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: local-path-provisioner-bind
-  namespace: local-path-storage
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: local-path-provisioner-role
-subjects:
-  - kind: ServiceAccount
-    name: local-path-provisioner-service-account
-    namespace: local-path-storage
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: local-path-provisioner-bind
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: local-path-provisioner-role
-subjects:
-  - kind: ServiceAccount
-    name: local-path-provisioner-service-account
-    namespace: local-path-storage
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: local-path-provisioner
-  namespace: local-path-storage
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: local-path-provisioner
-  template:
-    metadata:
-      labels:
-        app: local-path-provisioner
-    spec:
-      serviceAccountName: local-path-provisioner-service-account
-      containers:
-        - name: local-path-provisioner
-          image: rancher/local-path-provisioner:v0.0.31
-          imagePullPolicy: IfNotPresent
-          command:
-            - local-path-provisioner
-            - --debug
-            - start
-            - --config
-            - /etc/config/config.json
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/config/
-          env:
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: CONFIG_MOUNT_PATH
-              value: /etc/config/
-      volumes:
-        - name: config-volume
-          configMap:
-            name: local-path-config
-
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: local-path
-provisioner: rancher.io/local-path
-volumeBindingMode: WaitForFirstConsumer
-reclaimPolicy: Delete
-
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: local-path-config
-  namespace: local-path-storage
-data:
-  config.json: |-
-    {
-            "nodePathMap":[
-            {
-                    "node":"DEFAULT_PATH_FOR_NON_LISTED_NODES",
-                    "paths":["/tmp"]
-            }
-            ]
-    }
-  setup: |-
-    #!/bin/sh
-    # set -eu
-    # mkdir -m 0777 -p "$VOL_DIR"
-  teardown: |-
-    #!/bin/sh
-    set -eu
-    rm -rf "$VOL_DIR"
-  helperPod.yaml: |-
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: helper-pod
-    spec:
-      tolerations:
-        - key: node.kubernetes.io/disk-pressure
-          operator: Exists
-          effect: NoSchedule
-      containers:
-      - name: helper-pod
-        image: busybox
-        imagePullPolicy: IfNotPresent
-EOF
-
-
-cat <<EOF | kubectl apply -f -
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: ex3storageclass
-provisioner: rancher.io/local-path
-reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer
-EOF
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpjYXQgPDxFT0YgfCBrdWJlY3RsIGFwcGx5IC1mIC0KYXBpVmVyc2lvbjog
+djEKa2luZDogTmFtZXNwYWNlCm1ldGFkYXRhOgogIG5hbWU6IGxvY2FsLXBhdGgtc3RvcmFnZQoK
+LS0tCmFwaVZlcnNpb246IHYxCmtpbmQ6IFNlcnZpY2VBY2NvdW50Cm1ldGFkYXRhOgogIG5hbWU6
+IGxvY2FsLXBhdGgtcHJvdmlzaW9uZXItc2VydmljZS1hY2NvdW50CiAgbmFtZXNwYWNlOiBsb2Nh
+bC1wYXRoLXN0b3JhZ2UKCi0tLQphcGlWZXJzaW9uOiByYmFjLmF1dGhvcml6YXRpb24uazhzLmlv
+L3YxCmtpbmQ6IFJvbGUKbWV0YWRhdGE6CiAgbmFtZTogbG9jYWwtcGF0aC1wcm92aXNpb25lci1y
+b2xlCiAgbmFtZXNwYWNlOiBsb2NhbC1wYXRoLXN0b3JhZ2UKcnVsZXM6CiAgLSBhcGlHcm91cHM6
+IFsiIl0KICAgIHJlc291cmNlczogWyJwb2RzIl0KICAgIHZlcmJzOiBbImdldCIsICJsaXN0Iiwg
+IndhdGNoIiwgImNyZWF0ZSIsICJwYXRjaCIsICJ1cGRhdGUiLCAiZGVsZXRlIl0KCi0tLQphcGlW
+ZXJzaW9uOiByYmFjLmF1dGhvcml6YXRpb24uazhzLmlvL3YxCmtpbmQ6IENsdXN0ZXJSb2xlCm1l
+dGFkYXRhOgogIG5hbWU6IGxvY2FsLXBhdGgtcHJvdmlzaW9uZXItcm9sZQpydWxlczoKICAtIGFw
+aUdyb3VwczogWyIiXQogICAgcmVzb3VyY2VzOiBbIm5vZGVzIiwgInBlcnNpc3RlbnR2b2x1bWVj
+bGFpbXMiLCAiY29uZmlnbWFwcyIsICJwb2RzIiwgInBvZHMvbG9nIl0KICAgIHZlcmJzOiBbImdl
+dCIsICJsaXN0IiwgIndhdGNoIl0KICAtIGFwaUdyb3VwczogWyIiXQogICAgcmVzb3VyY2VzOiBb
+InBlcnNpc3RlbnR2b2x1bWVzIl0KICAgIHZlcmJzOiBbImdldCIsICJsaXN0IiwgIndhdGNoIiwg
+ImNyZWF0ZSIsICJwYXRjaCIsICJ1cGRhdGUiLCAiZGVsZXRlIl0KICAtIGFwaUdyb3VwczogWyIi
+XQogICAgcmVzb3VyY2VzOiBbImV2ZW50cyJdCiAgICB2ZXJiczogWyJjcmVhdGUiLCAicGF0Y2gi
+XQogIC0gYXBpR3JvdXBzOiBbInN0b3JhZ2UuazhzLmlvIl0KICAgIHJlc291cmNlczogWyJzdG9y
+YWdlY2xhc3NlcyJdCiAgICB2ZXJiczogWyJnZXQiLCAibGlzdCIsICJ3YXRjaCJdCgotLS0KYXBp
+VmVyc2lvbjogcmJhYy5hdXRob3JpemF0aW9uLms4cy5pby92MQpraW5kOiBSb2xlQmluZGluZwpt
+ZXRhZGF0YToKICBuYW1lOiBsb2NhbC1wYXRoLXByb3Zpc2lvbmVyLWJpbmQKICBuYW1lc3BhY2U6
+IGxvY2FsLXBhdGgtc3RvcmFnZQpyb2xlUmVmOgogIGFwaUdyb3VwOiByYmFjLmF1dGhvcml6YXRp
+b24uazhzLmlvCiAga2luZDogUm9sZQogIG5hbWU6IGxvY2FsLXBhdGgtcHJvdmlzaW9uZXItcm9s
+ZQpzdWJqZWN0czoKICAtIGtpbmQ6IFNlcnZpY2VBY2NvdW50CiAgICBuYW1lOiBsb2NhbC1wYXRo
+LXByb3Zpc2lvbmVyLXNlcnZpY2UtYWNjb3VudAogICAgbmFtZXNwYWNlOiBsb2NhbC1wYXRoLXN0
+b3JhZ2UKCi0tLQphcGlWZXJzaW9uOiByYmFjLmF1dGhvcml6YXRpb24uazhzLmlvL3YxCmtpbmQ6
+IENsdXN0ZXJSb2xlQmluZGluZwptZXRhZGF0YToKICBuYW1lOiBsb2NhbC1wYXRoLXByb3Zpc2lv
+bmVyLWJpbmQKcm9sZVJlZjoKICBhcGlHcm91cDogcmJhYy5hdXRob3JpemF0aW9uLms4cy5pbwog
+IGtpbmQ6IENsdXN0ZXJSb2xlCiAgbmFtZTogbG9jYWwtcGF0aC1wcm92aXNpb25lci1yb2xlCnN1
+YmplY3RzOgogIC0ga2luZDogU2VydmljZUFjY291bnQKICAgIG5hbWU6IGxvY2FsLXBhdGgtcHJv
+dmlzaW9uZXItc2VydmljZS1hY2NvdW50CiAgICBuYW1lc3BhY2U6IGxvY2FsLXBhdGgtc3RvcmFn
+ZQoKLS0tCmFwaVZlcnNpb246IGFwcHMvdjEKa2luZDogRGVwbG95bWVudAptZXRhZGF0YToKICBu
+YW1lOiBsb2NhbC1wYXRoLXByb3Zpc2lvbmVyCiAgbmFtZXNwYWNlOiBsb2NhbC1wYXRoLXN0b3Jh
+Z2UKc3BlYzoKICByZXBsaWNhczogMQogIHNlbGVjdG9yOgogICAgbWF0Y2hMYWJlbHM6CiAgICAg
+IGFwcDogbG9jYWwtcGF0aC1wcm92aXNpb25lcgogIHRlbXBsYXRlOgogICAgbWV0YWRhdGE6CiAg
+ICAgIGxhYmVsczoKICAgICAgICBhcHA6IGxvY2FsLXBhdGgtcHJvdmlzaW9uZXIKICAgIHNwZWM6
+CiAgICAgIHNlcnZpY2VBY2NvdW50TmFtZTogbG9jYWwtcGF0aC1wcm92aXNpb25lci1zZXJ2aWNl
+LWFjY291bnQKICAgICAgY29udGFpbmVyczoKICAgICAgICAtIG5hbWU6IGxvY2FsLXBhdGgtcHJv
+dmlzaW9uZXIKICAgICAgICAgIGltYWdlOiByYW5jaGVyL2xvY2FsLXBhdGgtcHJvdmlzaW9uZXI6
+djAuMC4zMQogICAgICAgICAgaW1hZ2VQdWxsUG9saWN5OiBJZk5vdFByZXNlbnQKICAgICAgICAg
+IGNvbW1hbmQ6CiAgICAgICAgICAgIC0gbG9jYWwtcGF0aC1wcm92aXNpb25lcgogICAgICAgICAg
+ICAtIC0tZGVidWcKICAgICAgICAgICAgLSBzdGFydAogICAgICAgICAgICAtIC0tY29uZmlnCiAg
+ICAgICAgICAgIC0gL2V0Yy9jb25maWcvY29uZmlnLmpzb24KICAgICAgICAgIHZvbHVtZU1vdW50
+czoKICAgICAgICAgICAgLSBuYW1lOiBjb25maWctdm9sdW1lCiAgICAgICAgICAgICAgbW91bnRQ
+YXRoOiAvZXRjL2NvbmZpZy8KICAgICAgICAgIGVudjoKICAgICAgICAgICAgLSBuYW1lOiBQT0Rf
+TkFNRVNQQUNFCiAgICAgICAgICAgICAgdmFsdWVGcm9tOgogICAgICAgICAgICAgICAgZmllbGRS
+ZWY6CiAgICAgICAgICAgICAgICAgIGZpZWxkUGF0aDogbWV0YWRhdGEubmFtZXNwYWNlCiAgICAg
+ICAgICAgIC0gbmFtZTogQ09ORklHX01PVU5UX1BBVEgKICAgICAgICAgICAgICB2YWx1ZTogL2V0
+Yy9jb25maWcvCiAgICAgIHZvbHVtZXM6CiAgICAgICAgLSBuYW1lOiBjb25maWctdm9sdW1lCiAg
+ICAgICAgICBjb25maWdNYXA6CiAgICAgICAgICAgIG5hbWU6IGxvY2FsLXBhdGgtY29uZmlnCgot
+LS0KYXBpVmVyc2lvbjogc3RvcmFnZS5rOHMuaW8vdjEKa2luZDogU3RvcmFnZUNsYXNzCm1ldGFk
+YXRhOgogIG5hbWU6IGxvY2FsLXBhdGgKcHJvdmlzaW9uZXI6IHJhbmNoZXIuaW8vbG9jYWwtcGF0
+aAp2b2x1bWVCaW5kaW5nTW9kZTogV2FpdEZvckZpcnN0Q29uc3VtZXIKcmVjbGFpbVBvbGljeTog
+RGVsZXRlCgotLS0Ka2luZDogQ29uZmlnTWFwCmFwaVZlcnNpb246IHYxCm1ldGFkYXRhOgogIG5h
+bWU6IGxvY2FsLXBhdGgtY29uZmlnCiAgbmFtZXNwYWNlOiBsb2NhbC1wYXRoLXN0b3JhZ2UKZGF0
+YToKICBjb25maWcuanNvbjogfC0KICAgIHsKICAgICAgICAgICAgIm5vZGVQYXRoTWFwIjpbCiAg
+ICAgICAgICAgIHsKICAgICAgICAgICAgICAgICAgICAibm9kZSI6IkRFRkFVTFRfUEFUSF9GT1Jf
+Tk9OX0xJU1RFRF9OT0RFUyIsCiAgICAgICAgICAgICAgICAgICAgInBhdGhzIjpbIi90bXAiXQog
+ICAgICAgICAgICB9CiAgICAgICAgICAgIF0KICAgIH0KICBzZXR1cDogfC0KICAgICMhL2Jpbi9z
+aAogICAgIyBzZXQgLWV1CiAgICAjIG1rZGlyIC1tIDA3NzcgLXAgIiRWT0xfRElSIgogIHRlYXJk
+b3duOiB8LQogICAgIyEvYmluL3NoCiAgICBzZXQgLWV1CiAgICBybSAtcmYgIiRWT0xfRElSIgog
+IGhlbHBlclBvZC55YW1sOiB8LQogICAgYXBpVmVyc2lvbjogdjEKICAgIGtpbmQ6IFBvZAogICAg
+bWV0YWRhdGE6CiAgICAgIG5hbWU6IGhlbHBlci1wb2QKICAgIHNwZWM6CiAgICAgIHRvbGVyYXRp
+b25zOgogICAgICAgIC0ga2V5OiBub2RlLmt1YmVybmV0ZXMuaW8vZGlzay1wcmVzc3VyZQogICAg
+ICAgICAgb3BlcmF0b3I6IEV4aXN0cwogICAgICAgICAgZWZmZWN0OiBOb1NjaGVkdWxlCiAgICAg
+IGNvbnRhaW5lcnM6CiAgICAgIC0gbmFtZTogaGVscGVyLXBvZAogICAgICAgIGltYWdlOiBidXN5
+Ym94CiAgICAgICAgaW1hZ2VQdWxsUG9saWN5OiBJZk5vdFByZXNlbnQKRU9GCgoKY2F0IDw8RU9G
+IHwga3ViZWN0bCBhcHBseSAtZiAtCmFwaVZlcnNpb246IHN0b3JhZ2UuazhzLmlvL3YxCmtpbmQ6
+IFN0b3JhZ2VDbGFzcwptZXRhZGF0YToKICBuYW1lOiBleDNzdG9yYWdlY2xhc3MKcHJvdmlzaW9u
+ZXI6IHJhbmNoZXIuaW8vbG9jYWwtcGF0aApyZWNsYWltUG9saWN5OiBEZWxldGUKdm9sdW1lQmlu
+ZGluZ01vZGU6IFdhaXRGb3JGaXJzdENvbnN1bWVyCkVPRg==' | base64 -d)

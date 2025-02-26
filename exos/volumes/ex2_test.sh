@@ -1,93 +1,68 @@
-#!/bin/bash 
-
-RED="\e[31m\e[1m"
-GREEN="\e[32m\e[1m"
-ENDCOLOR="\e[0m"
-BLUE="\e[34m\e[1m"
-
-
-pod_exist=$(kubectl get  po ex2-hostpath -o jsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$pod_exist" == "ex2-hostpath"  ]]; then 
-    echo  -e "Pod ex2-hostpath  exist  ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Pod ex2-hostpath  exist  ? ${RED} KO  ${ENDCOLOR}"
-    exit 1 
-fi 
-nb_container=$(kubectl get po ex2-hostpath -o jsonpath='{.spec.containers[*].name}' |wc -w 2>/dev/null)
-if [[ "$nb_container" == "1"  ]]; then 
-    echo  -e "Nombre de conteneur ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Nombre de conteneur? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nombre trouvé:  $nb_container  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-conteneur1_name=$(kubectl get  po ex2-hostpath -o jsonpath='{.spec.containers[0].name}')
-if [[ "$conteneur1_name" == "conteneur1"  ]]; then 
-    echo  -e "nom conteneur1 ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "nom conteneur1 ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $conteneur1_name  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-conteneur1_image=$(kubectl get  po ex2-hostpath -o jsonpath='{.spec.containers[?(@.name == "conteneur1")].image}')
-if [[ "$conteneur1_image" == "nginx:1.27.3"  ]]; then 
-    echo  -e "conteneur1_image ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "conteneur1_image ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} image trouvé:  $conteneur1_image  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-nom_volumes=$(kubectl get  po ex2-hostpath  -o jsonpath='{.spec.volumes[?(@.name == "mon-volume-hostpath")].name}' 2>/dev/null)
-if [[ "$nom_volumes" == "mon-volume-hostpath"  ]]; then 
-    echo  -e "Nom du volume ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Nom du volume ? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $nom_volumes  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-type_volume=$(kubectl get   po ex2-hostpath  -o jsonpath='{.spec.volumes[?(@.name == "mon-volume-hostpath")].hostPath}' 2>/dev/null)
-if [[ ! -z "$type_volume"  ]]; then 
-    echo  -e "Type du volume ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Type du volume ? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} nom trouvé:  $type_volume  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-path_volume=$(kubectl get   po ex2-hostpath  -o jsonpath='{.spec.volumes[?(@.name == "mon-volume-hostpath")].hostPath.path}' 2>/dev/null)
-if [[ "$path_volume" == "/tmp/ex2hostpath"  ]]; then 
-    echo  -e "Path hôte du volume ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "Path hôte du volume ? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} path trouvé:  $path_volume  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-path_type_volume=$(kubectl get   po ex2-hostpath  -o jsonpath='{.spec.volumes[?(@.name == "mon-volume-hostpath")].hostPath.type}' 2>/dev/null)
-if [[ "$path_type_volume" == "DirectoryOrCreate"  ]]; then 
-    echo  -e "hostpathtype du volume ? ${GREEN} OK  ${ENDCOLOR}"
-else 
-    echo  -e "hostpathtype du volume ? ${RED} KO  ${ENDCOLOR}"
-    echo  -e "\t ${RED} path trouvé:  $path_type_volume  ${ENDCOLOR}"
-    exit 1 
-fi 
-
-
-
-conteneur1_name_volume_mount=$(kubectl get  po ex2-hostpath  -o jsonpath='{.spec.containers[?(@.name == "conteneur1")].volumeMounts[?(@.name == "mon-volume-hostpath")].name}' 2>/dev/null)
-if [[ "$conteneur1_name_volume_mount" == "mon-volume-hostpath"  ]]; then 
-    conteneur1_mountpath_volume_mount=$(kubectl get  po ex2-hostpath  -o jsonpath='{.spec.containers[?(@.name == "conteneur1")].volumeMounts[?(@.name == "mon-volume-hostpath")].mountPath}' 2>/dev/null)
-    if [[ "$conteneur1_mountpath_volume_mount" == "/tmp"  ]]; then 
-        echo  -e "montage volume sur conteneur1 ? ${GREEN} OK  ${ENDCOLOR}"
-    else
-        echo  -e "montage volume sur conteneur1  ${RED} KO  ${ENDCOLOR}"
-    fi
-else
-    echo  -e "montage volume sur conteneur1  ${RED} KO  ${ENDCOLOR}"
-fi
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2ggCgpSRUQ9IlxlWzMxbVxlWzFtIgpHUkVFTj0iXGVbMzJtXGVbMW0iCkVORENP
+TE9SPSJcZVswbSIKQkxVRT0iXGVbMzRtXGVbMW0iCgoKcG9kX2V4aXN0PSQoa3ViZWN0bCBnZXQg
+IHBvIGV4Mi1ob3N0cGF0aCAtbyBqc29ucGF0aD0ney5tZXRhZGF0YS5uYW1lfScgMj4vZGV2L251
+bGwpCmlmIFtbICIkcG9kX2V4aXN0IiA9PSAiZXgyLWhvc3RwYXRoIiAgXV07IHRoZW4gCiAgICBl
+Y2hvICAtZSAiUG9kIGV4Mi1ob3N0cGF0aCAgZXhpc3QgID8gJHtHUkVFTn0gT0sgICR7RU5EQ09M
+T1J9IgplbHNlIAogICAgZWNobyAgLWUgIlBvZCBleDItaG9zdHBhdGggIGV4aXN0ICA/ICR7UkVE
+fSBLTyAgJHtFTkRDT0xPUn0iCiAgICBleGl0IDEgCmZpIApuYl9jb250YWluZXI9JChrdWJlY3Rs
+IGdldCBwbyBleDItaG9zdHBhdGggLW8ganNvbnBhdGg9J3suc3BlYy5jb250YWluZXJzWypdLm5h
+bWV9JyB8d2MgLXcgMj4vZGV2L251bGwpCmlmIFtbICIkbmJfY29udGFpbmVyIiA9PSAiMSIgIF1d
+OyB0aGVuIAogICAgZWNobyAgLWUgIk5vbWJyZSBkZSBjb250ZW5ldXIgPyAke0dSRUVOfSBPSyAg
+JHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiTm9tYnJlIGRlIGNvbnRlbmV1cj8gJHtS
+RUR9IEtPICAke0VORENPTE9SfSIKICAgIGVjaG8gIC1lICJcdCAke1JFRH0gbm9tYnJlIHRyb3V2
+w6k6ICAkbmJfY29udGFpbmVyICAke0VORENPTE9SfSIKICAgIGV4aXQgMSAKZmkgCgpjb250ZW5l
+dXIxX25hbWU9JChrdWJlY3RsIGdldCAgcG8gZXgyLWhvc3RwYXRoIC1vIGpzb25wYXRoPSd7LnNw
+ZWMuY29udGFpbmVyc1swXS5uYW1lfScpCmlmIFtbICIkY29udGVuZXVyMV9uYW1lIiA9PSAiY29u
+dGVuZXVyMSIgIF1dOyB0aGVuIAogICAgZWNobyAgLWUgIm5vbSBjb250ZW5ldXIxID8gJHtHUkVF
+Tn0gT0sgICR7RU5EQ09MT1J9IgplbHNlIAogICAgZWNobyAgLWUgIm5vbSBjb250ZW5ldXIxICR7
+UkVEfSBLTyAgJHtFTkRDT0xPUn0iCiAgICBlY2hvICAtZSAiXHQgJHtSRUR9IG5vbSB0cm91dsOp
+OiAgJGNvbnRlbmV1cjFfbmFtZSAgJHtFTkRDT0xPUn0iCiAgICBleGl0IDEgCmZpIAoKY29udGVu
+ZXVyMV9pbWFnZT0kKGt1YmVjdGwgZ2V0ICBwbyBleDItaG9zdHBhdGggLW8ganNvbnBhdGg9J3su
+c3BlYy5jb250YWluZXJzWz8oQC5uYW1lID09ICJjb250ZW5ldXIxIildLmltYWdlfScpCmlmIFtb
+ICIkY29udGVuZXVyMV9pbWFnZSIgPT0gIm5naW54OjEuMjcuMyIgIF1dOyB0aGVuIAogICAgZWNo
+byAgLWUgImNvbnRlbmV1cjFfaW1hZ2UgPyAke0dSRUVOfSBPSyAgJHtFTkRDT0xPUn0iCmVsc2Ug
+CiAgICBlY2hvICAtZSAiY29udGVuZXVyMV9pbWFnZSAke1JFRH0gS08gICR7RU5EQ09MT1J9Igog
+ICAgZWNobyAgLWUgIlx0ICR7UkVEfSBpbWFnZSB0cm91dsOpOiAgJGNvbnRlbmV1cjFfaW1hZ2Ug
+ICR7RU5EQ09MT1J9IgogICAgZXhpdCAxIApmaSAKCgpub21fdm9sdW1lcz0kKGt1YmVjdGwgZ2V0
+ICBwbyBleDItaG9zdHBhdGggIC1vIGpzb25wYXRoPSd7LnNwZWMudm9sdW1lc1s/KEAubmFtZSA9
+PSAibW9uLXZvbHVtZS1ob3N0cGF0aCIpXS5uYW1lfScgMj4vZGV2L251bGwpCmlmIFtbICIkbm9t
+X3ZvbHVtZXMiID09ICJtb24tdm9sdW1lLWhvc3RwYXRoIiAgXV07IHRoZW4gCiAgICBlY2hvICAt
+ZSAiTm9tIGR1IHZvbHVtZSA/ICR7R1JFRU59IE9LICAke0VORENPTE9SfSIKZWxzZSAKICAgIGVj
+aG8gIC1lICJOb20gZHUgdm9sdW1lID8gJHtSRUR9IEtPICAke0VORENPTE9SfSIKICAgIGVjaG8g
+IC1lICJcdCAke1JFRH0gbm9tIHRyb3V2w6k6ICAkbm9tX3ZvbHVtZXMgICR7RU5EQ09MT1J9Igog
+ICAgZXhpdCAxIApmaSAKCgp0eXBlX3ZvbHVtZT0kKGt1YmVjdGwgZ2V0ICAgcG8gZXgyLWhvc3Rw
+YXRoICAtbyBqc29ucGF0aD0ney5zcGVjLnZvbHVtZXNbPyhALm5hbWUgPT0gIm1vbi12b2x1bWUt
+aG9zdHBhdGgiKV0uaG9zdFBhdGh9JyAyPi9kZXYvbnVsbCkKaWYgW1sgISAteiAiJHR5cGVfdm9s
+dW1lIiAgXV07IHRoZW4gCiAgICBlY2hvICAtZSAiVHlwZSBkdSB2b2x1bWUgPyAke0dSRUVOfSBP
+SyAgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiVHlwZSBkdSB2b2x1bWUgPyAke1JF
+RH0gS08gICR7RU5EQ09MT1J9IgogICAgZWNobyAgLWUgIlx0ICR7UkVEfSBub20gdHJvdXbDqTog
+ICR0eXBlX3ZvbHVtZSAgJHtFTkRDT0xPUn0iCiAgICBleGl0IDEgCmZpIAoKcGF0aF92b2x1bWU9
+JChrdWJlY3RsIGdldCAgIHBvIGV4Mi1ob3N0cGF0aCAgLW8ganNvbnBhdGg9J3suc3BlYy52b2x1
+bWVzWz8oQC5uYW1lID09ICJtb24tdm9sdW1lLWhvc3RwYXRoIildLmhvc3RQYXRoLnBhdGh9JyAy
+Pi9kZXYvbnVsbCkKaWYgW1sgIiRwYXRoX3ZvbHVtZSIgPT0gIi90bXAvZXgyaG9zdHBhdGgiICBd
+XTsgdGhlbiAKICAgIGVjaG8gIC1lICJQYXRoIGjDtHRlIGR1IHZvbHVtZSA/ICR7R1JFRU59IE9L
+ICAke0VORENPTE9SfSIKZWxzZSAKICAgIGVjaG8gIC1lICJQYXRoIGjDtHRlIGR1IHZvbHVtZSA/
+ICR7UkVEfSBLTyAgJHtFTkRDT0xPUn0iCiAgICBlY2hvICAtZSAiXHQgJHtSRUR9IHBhdGggdHJv
+dXbDqTogICRwYXRoX3ZvbHVtZSAgJHtFTkRDT0xPUn0iCiAgICBleGl0IDEgCmZpIAoKcGF0aF90
+eXBlX3ZvbHVtZT0kKGt1YmVjdGwgZ2V0ICAgcG8gZXgyLWhvc3RwYXRoICAtbyBqc29ucGF0aD0n
+ey5zcGVjLnZvbHVtZXNbPyhALm5hbWUgPT0gIm1vbi12b2x1bWUtaG9zdHBhdGgiKV0uaG9zdFBh
+dGgudHlwZX0nIDI+L2Rldi9udWxsKQppZiBbWyAiJHBhdGhfdHlwZV92b2x1bWUiID09ICJEaXJl
+Y3RvcnlPckNyZWF0ZSIgIF1dOyB0aGVuIAogICAgZWNobyAgLWUgImhvc3RwYXRodHlwZSBkdSB2
+b2x1bWUgPyAke0dSRUVOfSBPSyAgJHtFTkRDT0xPUn0iCmVsc2UgCiAgICBlY2hvICAtZSAiaG9z
+dHBhdGh0eXBlIGR1IHZvbHVtZSA/ICR7UkVEfSBLTyAgJHtFTkRDT0xPUn0iCiAgICBlY2hvICAt
+ZSAiXHQgJHtSRUR9IHBhdGggdHJvdXbDqTogICRwYXRoX3R5cGVfdm9sdW1lICAke0VORENPTE9S
+fSIKICAgIGV4aXQgMSAKZmkgCgoKCmNvbnRlbmV1cjFfbmFtZV92b2x1bWVfbW91bnQ9JChrdWJl
+Y3RsIGdldCAgcG8gZXgyLWhvc3RwYXRoICAtbyBqc29ucGF0aD0ney5zcGVjLmNvbnRhaW5lcnNb
+PyhALm5hbWUgPT0gImNvbnRlbmV1cjEiKV0udm9sdW1lTW91bnRzWz8oQC5uYW1lID09ICJtb24t
+dm9sdW1lLWhvc3RwYXRoIildLm5hbWV9JyAyPi9kZXYvbnVsbCkKaWYgW1sgIiRjb250ZW5ldXIx
+X25hbWVfdm9sdW1lX21vdW50IiA9PSAibW9uLXZvbHVtZS1ob3N0cGF0aCIgIF1dOyB0aGVuIAog
+ICAgY29udGVuZXVyMV9tb3VudHBhdGhfdm9sdW1lX21vdW50PSQoa3ViZWN0bCBnZXQgIHBvIGV4
+Mi1ob3N0cGF0aCAgLW8ganNvbnBhdGg9J3suc3BlYy5jb250YWluZXJzWz8oQC5uYW1lID09ICJj
+b250ZW5ldXIxIildLnZvbHVtZU1vdW50c1s/KEAubmFtZSA9PSAibW9uLXZvbHVtZS1ob3N0cGF0
+aCIpXS5tb3VudFBhdGh9JyAyPi9kZXYvbnVsbCkKICAgIGlmIFtbICIkY29udGVuZXVyMV9tb3Vu
+dHBhdGhfdm9sdW1lX21vdW50IiA9PSAiL3RtcCIgIF1dOyB0aGVuIAogICAgICAgIGVjaG8gIC1l
+ICJtb250YWdlIHZvbHVtZSBzdXIgY29udGVuZXVyMSA/ICR7R1JFRU59IE9LICAke0VORENPTE9S
+fSIKICAgIGVsc2UKICAgICAgICBlY2hvICAtZSAibW9udGFnZSB2b2x1bWUgc3VyIGNvbnRlbmV1
+cjEgICR7UkVEfSBLTyAgJHtFTkRDT0xPUn0iCiAgICBmaQplbHNlCiAgICBlY2hvICAtZSAibW9u
+dGFnZSB2b2x1bWUgc3VyIGNvbnRlbmV1cjEgICR7UkVEfSBLTyAgJHtFTkRDT0xPUn0iCmZpCg==' | base64 -d)
