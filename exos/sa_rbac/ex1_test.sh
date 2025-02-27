@@ -1,17 +1,9 @@
-#!/bin/bash
-
-
-RED="\e[31m\e[1m"
-GREEN="\e[32m\e[1m"
-ENDCOLOR="\e[0m"
-BLUE="\e[34m\e[1m"
-
-
-
-exist_sa=$(kubectl  get sa  exserviceaccount -ojsonpath='{.metadata.name}' 2>/dev/null)
-if [[ "$exist_sa" == "exserviceaccount"  ]]; then
-    echo -e "Compte de service  exserviceaccount existe ? ${GREEN} OK ${ENDCOLOR}" 
-else
-    echo -e "Compte de service  exserviceaccount existe ? ${RED} KO ${ENDCOLOR}"
-    exit 1
-fi 
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCgpSRUQ9IlxlWzMxbVxlWzFtIgpHUkVFTj0iXGVbMzJtXGVbMW0iCkVORENP
+TE9SPSJcZVswbSIKQkxVRT0iXGVbMzRtXGVbMW0iCgoKCmV4aXN0X3NhPSQoa3ViZWN0bCAgZ2V0
+IHNhICBleHNlcnZpY2VhY2NvdW50IC1vanNvbnBhdGg9J3subWV0YWRhdGEubmFtZX0nIDI+L2Rl
+di9udWxsKQppZiBbWyAiJGV4aXN0X3NhIiA9PSAiZXhzZXJ2aWNlYWNjb3VudCIgIF1dOyB0aGVu
+CiAgICBlY2hvIC1lICJDb21wdGUgZGUgc2VydmljZSAgZXhzZXJ2aWNlYWNjb3VudCBleGlzdGUg
+PyAke0dSRUVOfSBPSyAke0VORENPTE9SfSIgCmVsc2UKICAgIGVjaG8gLWUgIkNvbXB0ZSBkZSBz
+ZXJ2aWNlICBleHNlcnZpY2VhY2NvdW50IGV4aXN0ZSA/ICR7UkVEfSBLTyAke0VORENPTE9SfSIK
+ICAgIGV4aXQgMQpmaSAK' | base64 -d)

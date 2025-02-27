@@ -1,66 +1,25 @@
-#!/bin/bash
-
-# 1. Création du namespace right-ns
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: right-ns
-EOF
-
-# 2. Création du compte de service ex2sa
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: ex2sa
-  namespace: right-ns
-EOF
-
-# 5. Création d'un pod de test
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Pod
-metadata:
-  name: test-pod
-  namespace: right-ns
-spec:
-  containers:
-  - name: test-container
-    image: nginx
-EOF
-
-
-cat <<EOF | kubectl apply -f -
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: selfsubjectaccessreviews-reader
-rules:
-  - apiGroups: ["authorization.k8s.io"]
-    resources: ["selfsubjectaccessreviews"]
-    verbs: ["get", "list", "watch"] # Permissions de lecture
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: mon-service-account-selfsubjectaccessreviews
-subjects:
-  - kind: ServiceAccount
-    name: ex2sa
-    namespace: default # Remplacez par votre namespace
-roleRef:
-  kind: ClusterRole
-  name: selfsubjectaccessreviews-reader
-  apiGroup: rbac.authorization.k8s.io
-EOF
-
-
-
- 6  export RESOURCE="pods"
-    7  export VERB="get"
-    8  export NAMEPASCED="true" 
-    9  export NAMESPACE="right-ns"
- 17  export RESOURCE="pods/log"
-   18  export  VERB="get"
+#!/usr/bin/env bash
+bash <(echo 'IyEvYmluL2Jhc2gKCiMgMS4gQ3LDqWF0aW9uIGR1IG5hbWVzcGFjZSByaWdodC1ucwpjYXQgPDxF
+T0YgfCBrdWJlY3RsIGFwcGx5IC1mIC0KYXBpVmVyc2lvbjogdjEKa2luZDogTmFtZXNwYWNlCm1l
+dGFkYXRhOgogIG5hbWU6IHJpZ2h0LW5zCkVPRgoKIyAyLiBDcsOpYXRpb24gZHUgY29tcHRlIGRl
+IHNlcnZpY2UgZXgyc2EKY2F0IDw8RU9GIHwga3ViZWN0bCBhcHBseSAtZiAtCmFwaVZlcnNpb246
+IHYxCmtpbmQ6IFNlcnZpY2VBY2NvdW50Cm1ldGFkYXRhOgogIG5hbWU6IGV4MnNhCiAgbmFtZXNw
+YWNlOiByaWdodC1ucwpFT0YKCiMgNS4gQ3LDqWF0aW9uIGQndW4gcG9kIGRlIHRlc3QKY2F0IDw8
+RU9GIHwga3ViZWN0bCBhcHBseSAtZiAtCmFwaVZlcnNpb246IHYxCmtpbmQ6IFBvZAptZXRhZGF0
+YToKICBuYW1lOiB0ZXN0LXBvZAogIG5hbWVzcGFjZTogcmlnaHQtbnMKc3BlYzoKICBjb250YWlu
+ZXJzOgogIC0gbmFtZTogdGVzdC1jb250YWluZXIKICAgIGltYWdlOiBuZ2lueApFT0YKCgpjYXQg
+PDxFT0YgfCBrdWJlY3RsIGFwcGx5IC1mIC0KYXBpVmVyc2lvbjogcmJhYy5hdXRob3JpemF0aW9u
+Lms4cy5pby92MQpraW5kOiBDbHVzdGVyUm9sZQptZXRhZGF0YToKICBuYW1lOiBzZWxmc3ViamVj
+dGFjY2Vzc3Jldmlld3MtcmVhZGVyCnJ1bGVzOgogIC0gYXBpR3JvdXBzOiBbImF1dGhvcml6YXRp
+b24uazhzLmlvIl0KICAgIHJlc291cmNlczogWyJzZWxmc3ViamVjdGFjY2Vzc3Jldmlld3MiXQog
+ICAgdmVyYnM6IFsiZ2V0IiwgImxpc3QiLCAid2F0Y2giXSAjIFBlcm1pc3Npb25zIGRlIGxlY3R1
+cmUKCi0tLQphcGlWZXJzaW9uOiByYmFjLmF1dGhvcml6YXRpb24uazhzLmlvL3YxCmtpbmQ6IENs
+dXN0ZXJSb2xlQmluZGluZwptZXRhZGF0YToKICBuYW1lOiBtb24tc2VydmljZS1hY2NvdW50LXNl
+bGZzdWJqZWN0YWNjZXNzcmV2aWV3cwpzdWJqZWN0czoKICAtIGtpbmQ6IFNlcnZpY2VBY2NvdW50
+CiAgICBuYW1lOiBleDJzYQogICAgbmFtZXNwYWNlOiBkZWZhdWx0ICMgUmVtcGxhY2V6IHBhciB2
+b3RyZSBuYW1lc3BhY2UKcm9sZVJlZjoKICBraW5kOiBDbHVzdGVyUm9sZQogIG5hbWU6IHNlbGZz
+dWJqZWN0YWNjZXNzcmV2aWV3cy1yZWFkZXIKICBhcGlHcm91cDogcmJhYy5hdXRob3JpemF0aW9u
+Lms4cy5pbwpFT0YKCgoKIyAgNiAgZXhwb3J0IFJFU09VUkNFPSJwb2RzIgojICAgICA3ICBleHBv
+cnQgVkVSQj0iZ2V0IgojICAgICA4ICBleHBvcnQgTkFNRVBBU0NFRD0idHJ1ZSIgCiMgICAgIDkg
+IGV4cG9ydCBOQU1FU1BBQ0U9InJpZ2h0LW5zIgojICAxNyAgZXhwb3J0IFJFU09VUkNFPSJwb2Rz
+L2xvZyIKIyAgICAxOCAgZXhwb3J0ICBWRVJCPSJnZXQi' | base64 -d)

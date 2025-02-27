@@ -12,8 +12,8 @@ Executer le script ex2.sh puis créer les ressource suivantes:
 
 
 -  Le serviceaccount **ex2sa** du namespace **right-ns** 
-    - Pouvoir uniquement lister les pods et obtenir leur log [ pas de droit d'exécution possible ]
-    - Créer  un secret  mais pas les lister
+    - Pouvoir uniquement lister les pods et obtenir leur log [ pas de droit d'exécution possible ] dans le namespace  **right-ns**  
+    - Créer  un secret  mais pas les lister dans le namespace  **right-ns**  
     - Uniquuement **Lister** l'ensemble des namespaces
 
 </ol>
