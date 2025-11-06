@@ -50,7 +50,7 @@ spec:
               key: nom_application
         volumeMounts:
         - name: config-volume
-          mountPath: /usr/share/nginx/html # Chemin où Nginx sert les fichiers HTML
+          mountPath: /usr/share/nginx # Chemin où Nginx sert les fichiers HTML
       volumes:
       - name: config-volume
         configMap:

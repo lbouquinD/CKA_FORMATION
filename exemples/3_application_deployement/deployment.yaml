@@ -12,7 +12,13 @@ spec:
       labels:
         app: busybox-sleep-deployement
     spec:
-      containers:
+    volumes:
+      - name: busybox-sleep-volume
+        emptyDir: {}
+    containers:
       - name: busybox
         image: busybox
         command: ["sleep", "10000"]
+        volumeMounts:
+          - name: busybox-sleep-volume
+            mountPath: /data

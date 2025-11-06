@@ -13,3 +13,4 @@ spec:
             image: busybox
             command: ["sh", "-c", "date; echo 'Arrêt prévu dans 5 secondes'; sleep 5"]
           restartPolicy: Never
+

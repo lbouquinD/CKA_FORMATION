@@ -33,3 +33,13 @@ spec:
     kind: Fruit #  Le king qu'on retrouve partout pour la  definition déclarative
     shortNames:
     - ft #  kubectl get ft
+
+
+---
+apiVersion: example.com/v1
+kind: Fruit
+metadata:
+  name: mopremierfruit
+spec:
+  typeFruit: agrume2
+  nameFruit: orange

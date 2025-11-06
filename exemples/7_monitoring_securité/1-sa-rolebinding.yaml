@@ -69,7 +69,7 @@ metadata:
   name: allow-impersonate-serviceaccounts
 subjects:
 - kind: User  # Ou Group si vous utilisez des groupes
-  name: cloud_user_p_f25620d1@linuxacademygclabs.com # Votre utilisateur
+  name: cloud_user_p_83faf090@linuxacademygclabs.com # Votre utilisateur
 roleRef:
   kind: ClusterRole
   name: impersonate-serviceaccounts

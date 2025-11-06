@@ -34,7 +34,7 @@ spec:
           initialDelaySeconds: 5
         startupProbe:
           httpGet:
-            path: /readyz
+            path: /readyz2
             port: 3000
           failureThreshold: 10
           periodSeconds: 10
