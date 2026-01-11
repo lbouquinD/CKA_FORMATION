@@ -1,0 +1,15 @@
+resources:
+  - ../../base
+
+nameSuffix: -dev
+
+patches:
+  - path: patch-replicas.yaml
+    target:
+      kind: Deployment
+      name: myapp
+
+labels:
+  - pairs:
+      environment: dev
+    includeSelectors: true

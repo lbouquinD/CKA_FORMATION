@@ -3,7 +3,7 @@ controller:
   name: controller
 
   ## The kind of the Ingress Controller installation - deployment or daemonset.
-  kind: deployment
+  kind: daemonset
 
   ## The selectorLabels used to override the default values.
   selectorLabels: {}

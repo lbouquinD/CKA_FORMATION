@@ -1,0 +1,19 @@
+resources:
+  - ../../base
+
+nameSuffix: -prod
+
+patches:
+  - path: patch-env.yaml
+    target:
+      kind: Deployment
+      name: myapp
+  - path: patch-service.yaml
+    target:
+      kind: Service
+      name: myapp
+labels:
+  - pairs:
+      environment: prod
+    includeSelectors: true
+
