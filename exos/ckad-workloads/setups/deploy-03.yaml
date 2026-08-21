@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  annotations:
+    kubernetes.io/change-cause: initial release
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: storefront
+  template:
+    metadata:
+      labels:
+        app: storefront
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.26.3

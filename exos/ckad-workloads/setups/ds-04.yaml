@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: manual-agent
+spec:
+  selector:
+    matchLabels:
+      app: manual-agent
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: manual-agent
+    spec:
+      containers:
+        - name: agent
+          image: busybox:1.35
+          command: ["sh", "-c", "sleep 3600"]

@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sessions-headless
+spec:
+  clusterIP: None
+  selector:
+    app: sessions
+  ports:
+    - port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: legacy-headless
+spec:
+  clusterIP: None
+  selector:
+    app: legacy-sessions
+  ports:
+    - port: 80
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sessions
+spec:
+  serviceName: legacy-headless
+  replicas: 2
+  selector:
+    matchLabels:
+      app: legacy-sessions
+  template:
+    metadata:
+      labels:
+        app: legacy-sessions
+    spec:
+      containers:
+        - name: sessions
+          image: nginx:1.26.3

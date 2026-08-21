@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broken-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: broken-api
+  template:
+    metadata:
+      labels:
+        app: broken-api
+    spec:
+      containers:
+        - name: api
+          image: nginx:does-not-exist
+          command: ["sh", "-c", "exit 1"]
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+          resources:
+            limits:
+              cpu: 20m
+              memory: 16Mi

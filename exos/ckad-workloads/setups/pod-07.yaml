@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configured-app
+spec:
+  containers:
+    - name: app
+      image: busybox:99.99
+      command: ["sh", "-c", "exit 1"]
+      env:
+        - name: APP_MODE
+          value: development
