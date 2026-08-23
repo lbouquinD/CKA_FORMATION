@@ -1,15 +1,17 @@
-# pod-03 — Sidecar et volume partagé
+# pod-03 — Inspection, filtrage et export YAML
 
-Niveau 2 — 20 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-03`.
 
-Créez un Pod `sidecar-logger` composé de deux conteneurs partageant un volume
-`emptyDir` nommé `shared-logs`, monté sur `/var/log/shared`.
+Préparez le scénario avec `./lab.sh start pod-03`.
 
-- `writer`, image `busybox:1.36`, écrit la date toutes les 5 secondes dans
-  `/var/log/shared/app.log`;
-- `reader`, image `busybox:1.36`, suit en continu le fichier avec `tail -F`;
-- les deux conteneurs doivent rester actifs et devenir `Ready`.
+1. Listez tous les Pods du namespace en affichant leurs labels, sans autre
+   transformation, dans `/tmp/ckad-pod-03-labels.txt`.
+2. Filtrez pour n'afficher que les Pods ayant le label `tier=ui`, dans
+   `/tmp/ckad-pod-03-ui.txt`.
+3. Générez un manifeste YAML réutilisable du Pod `web-dev` (sans champs
+   système comme `uid` ou `resourceVersion`) dans `/tmp/ckad-pod-03.yaml`.
 
-Le fichier doit être réellement lisible depuis le conteneur `reader`.
+Utilisez `-l`, `--show-labels` et, pour le manifeste propre,
+`--dry-run=client -o yaml`.

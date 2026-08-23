@@ -11,7 +11,9 @@ if ! command -v go >/dev/null 2>&1; then
 fi
 
 export CGO_ENABLED=0
+export GOTOOLCHAIN="${GOTOOLCHAIN:-local}"
 export PATH="$(go env GOPATH)/bin:${PATH}"
+export GOFLAGS="${GOFLAGS:-} -buildvcs=false"
 
 echo "Tests unitaires"
 go test ./...
@@ -26,7 +28,7 @@ build_one() {
     garble -literals -tiny build -trimpath -ldflags="-s -w" -o "$out" .
   else
     echo "Compilation linux/${arch} (garble absent, binaire non obfusqué)"
-    go build -trimpath -ldflags="-s -w" -o "$out" .
+    go build -trimpath -buildvcs=false -ldflags="-s -w" -o "$out" .
   fi
   chmod 0755 "$out"
 }

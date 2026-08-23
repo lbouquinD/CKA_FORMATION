@@ -1,14 +1,16 @@
-# pod-04 — Initialisation avant démarrage
+# pod-04 — Variables d'environnement et logs
 
-Niveau 2 — 20 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-04`.
 
-Créez un Pod `initialized-web` avec un volume `emptyDir` nommé `web-content`.
+Créez un Pod nommé `box-check` basé sur l'image `busybox`, exécutant
+`sh -c "env && sleep 3600"`.
 
-- un init container `prepare`, image `busybox:1.36`, crée
-  `/work/index.html` contenant le texte `CKAD initialized`;
-- le conteneur principal `web`, image `nginx:1.27.3`, monte le même volume sur
-  `/usr/share/nginx/html`;
-- le Pod doit être `Ready`;
-- une requête locale sur le port 80 doit renvoyer le contenu préparé.
+Injectez les variables :
+
+- `DB_HOST=postgres`;
+- `DB_PORT=5432`.
+
+Le Pod doit rester actif. Vérifiez les variables avec `kubectl logs`, sans
+`kubectl exec`.

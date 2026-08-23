@@ -1,15 +1,13 @@
-# pod-02 — Métadonnées et ressources
+# pod-02 — Labels et annotations à chaud
 
-Niveau 1 — 15 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-02`.
 
-Créez un Pod `api-limited` utilisant `nginx:1.27.3`, avec un conteneur `api`.
+Préparez le scénario avec `./lab.sh start pod-02`.
 
-- labels : `app=api` et `tier=backend`;
-- annotation : `training.ckad/owner=team-blue`;
-- requêtes : `cpu=50m`, `memory=32Mi`;
-- limites : `cpu=100m`, `memory=64Mi`;
-- politique de redémarrage `Always`.
+Le Pod `web-dev` existe déjà. Modifiez-le **sans le redémarrer** :
 
-Le Pod doit être `Ready`.
+- ajoutez l'annotation `builder=ansible`;
+- remplacez le label `tier=frontend` par `tier=ui`;
+- ajoutez le label `stage=test`.

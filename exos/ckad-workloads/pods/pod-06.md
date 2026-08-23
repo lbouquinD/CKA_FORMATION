@@ -1,19 +1,15 @@
-# pod-06 — CrashLoopBackOff
+# pod-06 — Création rapide
 
-Niveau 3 — 15 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-06`.
 
-Préparez le scénario avec `./lab.sh start pod-06`.
+Créez un Pod nommé `web-fast` avec les caractéristiques suivantes :
 
-Le Pod `looping-worker` redémarre continuellement. Diagnostiquez-le avec les
-commandes Kubernetes adaptées, puis corrigez-le.
-Les champs de démarrage d'un Pod étant immuables, une recréation avec le même
-nom peut être nécessaire.
+- un unique conteneur nommé `nginx`;
+- image `nginx:1.27.3`;
+- label `app=web-fast`;
+- le Pod doit atteindre l'état `Ready`.
 
-Contraintes finales :
-
-- conserver `busybox:1.36` et le conteneur `worker`;
-- la commande doit exécuter `sleep 3600`;
-- conserver `restartPolicy: Always`;
-- le Pod doit être `Ready` et ne plus redémarrer en boucle.
+Travaillez rapidement : générez si nécessaire un manifeste avec une commande
+impérative, puis appliquez-le.

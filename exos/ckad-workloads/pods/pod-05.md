@@ -1,18 +1,13 @@
-# pod-05 — Réparer les sondes
+# pod-05 — Suppression ciblée et nettoyage forcé
 
-Niveau 3 — 20 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-05`.
 
 Préparez le scénario avec `./lab.sh start pod-05`.
 
-Le Pod `probe-web` fonctionne, mais ne devient jamais `Ready`. Corrigez sa
-configuration sans changer son nom, son image ni son port.
-Si un champ de Pod est immuable, recréez la ressource avec le même nom.
+1. Supprimez tous les Pods portant le label `stage=test` en une seule commande.
+2. Supprimez immédiatement le Pod restant `box-check`, sans attendre la période
+   de grâce, en mode force.
 
-État final attendu :
-
-- une readiness probe HTTP valide sur `/` et le port `80`;
-- une liveness probe HTTP valide sur `/` et le port `80`;
-- `initialDelaySeconds` vaut `2` pour les deux sondes;
-- le Pod est `Ready`.
+Ne supprimez pas le namespace.

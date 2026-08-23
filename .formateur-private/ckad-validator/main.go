@@ -158,6 +158,11 @@ func envValue(c M, name string) string {
 	return ""
 }
 
+func imageBusybox(c M) bool {
+	img := text(c, "image")
+	return img == "busybox" || strings.HasPrefix(img, "busybox:")
+}
+
 func envField(c M, name string) string {
 	for _, raw := range array(c, "env") {
 		item, _ := raw.(M)
@@ -232,9 +237,93 @@ func fileHasNames(path string, expected []string) bool {
 	return content == strings.Join(sortedExpected, "\n")
 }
 
+func firstContainer(o M) M {
+	cs := array(o, "spec", "containers")
+	if len(cs) == 0 {
+		return nil
+	}
+	m, _ := cs[0].(M)
+	return m
+}
+
 func podChecks() []check {
 	switch exerciseID {
 	case "pod-01":
+		return []check{
+			{"ressource", func() bool {
+				o, ok := object("pod", "web-dev")
+				return ok && text(o, "metadata", "namespace") == namespace
+			}},
+			{"configuration", func() bool {
+				o, ok := object("pod", "web-dev")
+				c := firstContainer(o)
+				return ok && len(array(o, "spec", "containers")) == 1 && text(c, "image") == "nginx:alpine" && label(o, []string{"metadata", "labels"}, "tier", "frontend") && envValue(c, "APP_ENV") == "development"
+			}},
+			{"disponibilité", func() bool { o, ok := object("pod", "web-dev"); return ok && podReady(o) }},
+		}
+	case "pod-02":
+		return []check{
+			{"annotation", func() bool {
+				o, ok := object("pod", "web-dev")
+				return ok && text(o, "metadata", "annotations", "builder") == "ansible"
+			}},
+			{"labels", func() bool {
+				o, ok := object("pod", "web-dev")
+				return ok && label(o, []string{"metadata", "labels"}, "tier", "ui") && label(o, []string{"metadata", "labels"}, "stage", "test")
+			}},
+			{"pod conservé", func() bool {
+				o, ok := object("pod", "web-dev")
+				c := firstContainer(o)
+				return ok && text(c, "image") == "nginx:alpine" && envValue(c, "APP_ENV") == "development"
+			}},
+		}
+	case "pod-03":
+		return []check{
+			{"liste avec labels", func() bool {
+				s, ok := fileContent("/tmp/ckad-pod-03-labels.txt")
+				return ok && strings.Contains(s, "web-dev") && strings.Contains(s, "api-dev") && (strings.Contains(s, "LABELS") || strings.Contains(s, "tier="))
+			}},
+			{"filtre", func() bool {
+				s, ok := fileContent("/tmp/ckad-pod-03-ui.txt")
+				return ok && strings.Contains(s, "web-dev") && !strings.Contains(s, "api-dev")
+			}},
+			{"yaml réutilisable", func() bool {
+				s, ok := fileContent("/tmp/ckad-pod-03.yaml")
+				return ok && strings.Contains(s, "web-dev") && strings.Contains(s, "nginx:alpine") && !strings.Contains(s, "uid:") && !strings.Contains(s, "resourceVersion:")
+			}},
+		}
+	case "pod-04":
+		return []check{
+			{"configuration", func() bool {
+				o, ok := object("pod", "box-check")
+				c := firstContainer(o)
+				cmd := strings.Join(append(anyStrings(array(c, "command")), anyStrings(array(c, "args"))...), " ")
+				return ok && imageBusybox(c) && strings.Contains(cmd, "env") && strings.Contains(cmd, "sleep") && envValue(c, "DB_HOST") == "postgres" && envValue(c, "DB_PORT") == "5432"
+			}},
+			{"logs", func() bool {
+				out, err := kubectl("logs", "-n", namespace, "box-check")
+				if err != nil {
+					return false
+				}
+				s := string(out)
+				return strings.Contains(s, "DB_HOST=postgres") && strings.Contains(s, "DB_PORT=5432")
+			}},
+			{"disponibilité", func() bool { o, ok := object("pod", "box-check"); return ok && podReady(o) }},
+		}
+	case "pod-05":
+		return []check{
+			{"sélecteur", func() bool {
+				labeled, ok := list("pods", "stage=test")
+				_, web := object("pod", "web-dev")
+				_, cache := object("pod", "cache-dev")
+				return ok && len(labeled) == 0 && !web && !cache
+			}},
+			{"force", func() bool {
+				_, box := object("pod", "box-check")
+				return !box
+			}},
+		}
+	case "pod-06":
 		return []check{
 			{"ressource", func() bool {
 				o, ok := object("pod", "web-fast")
@@ -247,7 +336,7 @@ func podChecks() []check {
 			}},
 			{"disponibilité", func() bool { o, ok := object("pod", "web-fast"); return ok && podReady(o) }},
 		}
-	case "pod-02":
+	case "pod-07":
 		return []check{
 			{"métadonnées", func() bool {
 				o, ok := object("pod", "api-limited")
@@ -260,7 +349,7 @@ func podChecks() []check {
 			}},
 			{"disponibilité", func() bool { o, ok := object("pod", "api-limited"); return ok && podReady(o) }},
 		}
-	case "pod-03":
+	case "pod-08":
 		return []check{
 			{"conteneurs", func() bool {
 				o, ok := object("pod", "sidecar-logger")
@@ -278,7 +367,7 @@ func podChecks() []check {
 			}},
 			{"disponibilité", func() bool { o, ok := object("pod", "sidecar-logger"); return ok && podReady(o) }},
 		}
-	case "pod-04":
+	case "pod-09":
 		return []check{
 			{"initialisation", func() bool {
 				o, ok := object("pod", "initialized-web")
@@ -304,7 +393,7 @@ func podChecks() []check {
 				return ok && text(container(o, "web"), "image") == "nginx:1.27.3" && podReady(o)
 			}},
 		}
-	case "pod-05":
+	case "pod-10":
 		return []check{
 			{"sonde readiness", func() bool {
 				o, ok := object("pod", "probe-web")
@@ -318,7 +407,7 @@ func podChecks() []check {
 			}},
 			{"disponibilité", func() bool { o, ok := object("pod", "probe-web"); return ok && podReady(o) }},
 		}
-	case "pod-06":
+	case "pod-11":
 		return []check{
 			{"configuration", func() bool {
 				o, ok := object("pod", "looping-worker")
@@ -330,7 +419,7 @@ func podChecks() []check {
 				return ok && podReady(o) && integer(o, "status", "containerStatuses", "0", "restartCount") < 3
 			}},
 		}
-	case "pod-07":
+	case "pod-12":
 		return []check{
 			{"image et commande", func() bool {
 				o, ok := object("pod", "configured-app")
@@ -345,14 +434,14 @@ func podChecks() []check {
 			}},
 			{"disponibilité", func() bool { o, ok := object("pod", "configured-app"); return ok && podReady(o) }},
 		}
-	case "pod-08":
+	case "pod-13":
 		return []check{
 			{"logs exportés", func() bool {
-				s, ok := fileContent("/tmp/ckad-pod-08")
+				s, ok := fileContent("/tmp/ckad-pod-13")
 				return ok && strings.Contains(s, "CKAD-OPS-READY")
 			}},
 			{"inventaire", func() bool {
-				s, ok := fileContent("/tmp/ckad-pod-08.txt")
+				s, ok := fileContent("/tmp/ckad-pod-13.txt")
 				expected := "obsolete-pod busybox:1.36 Running\nops-reporter busybox:1.36 Running"
 				return ok && s == expected
 			}},
@@ -734,7 +823,7 @@ func validID(id string) bool {
 	for _, prefixAndMax := range []struct {
 		prefix string
 		max    int
-	}{{"pod-", 8}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}} {
+	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}} {
 		if strings.HasPrefix(id, prefixAndMax.prefix) {
 			n, err := strconv.Atoi(strings.TrimPrefix(id, prefixAndMax.prefix))
 			return err == nil && n >= 1 && n <= prefixAndMax.max && len(strings.TrimPrefix(id, prefixAndMax.prefix)) == 2

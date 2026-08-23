@@ -1,15 +1,14 @@
-# pod-01 — Création rapide
+# pod-01 — Création impérative
 
-Niveau 1 — 10 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-01`.
 
-Créez un Pod nommé `web-fast` avec les caractéristiques suivantes :
+Créez un Pod nommé `web-dev` avec l'image `nginx:alpine`.
 
-- un unique conteneur nommé `nginx`;
-- image `nginx:1.27.3`;
-- label `app=web-fast`;
-- le Pod doit atteindre l'état `Ready`.
+- label `tier=frontend`;
+- variable d'environnement `APP_ENV=development`;
+- le Pod doit être `Ready`.
 
-Travaillez rapidement : générez si nécessaire un manifeste avec une commande
-impérative, puis appliquez-le.
+Réalisez la tâche avec une seule commande `kubectl run`, sans fichier YAML
+local.

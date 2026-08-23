@@ -1,6 +1,6 @@
 # Parcours intensif CKAD — Workloads
 
-Ce parcours contient 28 exercices pratiques, rédigés comme des tâches d'examen.
+Ce parcours contient 33 exercices pratiques, rédigés comme des tâches d'examen.
 Chaque exercice utilise son propre namespace afin de pouvoir être joué indépendamment.
 
 ## Mode d'emploi
@@ -23,7 +23,7 @@ l'exercice est réussi.
 
 | Thème | Exercices | Durée indicative |
 |---|---:|---:|
-| Pods | `pod-01` à `pod-08` | 2 h 15 |
+| Pods | `pod-01` à `pod-13` | 3 h |
 | ReplicaSets | `rs-01` à `rs-03` | 50 min |
 | Deployments | `deploy-01` à `deploy-08` | 2 h 45 |
 | DaemonSets | `ds-01` à `ds-04` | 1 h 15 |
@@ -52,6 +52,9 @@ Relancer `lab.sh start <id>` remet volontairement cet exercice à zéro après
 avoir vérifié que son namespace appartient bien au parcours.
 
 ## Formateur
+
+Les corrections (commandes + explications) sont dans
+[`.formateur-private/corrections/`](../../.formateur-private/corrections/).
 
 Les sources du validateur sont dans `.formateur-private/ckad-validator/`.
 Ne pas les ouvrir pendant la session : le but est de travailler comme à

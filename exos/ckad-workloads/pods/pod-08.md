@@ -1,15 +1,15 @@
-# pod-08 — Observer, lister et supprimer
+# pod-08 — Sidecar et volume partagé
 
-Niveau 2 — 20 minutes
+Niveau 2
 
 Contexte : namespace `ckad-pod-08`.
 
-Préparez le scénario avec `./lab.sh start pod-08`, puis réalisez les opérations :
+Créez un Pod `sidecar-logger` composé de deux conteneurs partageant un volume
+`emptyDir` nommé `shared-logs`, monté sur `/var/log/shared`.
 
-1. Enregistrez les logs du conteneur `reporter` du Pod `ops-reporter` dans
-   `/tmp/ckad-pod-08`.
-2. Listez les Pods du namespace sous la forme `NOM IMAGE PHASE`, sans en-tête,
-   triés par nom, dans `/tmp/ckad-pod-08.txt`.
-3. Supprimez uniquement le Pod `obsolete-pod`.
+- `writer`, image `busybox:1.36`, écrit la date toutes les 5 secondes dans
+  `/var/log/shared/app.log`;
+- `reader`, image `busybox:1.36`, suit en continu le fichier avec `tail -F`;
+- les deux conteneurs doivent rester actifs et devenir `Ready`.
 
-Le Pod `ops-reporter` doit rester actif. Ne supprimez pas le namespace.
+Le fichier doit être réellement lisible depuis le conteneur `reader`.

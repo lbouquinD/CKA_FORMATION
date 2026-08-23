@@ -5,29 +5,24 @@ metadata:
   labels:
     tier: ui
     stage: test
+  annotations:
+    builder: ansible
 spec:
   containers:
     - name: web-dev
       image: nginx:alpine
+      env:
+        - name: APP_ENV
+          value: development
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: cache-dev
+  name: api-dev
   labels:
-    stage: test
+    tier: backend
 spec:
   containers:
-    - name: cache-dev
-      image: busybox:1.36
-      command: ["sh", "-c", "sleep 3600"]
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: box-check
-spec:
-  containers:
-    - name: box-check
+    - name: api-dev
       image: busybox:1.36
       command: ["sh", "-c", "sleep 3600"]

@@ -3,13 +3,13 @@ package main
 import "testing"
 
 func TestValidID(t *testing.T) {
-	valid := []string{"pod-01", "pod-08", "rs-03", "deploy-08", "ds-04", "sts-05"}
+	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05"}
 	for _, id := range valid {
 		if !validID(id) {
 			t.Fatalf("%s devrait être valide", id)
 		}
 	}
-	invalid := []string{"pod-1", "pod-09", "rs-04", "deploy-00", "sts-06", "../pod-01"}
+	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "../pod-01"}
 	for _, id := range invalid {
 		if validID(id) {
 			t.Fatalf("%s ne devrait pas être valide", id)
@@ -62,6 +62,7 @@ func TestHasMountIgnoresTrailingSlash(t *testing.T) {
 func TestAllExercisesHaveChecks(t *testing.T) {
 	ids := []string{
 		"pod-01", "pod-02", "pod-03", "pod-04", "pod-05", "pod-06", "pod-07", "pod-08",
+		"pod-09", "pod-10", "pod-11", "pod-12", "pod-13",
 		"rs-01", "rs-02", "rs-03",
 		"deploy-01", "deploy-02", "deploy-03", "deploy-04", "deploy-05", "deploy-06", "deploy-07", "deploy-08",
 		"ds-01", "ds-02", "ds-03", "ds-04",

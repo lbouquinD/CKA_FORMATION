@@ -10,7 +10,7 @@ usage() {
 
 is_valid_id() {
   case "$1" in
-    pod-0[1-8]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]) return 0 ;;
+    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -46,7 +46,7 @@ case "$action" in
     if [[ -f "$setup_script" ]]; then
       EXERCISE_NAMESPACE="$namespace" bash "$setup_script"
     fi
-    if [[ "$exercise_id" == "pod-08" ]]; then
+    if [[ "$exercise_id" == "pod-13" ]]; then
       kubectl wait -n "$namespace" --for=condition=Ready pod/ops-reporter --timeout=120s
     fi
     echo "Exercice $exercise_id prêt dans le namespace $namespace."
@@ -57,7 +57,9 @@ case "$action" in
     ;;
   reset)
     kubectl delete namespace "$namespace" --ignore-not-found=true --wait=false
-    rm -f "/tmp/ckad-${exercise_id}" "/tmp/ckad-${exercise_id}.txt"
+    rm -f "/tmp/ckad-${exercise_id}" "/tmp/ckad-${exercise_id}.txt" \
+      "/tmp/ckad-${exercise_id}-labels.txt" "/tmp/ckad-${exercise_id}-ui.txt" \
+      "/tmp/ckad-${exercise_id}.yaml"
     echo "Réinitialisation de $exercise_id demandée."
     ;;
   *)

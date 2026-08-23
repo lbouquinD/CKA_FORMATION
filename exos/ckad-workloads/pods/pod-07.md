@@ -1,19 +1,15 @@
-# pod-07 — Image et environnement
+# pod-07 — Métadonnées et ressources
 
-Niveau 3 — 20 minutes
+Niveau 1
 
 Contexte : namespace `ckad-pod-07`.
 
-Préparez le scénario avec `./lab.sh start pod-07`.
+Créez un Pod `api-limited` utilisant `nginx:1.27.3`, avec un conteneur `api`.
 
-Le Pod `configured-app` ne démarre pas et sa configuration applicative est
-incomplète. Réparez-le sans changer son nom.
-Recréez le Pod avec le même nom si les champs à corriger sont immuables.
+- labels : `app=api` et `tier=backend`;
+- annotation : `training.ckad/owner=team-blue`;
+- requêtes : `cpu=50m`, `memory=32Mi`;
+- limites : `cpu=100m`, `memory=64Mi`;
+- politique de redémarrage `Always`.
 
-État final :
-
-- conteneur `app`, image `busybox:1.36`;
-- commande `sh -c` exécutant une boucle de sommeil durable;
-- variable `APP_MODE` ayant la valeur `production`;
-- variable `POD_NAME` alimentée depuis `metadata.name` avec la Downward API;
-- Pod `Ready`.
+Le Pod doit être `Ready`.

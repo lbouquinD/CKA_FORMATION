@@ -35,8 +35,7 @@ go install mvdan.cc/garble@latest
 export PATH="$(go env GOPATH)/bin:$PATH"
 ```
 
-Sur Debian/Ubuntu, `apt install golang-go` fournit souvent une version trop
-ancienne pour ce module (`go 1.26`). Préférez le tarball officiel.
+Sur Debian/Ubuntu, `apt install golang-go` en 1.22 suffit pour ce module.
 
 ## Compiler les binaires
 
