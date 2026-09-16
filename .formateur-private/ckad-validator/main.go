@@ -803,6 +803,235 @@ func anyStrings(values []any) []string {
 	return result
 }
 
+func getVolume(obj M, name string) M {
+	for _, raw := range array(obj, "spec", "volumes") {
+		v, _ := raw.(M)
+		if text(v, "name") == name {
+			return v
+		}
+	}
+	return nil
+}
+
+func templatePod(obj M) M {
+	return M{"spec": at(obj, "spec", "template", "spec")}
+}
+
+func hasPVCVolume(obj M, name, claim string) bool {
+	v := getVolume(obj, name)
+	return v != nil && text(v, "persistentVolumeClaim", "claimName") == claim
+}
+
+func hasConfigMapVolume(obj M, name, cm string) bool {
+	v := getVolume(obj, name)
+	return v != nil && text(v, "configMap", "name") == cm
+}
+
+func pvcBound(o M) bool {
+	return text(o, "status", "phase") == "Bound"
+}
+
+func pvcSpecOK(name, storage, sc string) bool {
+	o, ok := object("pvc", name)
+	return ok && text(o, "spec", "storageClassName") == sc &&
+		text(o, "spec", "resources", "requests", "storage") == storage &&
+		text(o, "spec", "accessModes", "0") == "ReadWriteOnce"
+}
+
+func execCat(pod, container, path string) (string, bool) {
+	out, err := kubectl("exec", "-n", namespace, pod, "-c", container, "--", "cat", path)
+	if err != nil {
+		return "", false
+	}
+	return strings.TrimSpace(string(out)), true
+}
+
+func firstLabeledPod(labelSelector string) (M, bool) {
+	items, ok := list("pods", labelSelector)
+	if !ok || len(items) == 0 {
+		return nil, false
+	}
+	for _, item := range items {
+		if podReady(item) {
+			return item, true
+		}
+	}
+	return items[0], true
+}
+
+func volumeChecks() []check {
+	switch exerciseID {
+	case "vol-01":
+		return []check{
+			{"ressource", func() bool {
+				o, ok := object("pod", "scratch-box")
+				return ok && text(o, "metadata", "namespace") == namespace && label(o, []string{"metadata", "labels"}, "app", "scratch")
+			}},
+			{"volume", func() bool {
+				o, ok := object("pod", "scratch-box")
+				c := container(o, "box")
+				return ok && text(c, "image") == "busybox:1.36" && hasVolume(o, "scratch", "emptyDir") && hasMount(c, "scratch", "/scratch")
+			}},
+			{"contenu", func() bool {
+				s, ok := execCat("scratch-box", "box", "/scratch/ready.txt")
+				return ok && s == "CKAD-VOL"
+			}},
+			{"disponibilité", func() bool {
+				o, ok := object("pod", "scratch-box")
+				return ok && podReady(o)
+			}},
+		}
+	case "vol-02":
+		return []check{
+			{"ressource", func() bool {
+				o, ok := object("pod", "ram-box")
+				return ok && label(o, []string{"metadata", "labels"}, "app", "ram")
+			}},
+			{"volume mémoire", func() bool {
+				o, ok := object("pod", "ram-box")
+				c := container(o, "box")
+				v := getVolume(o, "cache")
+				return ok && text(c, "image") == "busybox:1.36" && hasMount(c, "cache", "/cache") &&
+					text(v, "emptyDir", "medium") == "Memory" && text(v, "emptyDir", "sizeLimit") == "32Mi"
+			}},
+			{"contenu", func() bool {
+				s, ok := execCat("ram-box", "box", "/cache/ready.txt")
+				return ok && s == "CKAD-RAM"
+			}},
+			{"disponibilité", func() bool {
+				o, ok := object("pod", "ram-box")
+				return ok && podReady(o)
+			}},
+		}
+	case "vol-03":
+		return []check{
+			{"deployment", func() bool {
+				o, ok := object("deployment", "share-html")
+				return ok && workloadReady(o, 1) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "share-html") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "app", "share-html")
+			}},
+			{"volume partagé", func() bool {
+				o, ok := object("deployment", "share-html")
+				spec := templatePod(o)
+				loader := templateContainer(o, "loader")
+				web := templateContainer(o, "web")
+				return ok && hasVolume(spec, "html", "emptyDir") &&
+					text(loader, "image") == "busybox:1.36" && hasMount(loader, "html", "/work") &&
+					text(web, "image") == "nginx:1.27.3" && hasMount(web, "html", "/usr/share/nginx/html")
+			}},
+			{"contenu", func() bool {
+				p, ok := firstLabeledPod("app=share-html")
+				if !ok {
+					return false
+				}
+				s, cok := execCat(text(p, "metadata", "name"), "web", "/usr/share/nginx/html/index.html")
+				return cok && strings.Contains(s, "CKAD shared volume")
+			}},
+		}
+	case "vol-04":
+		return []check{
+			{"pvc", func() bool {
+				o, ok := object("pvc", "app-data")
+				return ok && pvcSpecOK("app-data", "50Mi", "local-path") && pvcBound(o)
+			}},
+			{"pod", func() bool {
+				o, ok := object("pod", "app-storage")
+				c := container(o, "app")
+				return ok && label(o, []string{"metadata", "labels"}, "app", "storage") &&
+					text(c, "image") == "busybox:1.36" && hasPVCVolume(o, "data", "app-data") &&
+					hasMount(c, "data", "/data")
+			}},
+			{"disponibilité", func() bool {
+				o, ok := object("pod", "app-storage")
+				return ok && podReady(o)
+			}},
+		}
+	case "vol-05":
+		return []check{
+			{"pvc", func() bool {
+				o, ok := object("pvc", "keep-data")
+				return ok && pvcSpecOK("keep-data", "100Mi", "local-path") && pvcBound(o)
+			}},
+			{"pod", func() bool {
+				o, ok := object("pod", "keep-pod")
+				c := container(o, "app")
+				return ok && text(c, "image") == "busybox:1.36" && hasPVCVolume(o, "data", "keep-data") &&
+					hasMount(c, "data", "/data") && podReady(o)
+			}},
+			{"persistance", func() bool {
+				s, ok := execCat("keep-pod", "app", "/data/marker")
+				return ok && s == "persisted"
+			}},
+		}
+	case "vol-06":
+		return []check{
+			{"configmap conservé", func() bool {
+				o, ok := object("configmap", "app-config")
+				return ok && strings.Contains(text(o, "data", "app.conf"), "listen=8080")
+			}},
+			{"volume", func() bool {
+				o, ok := object("pod", "config-reader")
+				c := container(o, "reader")
+				return ok && label(o, []string{"metadata", "labels"}, "app", "config") &&
+					text(c, "image") == "busybox:1.36" && hasConfigMapVolume(o, "config", "app-config") &&
+					hasMount(c, "config", "/etc/app")
+			}},
+			{"contenu", func() bool {
+				s, ok := execCat("config-reader", "reader", "/etc/app/app.conf")
+				return ok && strings.Contains(s, "listen=8080")
+			}},
+			{"disponibilité", func() bool {
+				o, ok := object("pod", "config-reader")
+				return ok && podReady(o)
+			}},
+		}
+	case "vol-07":
+		return []check{
+			{"pvc", func() bool {
+				o, ok := object("pvc", "broken-data")
+				return ok && pvcSpecOK("broken-data", "100Mi", "local-path") && pvcBound(o)
+			}},
+			{"pod", func() bool {
+				o, ok := object("pod", "data-writer")
+				c := container(o, "writer")
+				return ok && text(c, "image") == "busybox:1.36" && hasPVCVolume(o, "data", "broken-data") &&
+					hasMount(c, "data", "/data") && podReady(o)
+			}},
+			{"contenu", func() bool {
+				s, ok := execCat("data-writer", "writer", "/data/ok")
+				return ok && s == "fixed"
+			}},
+		}
+	case "vol-08":
+		return []check{
+			{"pvc", func() bool {
+				o, ok := object("pvc", "web-content")
+				return ok && pvcSpecOK("web-content", "50Mi", "local-path") && pvcBound(o)
+			}},
+			{"deployment", func() bool {
+				o, ok := object("deployment", "static-web")
+				c := templateContainer(o, "nginx")
+				spec := templatePod(o)
+				return ok && workloadReady(o, 1) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "static-web") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "app", "static-web") &&
+					text(c, "image") == "nginx:1.27.3" && hasPVCVolume(spec, "content", "web-content") &&
+					hasMount(c, "content", "/usr/share/nginx/html")
+			}},
+			{"contenu", func() bool {
+				p, ok := firstLabeledPod("app=static-web")
+				if !ok {
+					return false
+				}
+				s, cok := execCat(text(p, "metadata", "name"), "nginx", "/usr/share/nginx/html/index.html")
+				return cok && s == "CKAD pvc web"
+			}},
+		}
+	}
+	return nil
+}
+
 func checksFor() []check {
 	switch {
 	case strings.HasPrefix(exerciseID, "pod-"):
@@ -815,6 +1044,8 @@ func checksFor() []check {
 		return daemonSetChecks()
 	case strings.HasPrefix(exerciseID, "sts-"):
 		return statefulSetChecks()
+	case strings.HasPrefix(exerciseID, "vol-"):
+		return volumeChecks()
 	}
 	return nil
 }
@@ -823,7 +1054,7 @@ func validID(id string) bool {
 	for _, prefixAndMax := range []struct {
 		prefix string
 		max    int
-	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}} {
+	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}} {
 		if strings.HasPrefix(id, prefixAndMax.prefix) {
 			n, err := strconv.Atoi(strings.TrimPrefix(id, prefixAndMax.prefix))
 			return err == nil && n >= 1 && n <= prefixAndMax.max && len(strings.TrimPrefix(id, prefixAndMax.prefix)) == 2
