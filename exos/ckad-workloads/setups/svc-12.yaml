@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: catalog
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: catalog
+        version: blue
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.26.3
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: catalog
+      version: green
+  template:
+    metadata:
+      labels:
+        app: catalog
+        version: green
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27.3
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog
+    version: blue
+  ports:
+    - port: 80
+      targetPort: 80

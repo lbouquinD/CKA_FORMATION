@@ -1,6 +1,6 @@
 # Parcours intensif CKAD — Workloads
 
-Ce parcours contient 41 exercices pratiques, rédigés comme des tâches d'examen.
+Ce parcours contient 53 exercices pratiques, rédigés comme des tâches d'examen.
 Chaque exercice utilise son propre namespace afin de pouvoir être joué indépendamment.
 
 ## Mode d'emploi
@@ -29,6 +29,7 @@ l'exercice est réussi.
 | DaemonSets | `ds-01` à `ds-04` | 1 h 15 |
 | StatefulSets | `sts-01` à `sts-05` | 2 h |
 | Volumes / PVC | `vol-01` à `vol-08` | 2 h 20 |
+| Services | `svc-01` à `svc-12` | 2 h 50 |
 
 ## Règles proches de l'examen
 

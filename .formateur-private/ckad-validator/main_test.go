@@ -3,13 +3,13 @@ package main
 import "testing"
 
 func TestValidID(t *testing.T) {
-	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08"}
+	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08", "svc-01", "svc-12"}
 	for _, id := range valid {
 		if !validID(id) {
 			t.Fatalf("%s devrait être valide", id)
 		}
 	}
-	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "vol-09", "../pod-01"}
+	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "vol-09", "svc-13", "../pod-01"}
 	for _, id := range invalid {
 		if validID(id) {
 			t.Fatalf("%s ne devrait pas être valide", id)
@@ -68,6 +68,8 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 		"ds-01", "ds-02", "ds-03", "ds-04",
 		"sts-01", "sts-02", "sts-03", "sts-04", "sts-05",
 		"vol-01", "vol-02", "vol-03", "vol-04", "vol-05", "vol-06", "vol-07", "vol-08",
+		"svc-01", "svc-02", "svc-03", "svc-04", "svc-05", "svc-06", "svc-07", "svc-08",
+		"svc-09", "svc-10", "svc-11", "svc-12",
 	}
 	for _, id := range ids {
 		exerciseID = id

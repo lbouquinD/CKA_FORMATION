@@ -10,7 +10,7 @@ usage() {
 
 is_valid_id() {
   case "$1" in
-    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]|vol-0[1-8]) return 0 ;;
+    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]|vol-0[1-8]|svc-0[1-9]|svc-1[0-2]) return 0 ;;
     *) return 1 ;;
   esac
 }

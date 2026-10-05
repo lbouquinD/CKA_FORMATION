@@ -1032,6 +1032,346 @@ func volumeChecks() []check {
 	return nil
 }
 
+func serviceTypeOf(o M) string {
+	if t := text(o, "spec", "type"); t != "" {
+		return t
+	}
+	return "ClusterIP"
+}
+
+func selectorEmpty(o M) bool {
+	sel := at(o, "spec", "selector")
+	if sel == nil {
+		return true
+	}
+	labels, ok := sel.(M)
+	return ok && len(labels) == 0
+}
+
+func servicePortByName(o M, name string) M {
+	for _, raw := range array(o, "spec", "ports") {
+		port, _ := raw.(M)
+		if text(port, "name") == name {
+			return port
+		}
+	}
+	return nil
+}
+
+func readyEndpointCount(name string) int {
+	o, ok := object("endpoints", name)
+	if !ok {
+		return 0
+	}
+	count := 0
+	for _, raw := range array(o, "subsets") {
+		subset, _ := raw.(M)
+		count += len(array(subset, "addresses"))
+	}
+	return count
+}
+
+func endpointHasPort(name string, want int) bool {
+	o, ok := object("endpoints", name)
+	if !ok {
+		return false
+	}
+	for _, raw := range array(o, "subsets") {
+		subset, _ := raw.(M)
+		for _, rawPort := range array(subset, "ports") {
+			port, _ := rawPort.(M)
+			if integer(port, "port") == want {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func endpointHasIP(name, ip string) bool {
+	o, ok := object("endpoints", name)
+	if !ok {
+		return false
+	}
+	for _, raw := range array(o, "subsets") {
+		subset, _ := raw.(M)
+		for _, rawAddr := range array(subset, "addresses") {
+			addr, _ := rawAddr.(M)
+			if text(addr, "ip") == ip {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func endpointPodNames(name string) []string {
+	o, ok := object("endpoints", name)
+	if !ok {
+		return nil
+	}
+	var result []string
+	for _, raw := range array(o, "subsets") {
+		subset, _ := raw.(M)
+		for _, rawAddr := range array(subset, "addresses") {
+			addr, _ := rawAddr.(M)
+			if podName := text(addr, "targetRef", "name"); podName != "" {
+				result = append(result, podName)
+			}
+		}
+	}
+	sort.Strings(result)
+	return result
+}
+
+func labeledPodNames(labelSelector string) []string {
+	items, ok := list("pods", labelSelector)
+	if !ok {
+		return nil
+	}
+	return names(items)
+}
+
+func sameNames(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for i := range left {
+		if left[i] != right[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func selectorEquals(o M, expected map[string]string) bool {
+	sel, _ := at(o, "spec", "selector").(M)
+	if len(sel) != len(expected) {
+		return false
+	}
+	for key, value := range expected {
+		if text(sel, key) != value {
+			return false
+		}
+	}
+	return true
+}
+
+func serviceChecks() []check {
+	switch exerciseID {
+	case "svc-01":
+		return []check{
+			{"deployment", func() bool {
+				o, ok := object("deployment", "web")
+				c := templateContainer(o, "nginx")
+				return ok && workloadReady(o, 2) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "web") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "app", "web") &&
+					text(c, "image") == "nginx:1.27.3" && integer(c, "ports", "0", "containerPort") == 80
+			}},
+			{"service", func() bool {
+				o, ok := object("service", "web")
+				return ok && serviceTypeOf(o) == "ClusterIP" &&
+					text(o, "spec", "selector", "app") == "web" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("web") == 2 && endpointHasPort("web", 80)
+			}},
+		}
+	case "svc-02":
+		return []check{
+			{"service", func() bool {
+				o, ok := object("service", "api-node")
+				return ok && serviceTypeOf(o) == "NodePort" &&
+					text(o, "spec", "selector", "app") == "api" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80 &&
+					integer(o, "spec", "ports", "0", "nodePort") == 30080
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("api-node") == 2 && endpointHasPort("api-node", 80)
+			}},
+			{"deployment conservé", func() bool {
+				o, ok := object("deployment", "api")
+				return ok && workloadReady(o, 2) && text(templateContainer(o, "nginx"), "image") == "nginx:1.27.3"
+			}},
+		}
+	case "svc-03":
+		return []check{
+			{"sélecteur", func() bool {
+				o, ok := object("service", "shop")
+				return ok && text(o, "spec", "selector", "app") == "shop" &&
+					serviceTypeOf(o) == "ClusterIP" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("shop") == 2 && endpointHasPort("shop", 80)
+			}},
+			{"deployment conservé", func() bool {
+				o, ok := object("deployment", "shop")
+				return ok && workloadReady(o, 2) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "shop")
+			}},
+		}
+	case "svc-04":
+		return []check{
+			{"ports nommés", func() bool {
+				o, ok := object("service", "gateway")
+				httpPort := servicePortByName(o, "http")
+				adminPort := servicePortByName(o, "admin")
+				return ok && serviceTypeOf(o) == "ClusterIP" &&
+					text(o, "spec", "selector", "app") == "gateway" &&
+					integer(httpPort, "port") == 80 && integer(httpPort, "targetPort") == 80 &&
+					integer(adminPort, "port") == 8080 && integer(adminPort, "targetPort") == 80
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("gateway") == 1 && endpointHasPort("gateway", 80)
+			}},
+		}
+	case "svc-05":
+		return []check{
+			{"targetPort nommé", func() bool {
+				o, ok := object("service", "named-web")
+				return ok && serviceTypeOf(o) == "ClusterIP" &&
+					text(o, "spec", "selector", "app") == "named-web" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					text(o, "spec", "ports", "0", "targetPort") == "web"
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("named-web") == 1 && endpointHasPort("named-web", 80)
+			}},
+		}
+	case "svc-06":
+		return []check{
+			{"service", func() bool {
+				o, ok := object("service", "legacy-db")
+				return ok && serviceTypeOf(o) == "ClusterIP" && selectorEmpty(o) &&
+					integer(o, "spec", "ports", "0", "port") == 5432 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 5432
+			}},
+			{"endpoints", func() bool {
+				return endpointHasIP("legacy-db", "192.0.2.10") && endpointHasPort("legacy-db", 5432)
+			}},
+		}
+	case "svc-07":
+		return []check{
+			{"deployment", func() bool {
+				o, ok := object("deployment", "members")
+				c := templateContainer(o, "app")
+				return ok && workloadReady(o, 2) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "members") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "app", "members") &&
+					text(c, "image") == "busybox:1.36" &&
+					strings.Contains(strings.Join(anyStrings(array(c, "command")), " "), "sleep 3600")
+			}},
+			{"headless", func() bool {
+				o, ok := object("service", "members")
+				return ok && text(o, "spec", "clusterIP") == "None" &&
+					text(o, "spec", "selector", "app") == "members" &&
+					integer(o, "spec", "ports", "0", "port") == 80
+			}},
+			{"endpoints", func() bool { return readyEndpointCount("members") == 2 }},
+		}
+	case "svc-08":
+		return []check{
+			{"targetPort", func() bool {
+				o, ok := object("service", "payments")
+				return ok && serviceTypeOf(o) == "ClusterIP" &&
+					text(o, "spec", "selector", "app") == "payments" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("payments") == 2 && endpointHasPort("payments", 80) && !endpointHasPort("payments", 9090)
+			}},
+		}
+	case "svc-09":
+		return []check{
+			{"loadbalancer", func() bool {
+				o, ok := object("service", "public-lb")
+				return ok && serviceTypeOf(o) == "LoadBalancer" &&
+					text(o, "spec", "selector", "app") == "public" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("public-lb") == 2 && endpointHasPort("public-lb", 80)
+			}},
+			{"deployment conservé", func() bool {
+				o, ok := object("deployment", "public")
+				return ok && workloadReady(o, 2)
+			}},
+		}
+	case "svc-10":
+		return []check{
+			{"loadbalancer", func() bool {
+				o, ok := object("service", "edge")
+				return ok && serviceTypeOf(o) == "LoadBalancer" &&
+					text(o, "spec", "selector", "app") == "edge" &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80
+			}},
+			{"endpoints", func() bool {
+				return readyEndpointCount("edge") == 2 && endpointHasPort("edge", 80)
+			}},
+		}
+	case "svc-11":
+		return []check{
+			{"stable", func() bool {
+				o, ok := object("deployment", "catalog-stable")
+				return ok && workloadReady(o, 3) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "catalog") &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "track", "stable") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "app", "catalog") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "track", "stable") &&
+					text(templateContainer(o, "nginx"), "image") == "nginx:1.26.3"
+			}},
+			{"canary", func() bool {
+				o, ok := object("deployment", "catalog-canary")
+				return ok && workloadReady(o, 1) &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "app", "catalog") &&
+					label(o, []string{"spec", "selector", "matchLabels"}, "track", "canary") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "app", "catalog") &&
+					label(o, []string{"spec", "template", "metadata", "labels"}, "track", "canary") &&
+					text(templateContainer(o, "nginx"), "image") == "nginx:1.27.3"
+			}},
+			{"service", func() bool {
+				o, ok := object("service", "catalog")
+				return ok && serviceTypeOf(o) == "ClusterIP" &&
+					selectorEquals(o, map[string]string{"app": "catalog"}) &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80 &&
+					readyEndpointCount("catalog") == 4
+			}},
+		}
+	case "svc-12":
+		return []check{
+			{"bascule", func() bool {
+				o, ok := object("service", "catalog")
+				return ok && serviceTypeOf(o) == "ClusterIP" &&
+					selectorEquals(o, map[string]string{"app": "catalog", "version": "green"}) &&
+					integer(o, "spec", "ports", "0", "port") == 80 &&
+					integer(o, "spec", "ports", "0", "targetPort") == 80
+			}},
+			{"trafic vert", func() bool {
+				green := labeledPodNames("app=catalog,version=green")
+				return len(green) == 2 && sameNames(endpointPodNames("catalog"), green)
+			}},
+			{"les deux versions", func() bool {
+				blue, bok := object("deployment", "catalog-blue")
+				green, gok := object("deployment", "catalog-green")
+				return bok && gok && workloadReady(blue, 2) && workloadReady(green, 2) &&
+					text(templateContainer(blue, "nginx"), "image") == "nginx:1.26.3" &&
+					text(templateContainer(green, "nginx"), "image") == "nginx:1.27.3"
+			}},
+		}
+	}
+	return nil
+}
+
 func checksFor() []check {
 	switch {
 	case strings.HasPrefix(exerciseID, "pod-"):
@@ -1046,6 +1386,8 @@ func checksFor() []check {
 		return statefulSetChecks()
 	case strings.HasPrefix(exerciseID, "vol-"):
 		return volumeChecks()
+	case strings.HasPrefix(exerciseID, "svc-"):
+		return serviceChecks()
 	}
 	return nil
 }
@@ -1054,7 +1396,7 @@ func validID(id string) bool {
 	for _, prefixAndMax := range []struct {
 		prefix string
 		max    int
-	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}} {
+	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}} {
 		if strings.HasPrefix(id, prefixAndMax.prefix) {
 			n, err := strconv.Atoi(strings.TrimPrefix(id, prefixAndMax.prefix))
 			return err == nil && n >= 1 && n <= prefixAndMax.max && len(strings.TrimPrefix(id, prefixAndMax.prefix)) == 2
