@@ -1,15 +1,18 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestValidID(t *testing.T) {
-	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08", "svc-01", "svc-12"}
+	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08", "svc-01", "svc-12", "np-01", "np-06", "ing-01", "ing-06"}
 	for _, id := range valid {
 		if !validID(id) {
 			t.Fatalf("%s devrait être valide", id)
 		}
 	}
-	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "vol-09", "svc-13", "../pod-01"}
+	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "vol-09", "svc-13", "np-07", "ing-07", "../pod-01"}
 	for _, id := range invalid {
 		if validID(id) {
 			t.Fatalf("%s ne devrait pas être valide", id)
@@ -70,6 +73,8 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 		"vol-01", "vol-02", "vol-03", "vol-04", "vol-05", "vol-06", "vol-07", "vol-08",
 		"svc-01", "svc-02", "svc-03", "svc-04", "svc-05", "svc-06", "svc-07", "svc-08",
 		"svc-09", "svc-10", "svc-11", "svc-12",
+		"np-01", "np-02", "np-03", "np-04", "np-05", "np-06",
+		"ing-01", "ing-02", "ing-03", "ing-04", "ing-05", "ing-06",
 	}
 	for _, id := range ids {
 		exerciseID = id
@@ -82,6 +87,36 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 			if item.category == "" || item.run == nil {
 				t.Errorf("%s possède un contrôle incomplet", id)
 			}
+			if (strings.HasPrefix(id, "np-") || strings.HasPrefix(id, "ing-")) && checkHints[id+"|"+item.category] == "" {
+				t.Errorf("%s / %s n'a pas de rappel", id, item.category)
+			}
 		}
+	}
+}
+
+func TestSelectsAllPods(t *testing.T) {
+	if !selectsAllPods(M{"spec": M{"podSelector": M{}}}) {
+		t.Fatal("un podSelector vide doit tout sélectionner")
+	}
+	if !selectsAllPods(M{"spec": M{"podSelector": M{"matchLabels": M{}}}}) {
+		t.Fatal("un matchLabels vide doit tout sélectionner")
+	}
+	if selectsAllPods(M{"spec": M{"podSelector": M{"matchLabels": M{"app": "web"}}}}) {
+		t.Fatal("un label ne doit pas sélectionner tout le namespace")
+	}
+}
+
+func TestIngressPathIsExact(t *testing.T) {
+	ingress := M{"spec": M{"rules": []any{
+		M{"host": "shop.ckad.local", "http": M{"paths": []any{
+			M{"path": "/", "pathType": "Prefix", "backend": M{"service": M{"name": "shop", "port": M{"number": float64(80)}}}},
+			M{"path": "/api", "pathType": "Prefix", "backend": M{"service": M{"name": "api", "port": M{"number": float64(80)}}}},
+		}}},
+	}}}
+	if !backendOK(findHTTPPath(ingress, "shop.ckad.local", "/api"), "api", 80) {
+		t.Fatal("le chemin /api doit cibler api")
+	}
+	if backendOK(findHTTPPath(ingress, "shop.ckad.local", "/"), "api", 80) {
+		t.Fatal("le chemin / ne doit pas être confondu avec /api")
 	}
 }

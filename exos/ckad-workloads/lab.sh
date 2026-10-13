@@ -10,7 +10,7 @@ usage() {
 
 is_valid_id() {
   case "$1" in
-    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]|vol-0[1-8]|svc-0[1-9]|svc-1[0-2]) return 0 ;;
+    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]|vol-0[1-8]|svc-0[1-9]|svc-1[0-2]|np-0[1-6]|ing-0[1-6]) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -40,6 +40,10 @@ case "$action" in
     fi
     kubectl create namespace "$namespace" --dry-run=client -o yaml | kubectl apply -f -
     kubectl label namespace "$namespace" ckad.training/exercise="$exercise_id" --overwrite >/dev/null
+    while read -r extra; do
+      [[ -z "$extra" || "$extra" == "$namespace" ]] && continue
+      kubectl delete namespace "$extra" --wait=true >/dev/null
+    done < <(kubectl get namespaces -l "ckad.training/exercise=${exercise_id}" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
     if [[ -f "$setup_yaml" ]]; then
       kubectl apply -n "$namespace" -f "$setup_yaml"
     fi
@@ -52,10 +56,11 @@ case "$action" in
     echo "Exercice $exercise_id prêt dans le namespace $namespace."
     ;;
   status)
-    kubectl get pods,services,deployments,replicasets,daemonsets,statefulsets,pvc,configmaps \
+    kubectl get pods,services,deployments,replicasets,daemonsets,statefulsets,pvc,configmaps,networkpolicies,ingress \
       -n "$namespace"
     ;;
   reset)
+    kubectl delete namespace -l "ckad.training/exercise=${exercise_id}" --ignore-not-found=true --wait=false >/dev/null 2>&1 || true
     kubectl delete namespace "$namespace" --ignore-not-found=true --wait=false
     rm -f "/tmp/ckad-${exercise_id}" "/tmp/ckad-${exercise_id}.txt" \
       "/tmp/ckad-${exercise_id}-labels.txt" "/tmp/ckad-${exercise_id}-ui.txt" \

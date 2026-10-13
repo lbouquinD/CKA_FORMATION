@@ -1,6 +1,6 @@
 # Parcours intensif CKAD — Workloads
 
-Ce parcours contient 53 exercices pratiques, rédigés comme des tâches d'examen.
+Ce parcours contient 65 exercices pratiques, rédigés comme des tâches d'examen.
 Chaque exercice utilise son propre namespace afin de pouvoir être joué indépendamment.
 
 ## Mode d'emploi
@@ -8,6 +8,7 @@ Chaque exercice utilise son propre namespace afin de pouvoir être joué indépe
 ```bash
 cd exos/ckad-workloads
 bash ../init-Killercoda.sh
+./init.sh   # une fois par cluster, avant les exercices ingress
 ./lab.sh start pod-01
 # Lire pods/pod-01.md puis réaliser la tâche
 ./check.sh pod-01
@@ -15,9 +16,9 @@ bash ../init-Killercoda.sh
 ./lab.sh reset pod-01
 ```
 
-Le validateur affiche uniquement les catégories réussies ou à revoir. Il ne donne ni
-la commande attendue, ni la valeur correcte. Un code de sortie `0` signifie que
-l'exercice est réussi.
+Le validateur affiche les catégories réussies ou à revoir. En cas d'échec, il
+ajoute un court rappel de cours, sans donner la valeur attendue ni la commande
+à recopier. Un code de sortie `0` signifie que l'exercice est réussi.
 
 ## Parcours
 
@@ -30,6 +31,8 @@ l'exercice est réussi.
 | StatefulSets | `sts-01` à `sts-05` | 2 h |
 | Volumes / PVC | `vol-01` à `vol-08` | 2 h 20 |
 | Services | `svc-01` à `svc-12` | 2 h 50 |
+| NetworkPolicies | `np-01` à `np-06` | 2 h |
+| Ingress | `ing-01` à `ing-06` | 2 h |
 
 ## Règles proches de l'examen
 
@@ -40,6 +43,14 @@ l'exercice est réussi.
 - Privilégiez les commandes impératives avec `--dry-run=client -o yaml` lorsque cela
   fait gagner du temps, puis éditez le YAML généré.
 - Les fichiers demandés doivent respecter exactement le chemin indiqué.
+- Avant les exercices Ingress, lancez une fois `./init.sh`. Il installe le
+  contrôleur dont la classe s'appelle `ckad`.
+- Ce contrôleur refuse deux Ingress qui publient le même hôte et le même
+  chemin, y compris dans des namespaces différents. Chaque exercice utilise
+  un hôte distinct.
+- Les NetworkPolicies sont corrigées sur l'objet déclaré. Selon le CNI du
+  cluster, les paquets ne sont pas forcément bloqués : le validateur juge la
+  politique, pas un test de connectivité.
 
 ## Niveaux
 

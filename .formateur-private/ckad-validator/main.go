@@ -18,6 +18,13 @@ type check struct {
 	run      func() bool
 }
 
+var checkHints = map[string]string{}
+
+func noted(category, hint string, run func() bool) check {
+	checkHints[exerciseID+"|"+category] = hint
+	return check{category: category, run: run}
+}
+
 var exerciseID string
 var namespace string
 
@@ -1388,6 +1395,10 @@ func checksFor() []check {
 		return volumeChecks()
 	case strings.HasPrefix(exerciseID, "svc-"):
 		return serviceChecks()
+	case strings.HasPrefix(exerciseID, "np-"):
+		return networkPolicyChecks()
+	case strings.HasPrefix(exerciseID, "ing-"):
+		return ingressChecks()
 	}
 	return nil
 }
@@ -1396,7 +1407,7 @@ func validID(id string) bool {
 	for _, prefixAndMax := range []struct {
 		prefix string
 		max    int
-	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}} {
+	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}, {"np-", 6}, {"ing-", 6}} {
 		if strings.HasPrefix(id, prefixAndMax.prefix) {
 			n, err := strconv.Atoi(strings.TrimPrefix(id, prefixAndMax.prefix))
 			return err == nil && n >= 1 && n <= prefixAndMax.max && len(strings.TrimPrefix(id, prefixAndMax.prefix)) == 2
@@ -1432,6 +1443,9 @@ func main() {
 			fmt.Printf("  OK  — %s\n", item.category)
 		} else {
 			fmt.Printf("  KO  — %s à revoir\n", item.category)
+			if hint := checkHints[exerciseID+"|"+item.category]; hint != "" {
+				fmt.Printf("       Rappel : %s\n", hint)
+			}
 			failed++
 		}
 	}
