@@ -10,7 +10,7 @@ usage() {
 
 is_valid_id() {
   case "$1" in
-    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]|vol-0[1-8]|svc-0[1-9]|svc-1[0-2]|np-0[1-6]|ing-0[1-6]) return 0 ;;
+    pod-0[1-9]|pod-1[0-3]|rs-0[1-3]|deploy-0[1-8]|ds-0[1-4]|sts-0[1-5]|vol-0[1-8]|svc-0[1-9]|svc-1[0-2]|np-0[1-6]|ing-0[1-6]|sec-0[1-6]|probe-0[1-5]|res-0[1-5]) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -56,13 +56,14 @@ case "$action" in
     echo "Exercice $exercise_id prêt dans le namespace $namespace."
     ;;
   status)
-    kubectl get pods,services,deployments,replicasets,daemonsets,statefulsets,pvc,configmaps,networkpolicies,ingress \
+    kubectl get pods,services,deployments,replicasets,daemonsets,statefulsets,pvc,configmaps,secrets,limitranges,resourcequotas,networkpolicies,ingress \
       -n "$namespace"
     ;;
   reset)
     kubectl delete namespace -l "ckad.training/exercise=${exercise_id}" --ignore-not-found=true --wait=false >/dev/null 2>&1 || true
     kubectl delete namespace "$namespace" --ignore-not-found=true --wait=false
-    rm -f "/tmp/ckad-${exercise_id}" "/tmp/ckad-${exercise_id}.txt" \
+    rm -rf "/tmp/ckad-${exercise_id}"
+    rm -f "/tmp/ckad-${exercise_id}.txt" \
       "/tmp/ckad-${exercise_id}-labels.txt" "/tmp/ckad-${exercise_id}-ui.txt" \
       "/tmp/ckad-${exercise_id}.yaml"
     echo "Réinitialisation de $exercise_id demandée."

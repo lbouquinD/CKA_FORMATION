@@ -1,6 +1,6 @@
 # Parcours intensif CKAD — Workloads
 
-Ce parcours contient 65 exercices pratiques, rédigés comme des tâches d'examen.
+Ce parcours contient 81 exercices pratiques, rédigés comme des tâches d'examen.
 Chaque exercice utilise son propre namespace afin de pouvoir être joué indépendamment.
 
 ## Mode d'emploi
@@ -33,6 +33,9 @@ ajoute un court rappel de cours, sans donner la valeur attendue ni la commande
 | Services | `svc-01` à `svc-12` | 2 h 50 |
 | NetworkPolicies | `np-01` à `np-06` | 2 h |
 | Ingress | `ing-01` à `ing-06` | 2 h |
+| Secrets | `sec-01` à `sec-06` | 1 h 30 |
+| Sondes | `probe-01` à `probe-05` | 1 h 20 |
+| Requests et limits | `res-01` à `res-05` | 1 h 25 |
 
 ## Règles proches de l'examen
 
@@ -45,6 +48,8 @@ ajoute un court rappel de cours, sans donner la valeur attendue ni la commande
 - Les fichiers demandés doivent respecter exactement le chemin indiqué.
 - Avant les exercices Ingress, lancez une fois `./init.sh`. Il installe le
   contrôleur dont la classe s'appelle `ckad`.
+- `sec-05`, `sec-06` et `ing-05` ont besoin d'`openssl` sur la machine qui
+  exécute `lab.sh`.
 - Ce contrôleur refuse deux Ingress qui publient le même hôte et le même
   chemin, y compris dans des namespaces différents. Chaque exercice utilise
   un hôte distinct.

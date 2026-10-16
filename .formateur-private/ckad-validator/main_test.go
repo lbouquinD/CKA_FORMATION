@@ -6,13 +6,13 @@ import (
 )
 
 func TestValidID(t *testing.T) {
-	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08", "svc-01", "svc-12", "np-01", "np-06", "ing-01", "ing-06"}
+	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08", "svc-01", "svc-12", "np-01", "np-06", "ing-01", "ing-06", "sec-01", "sec-06", "probe-01", "probe-05", "res-01", "res-05"}
 	for _, id := range valid {
 		if !validID(id) {
 			t.Fatalf("%s devrait être valide", id)
 		}
 	}
-	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "vol-09", "svc-13", "np-07", "ing-07", "../pod-01"}
+	invalid := []string{"pod-1", "pod-14", "rs-04", "deploy-00", "sts-06", "vol-09", "svc-13", "np-07", "ing-07", "sec-07", "sec-1", "probe-06", "res-06", "../pod-01"}
 	for _, id := range invalid {
 		if validID(id) {
 			t.Fatalf("%s ne devrait pas être valide", id)
@@ -75,6 +75,9 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 		"svc-09", "svc-10", "svc-11", "svc-12",
 		"np-01", "np-02", "np-03", "np-04", "np-05", "np-06",
 		"ing-01", "ing-02", "ing-03", "ing-04", "ing-05", "ing-06",
+		"sec-01", "sec-02", "sec-03", "sec-04", "sec-05", "sec-06",
+		"probe-01", "probe-02", "probe-03", "probe-04", "probe-05",
+		"res-01", "res-02", "res-03", "res-04", "res-05",
 	}
 	for _, id := range ids {
 		exerciseID = id
@@ -87,7 +90,9 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 			if item.category == "" || item.run == nil {
 				t.Errorf("%s possède un contrôle incomplet", id)
 			}
-			if (strings.HasPrefix(id, "np-") || strings.HasPrefix(id, "ing-")) && checkHints[id+"|"+item.category] == "" {
+			needsHint := strings.HasPrefix(id, "np-") || strings.HasPrefix(id, "ing-") ||
+				strings.HasPrefix(id, "sec-") || strings.HasPrefix(id, "probe-") || strings.HasPrefix(id, "res-")
+			if needsHint && checkHints[id+"|"+item.category] == "" {
 				t.Errorf("%s / %s n'a pas de rappel", id, item.category)
 			}
 		}

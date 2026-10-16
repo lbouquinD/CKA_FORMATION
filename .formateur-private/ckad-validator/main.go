@@ -1399,6 +1399,12 @@ func checksFor() []check {
 		return networkPolicyChecks()
 	case strings.HasPrefix(exerciseID, "ing-"):
 		return ingressChecks()
+	case strings.HasPrefix(exerciseID, "sec-"):
+		return secretChecks()
+	case strings.HasPrefix(exerciseID, "probe-"):
+		return probeChecks()
+	case strings.HasPrefix(exerciseID, "res-"):
+		return resourceChecks()
 	}
 	return nil
 }
@@ -1407,7 +1413,7 @@ func validID(id string) bool {
 	for _, prefixAndMax := range []struct {
 		prefix string
 		max    int
-	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}, {"np-", 6}, {"ing-", 6}} {
+	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}, {"np-", 6}, {"ing-", 6}, {"sec-", 6}, {"probe-", 5}, {"res-", 5}} {
 		if strings.HasPrefix(id, prefixAndMax.prefix) {
 			n, err := strconv.Atoi(strings.TrimPrefix(id, prefixAndMax.prefix))
 			return err == nil && n >= 1 && n <= prefixAndMax.max && len(strings.TrimPrefix(id, prefixAndMax.prefix)) == 2
