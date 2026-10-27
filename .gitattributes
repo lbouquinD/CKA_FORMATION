@@ -1,0 +1,4 @@
+* text=auto eol=lf
+exos/ckad-workloads/bin/ckad-check-linux-* binary
+*.png binary
+*.jpg binary
