@@ -5,9 +5,10 @@ Niveau 3 — 30 minutes
 Contexte : namespace `ckad-sts-03`.
 
 Créez un Service headless `cache-headless` et un StatefulSet `cache` de
-2 réplicas, label `app=cache`.
+2 réplicas, label `app=cache`, rattaché à ce Service (`serviceName`).
 
-- conteneur `cache`, image `busybox:1.36`, exécutant `sleep 3600`;
+- conteneur `cache`, image `busybox:1.36`, avec la commande
+  `["sleep", "3600"]` (sans shell intermédiaire);
 - `volumeClaimTemplates` nommé `data`;
 - chaque PVC demande `100Mi`, mode `ReadWriteOnce`;
 - utilisez la StorageClass `local-path`;

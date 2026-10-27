@@ -1,6 +1,7 @@
 # Corrections formateur
 
 - [Pods](pods.md)
+- [ReplicaSets, Deployments, DaemonSets, StatefulSets](workloads.md)
 - [Volumes / PVC](volumes.md)
 - [Services](services.md)
 - [NetworkPolicies](networkpolicies.md)

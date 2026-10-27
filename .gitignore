@@ -41,3 +41,6 @@ on_prem_aws/hosts
 
 # Outils locaux de compilation (Go portable, kubectl, garble)
 .formateur-private/tools/
+
+# Journaux des tests de bout en bout
+.formateur-private/e2e/e2e-logs/

@@ -96,14 +96,17 @@ kubectl delete po box-check -n ckad-pod-05 --force --grace-period=0
 ## pod-06 — Création rapide (nginx)
 
 ```bash
-kubectl run web-fast -n ckad-pod-06 --image=nginx:1.27.3 --labels=app=web-fast
-# le conteneur s'appelle web-fast : le renommer en nginx si besoin
 kubectl run web-fast -n ckad-pod-06 --image=nginx:1.27.3 --labels=app=web-fast \
-  --dry-run=client -o yaml | sed 's/name: web-fast/name: nginx/' | kubectl apply -f -
+  --dry-run=client -o yaml > /tmp/web-fast.yaml
+# éditer spec.containers[0].name : web-fast -> nginx (pas metadata.name)
+kubectl apply -n ckad-pod-06 -f /tmp/web-fast.yaml
 ```
 
 Le validateur exige le **conteneur** `nginx`. Un `kubectl run` brut nomme le
 conteneur comme le Pod : générer le YAML et corriger `spec.containers[0].name`.
+Un `sed 's/name: web-fast/name: nginx/'` renommerait aussi le Pod. Si le Pod a
+déjà été créé avec le mauvais conteneur, le supprimer d'abord : le nom d'un
+conteneur est immuable.
 
 ---
 

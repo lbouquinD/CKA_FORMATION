@@ -11,6 +11,7 @@ Créez un Service headless `db-headless` et un StatefulSet `db` de 3 réplicas.
 - `podManagementPolicy: OrderedReady`;
 - init container `identity`, image `busybox:1.36`, qui écrit le hostname dans
   `/data/identity`;
-- conteneur `database`, image `busybox:1.36`, exécutant `sleep 3600`;
+- conteneur `database`, image `busybox:1.36`, avec la commande
+  `["sleep", "3600"]` (sans shell intermédiaire);
 - volume `emptyDir` nommé `data`, partagé sur `/data`;
 - les trois Pods ordonnés doivent être disponibles.
