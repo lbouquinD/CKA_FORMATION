@@ -46,6 +46,55 @@ func TestSecretHelpers(t *testing.T) {
 	}
 }
 
+func TestAccessHelpers(t *testing.T) {
+	// {"sub":"system:serviceaccount:ns:ci","aud":["vault"],"iat":100,"exp":7300}
+	token := "eyJhbGciOiJub25lIn0.eyJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6bnM6Y2kiLCJhdWQiOlsidmF1bHQiXSwiaWF0IjoxMDAsImV4cCI6NzMwMH0.sig"
+	claims, ok := jwtClaims(token)
+	if !ok || text(claims, "sub") != "system:serviceaccount:ns:ci" || !claimAudience(claims, "vault") {
+		t.Fatalf("claims JWT mal lues: %v %v", claims, ok)
+	}
+	if integer(claims, "exp")-integer(claims, "iat") != 7200 {
+		t.Fatal("durée de vie du jeton incorrecte")
+	}
+	if _, ok := jwtClaims("pas-un-jwt"); ok {
+		t.Fatal("une chaîne quelconque ne doit pas passer pour un JWT")
+	}
+	role := M{"rules": []any{
+		M{"apiGroups": []any{"apps"}, "resources": []any{"deployments"}, "verbs": []any{"get", "list"}},
+	}}
+	if !roleGrants(role, "apps", "deployments", "get", "list") || roleGrants(role, "", "deployments", "get") {
+		t.Fatal("le groupe d'API doit être pris en compte")
+	}
+	binding := M{
+		"roleRef":  M{"kind": "Role", "name": "r"},
+		"subjects": []any{M{"kind": "ServiceAccount", "name": "sa", "namespace": "default"}},
+	}
+	if bindingTargets(binding, "Role", "r", "sa", "ns") || !bindingTargets(binding, "Role", "r", "sa", "default") {
+		t.Fatal("le namespace du subject doit être comparé")
+	}
+}
+
+func TestCRDHelpers(t *testing.T) {
+	crd := M{"spec": M{"versions": []any{M{
+		"name": "v1", "served": true, "storage": true,
+		"schema": M{"openAPIV3Schema": M{"properties": M{"spec": M{
+			"required":   []any{"size"},
+			"properties": M{"size": M{"type": "integer", "minimum": float64(1), "maximum": float64(10000)}},
+		}}}},
+		"additionalPrinterColumns": []any{M{"name": "Size", "type": "integer", "jsonPath": ".spec.size"}},
+	}}}}
+	size := crdField(crd, "v1", "size")
+	if text(size, "type") != "integer" || text(size, "minimum") != "1" || text(size, "maximum") != "10000" {
+		t.Fatalf("champ de schéma mal lu: %v", size)
+	}
+	if !onlyStorageVersion(crd, "v1") || !requiredFields(crd, "v1", "size") || requiredFields(crd, "v1", "color") {
+		t.Fatal("versions ou champs requis mal lus")
+	}
+	if !printerColumn(crd, "v1", "Size", "integer", ".spec.size") {
+		t.Fatal("colonne additionnelle non reconnue")
+	}
+}
+
 func TestProbeHelpers(t *testing.T) {
 	c := M{
 		"readinessProbe": M{"tcpSocket": M{"port": float64(80)}, "periodSeconds": float64(5)},

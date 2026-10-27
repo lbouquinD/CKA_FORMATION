@@ -1,6 +1,6 @@
 # Parcours intensif CKAD — Workloads
 
-Ce parcours contient 81 exercices pratiques, rédigés comme des tâches d'examen.
+Ce parcours contient 97 exercices pratiques, rédigés comme des tâches d'examen.
 Chaque exercice utilise son propre namespace afin de pouvoir être joué indépendamment.
 
 ## Mode d'emploi
@@ -18,7 +18,8 @@ bash ../init-Killercoda.sh
 
 Le validateur affiche les catégories réussies ou à revoir. En cas d'échec, il
 ajoute un court rappel de cours, sans donner la valeur attendue ni la commande
-à recopier. Un code de sortie `0` signifie que l'exercice est réussi.
+à recopier, puis les commandes utiles pour diagnostiquer. Un code de sortie `0`
+signifie que l'exercice est réussi.
 
 ## Parcours
 
@@ -36,6 +37,9 @@ ajoute un court rappel de cours, sans donner la valeur attendue ni la commande
 | Secrets | `sec-01` à `sec-06` | 1 h 30 |
 | Sondes | `probe-01` à `probe-05` | 1 h 20 |
 | Requests et limits | `res-01` à `res-05` | 1 h 25 |
+| ServiceAccounts | `sa-01` à `sa-05` | 1 h |
+| RBAC | `rbac-01` à `rbac-06` | 1 h 25 |
+| CustomResourceDefinitions | `crd-01` à `crd-05` | 1 h 25 |
 
 ## Règles proches de l'examen
 
@@ -64,7 +68,12 @@ ajoute un court rappel de cours, sans donner la valeur attendue ni la commande
 - Niveau 3 : diagnostic d'une ressource existante ou scénario multi-ressources.
 
 `lab.sh reset <id>` ne supprime que le namespace de l'exercice concerné et les
-fichiers temporaires associés.
+fichiers temporaires associés. Pour les exercices RBAC et CRD, il retire aussi
+les objets de cluster de l'exercice (ClusterRole, ClusterRoleBinding, CRD), dont
+les noms sont listés dans `setups/<id>.cleanup`.
+
+Les exercices `rbac-*` et `crd-*` créent des objets de cluster : ils demandent
+un compte administrateur du cluster, comme sur Killercoda.
 
 Relancer `lab.sh start <id>` remet volontairement cet exercice à zéro après
 avoir vérifié que son namespace appartient bien au parcours.

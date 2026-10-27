@@ -1,0 +1,2 @@
+clusterrolebinding/rbac-03-ns-lister
+clusterrole/rbac-03-ns-lister

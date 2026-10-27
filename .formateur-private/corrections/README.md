@@ -8,5 +8,8 @@
 - [Secrets](secrets.md)
 - [Sondes](probes.md)
 - [Requests et limits](resources.md)
+- [ServiceAccounts](serviceaccounts.md)
+- [RBAC](rbac.md)
+- [CustomResourceDefinitions](crds.md)
 
 Les stagiaires n'ont pas besoin de ce dossier pendant la session.

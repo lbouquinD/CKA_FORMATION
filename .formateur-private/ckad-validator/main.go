@@ -1405,6 +1405,12 @@ func checksFor() []check {
 		return probeChecks()
 	case strings.HasPrefix(exerciseID, "res-"):
 		return resourceChecks()
+	case strings.HasPrefix(exerciseID, "sa-"):
+		return serviceAccountChecks()
+	case strings.HasPrefix(exerciseID, "rbac-"):
+		return rbacChecks()
+	case strings.HasPrefix(exerciseID, "crd-"):
+		return crdChecks()
 	}
 	return nil
 }
@@ -1413,7 +1419,7 @@ func validID(id string) bool {
 	for _, prefixAndMax := range []struct {
 		prefix string
 		max    int
-	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}, {"np-", 6}, {"ing-", 6}, {"sec-", 6}, {"probe-", 5}, {"res-", 5}} {
+	}{{"pod-", 13}, {"rs-", 3}, {"deploy-", 8}, {"ds-", 4}, {"sts-", 5}, {"vol-", 8}, {"svc-", 12}, {"np-", 6}, {"ing-", 6}, {"sec-", 6}, {"probe-", 5}, {"res-", 5}, {"sa-", 5}, {"rbac-", 6}, {"crd-", 5}} {
 		if strings.HasPrefix(id, prefixAndMax.prefix) {
 			n, err := strconv.Atoi(strings.TrimPrefix(id, prefixAndMax.prefix))
 			return err == nil && n >= 1 && n <= prefixAndMax.max && len(strings.TrimPrefix(id, prefixAndMax.prefix)) == 2
@@ -1432,6 +1438,7 @@ func main() {
 
 	if _, err := kubectl("get", "namespace", namespace, "--request-timeout=5s"); err != nil {
 		fmt.Println("ÉCHEC — environnement de l'exercice indisponible")
+		fmt.Printf("  Préparez l'exercice avec ./lab.sh start %s, puis vérifiez le contexte : kubectl config current-context.\n", exerciseID)
 		os.Exit(1)
 	}
 
@@ -1451,12 +1458,18 @@ func main() {
 			fmt.Printf("  KO  — %s à revoir\n", item.category)
 			if hint := checkHints[exerciseID+"|"+item.category]; hint != "" {
 				fmt.Printf("       Rappel : %s\n", hint)
+			} else {
+				fmt.Println("       Rappel : relisez l'énoncé pour cette partie : noms, image, labels et champs demandés.")
 			}
 			failed++
 		}
 	}
 	if failed > 0 {
 		fmt.Printf("Résultat : %d catégorie(s) à revoir.\n", failed)
+		fmt.Println("Pour avancer :")
+		fmt.Printf("  - état du namespace : ./lab.sh status %s\n", exerciseID)
+		fmt.Printf("  - détail et événements : kubectl describe <type> <nom> -n %s ; kubectl get events -n %s --sort-by=.lastTimestamp\n", namespace, namespace)
+		fmt.Println("  - comparez kubectl get <type> <nom> -o yaml avec chaque point de l'énoncé, puis relancez ./check.sh.")
 		os.Exit(1)
 	}
 	fmt.Println("Résultat : exercice réussi.")
