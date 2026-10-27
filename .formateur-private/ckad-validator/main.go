@@ -25,6 +25,14 @@ func noted(category, hint string, run func() bool) check {
 	return check{category: category, run: run}
 }
 
+func hintFor(category string) string {
+	key := exerciseID + "|" + category
+	if hint := checkHints[key]; hint != "" {
+		return hint
+	}
+	return legacyHints[key]
+}
+
 var exerciseID string
 var namespace string
 
@@ -1456,7 +1464,7 @@ func main() {
 			fmt.Printf("  OK  — %s\n", item.category)
 		} else {
 			fmt.Printf("  KO  — %s à revoir\n", item.category)
-			if hint := checkHints[exerciseID+"|"+item.category]; hint != "" {
+			if hint := hintFor(item.category); hint != "" {
 				fmt.Printf("       Rappel : %s\n", hint)
 			} else {
 				fmt.Println("       Rappel : relisez l'énoncé pour cette partie : noms, image, labels et champs demandés.")

@@ -1,9 +1,6 @@
 package main
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestValidID(t *testing.T) {
 	valid := []string{"pod-01", "pod-13", "rs-03", "deploy-08", "ds-04", "sts-05", "vol-01", "vol-08", "svc-01", "svc-12", "np-01", "np-06", "ing-01", "ing-06", "sec-01", "sec-06", "probe-01", "probe-05", "res-01", "res-05", "sa-01", "sa-05", "rbac-01", "rbac-06", "crd-01", "crd-05"}
@@ -82,6 +79,7 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 		"rbac-01", "rbac-02", "rbac-03", "rbac-04", "rbac-05", "rbac-06",
 		"crd-01", "crd-02", "crd-03", "crd-04", "crd-05",
 	}
+	used := map[string]bool{}
 	for _, id := range ids {
 		exerciseID = id
 		namespace = "ckad-" + id
@@ -93,12 +91,15 @@ func TestAllExercisesHaveChecks(t *testing.T) {
 			if item.category == "" || item.run == nil {
 				t.Errorf("%s possède un contrôle incomplet", id)
 			}
-			needsHint := strings.HasPrefix(id, "np-") || strings.HasPrefix(id, "ing-") ||
-				strings.HasPrefix(id, "sec-") || strings.HasPrefix(id, "probe-") || strings.HasPrefix(id, "res-") ||
-				strings.HasPrefix(id, "sa-") || strings.HasPrefix(id, "rbac-") || strings.HasPrefix(id, "crd-")
-			if needsHint && checkHints[id+"|"+item.category] == "" {
+			if hintFor(item.category) == "" {
 				t.Errorf("%s / %s n'a pas de rappel", id, item.category)
 			}
+			used[id+"|"+item.category] = true
+		}
+	}
+	for key := range legacyHints {
+		if !used[key] {
+			t.Errorf("rappel sans contrôle correspondant : %s", key)
 		}
 	}
 }
